@@ -85,4 +85,4 @@ with profile_path.open() as profile_file:
             writer = csv.writer(csv_file)
             writer.writerow([utc, tp, gv, k, d, tk, ks, td, vd, sh, dm, sf, tt, rp, ds, kc])
         else:
-            print("No significant changes in summary_profile.xml since stats.csv was last updated")
+            print("No significant changes in summary_profile.xml since stats_offline.csv was last updated")
