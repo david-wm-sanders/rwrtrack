@@ -23,8 +23,8 @@ def load_stats():
 
 if __name__ == '__main__':
     stats = load_stats()
-    stats = stats[-1]
     len_stats = len(stats)
+    stats = stats[-1]
     print(f"There are {len_stats} rows of stats.")
     tp_hrs = stats.time_played/3600
     kdr = stats.kills / stats.deaths
