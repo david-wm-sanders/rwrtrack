@@ -65,11 +65,24 @@ with profile_path.open() as profile_file:
 
     with csv_path.open("r+", newline="") as csv_file:
         csvd = csv_file.readlines()
-        last_row = csvd[-1]
-        previous_tp = last_row.split(",")[1]
-        if previous_tp == "tp" or tp > int(previous_tp):
+        last_tp, last_k, last_d = None, None, None
+        last_row = [csvd[0], csvd[-1]]
+        reader = csv.DictReader(last_row)
+        for row in reader:
+            try:
+                last_tp = int(row["tp"])
+                last_k = int(row["k"])
+                last_d = int(row["d"])
+            except ValueError:
+                # csv.DictReader outputs the field name row if no other rows exist,
+                # so catch the VaueErrors that occur if int is passed a string, e.g. "tp"
+                pass
+        tp_changed = True if not last_tp or tp > last_tp else False
+        k_changed = True if not last_k or int(k) > last_k else False
+        d_changed = True if not last_d or int(d) > last_d else False
+        if tp_changed and (k_changed or d_changed):
             print("Updating stats.csv")
             writer = csv.writer(csv_file)
             writer.writerow([utc, tp, gv, k, d, tk, ks, td, vd, sh, dm, sf, tt, rp, ds, kc])
-        elif tp == int(previous_tp):
-            print("No change to time played in summary_profile.xml since stats.csv was last updated")
+        else:
+            print("No significant changes in summary_profile.xml since stats.csv was last updated")
