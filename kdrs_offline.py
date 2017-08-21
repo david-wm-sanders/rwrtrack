@@ -1,4 +1,4 @@
-from stats import load_stats
+from stats_offline import load_stats
 
 def kdr_session(stats):
     a, b = stats[-1], stats[-2]
