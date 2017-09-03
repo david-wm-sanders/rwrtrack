@@ -3,7 +3,7 @@ import xml.etree.ElementTree as etree
 from datetime import datetime, timezone
 from pathlib import Path
 
-csv_path = Path("stats_offline.csv")
+csv_path = Path(__file__).parent / Path("stats_offline.csv")
 profile_path = Path.home() / "AppData\Roaming\Running with rifles\summary_profile.xml"
 
 field_headers = ["utc", "tp", "gv", "k", "d", "tk", "ks", "td", "vd", "sh", "dm", "sf", "tt", "rp", "ds", "kc"]

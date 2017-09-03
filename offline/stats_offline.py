@@ -2,7 +2,7 @@ import collections
 import csv
 from pathlib import Path
 
-csv_path = Path("stats_offline.csv")
+csv_path = Path(__file__).parent / Path("stats_offline.csv")
 Stats = collections.namedtuple("Stats",
 "utc time_played game_version kills deaths team_kills killstreak " \
 "targets_destroyed vehicles_destroyed soldiers_healed distance_moved " \
