@@ -5,7 +5,7 @@ from stats import load_stats_from_csv
 
 
 # Approximate equatorial circumference of Earth
-earth_equat_circumference = 40075 # km
+earth_equat_circumference = 40075  # km
 
 
 def sum_stats_and_analyse(stats):
