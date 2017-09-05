@@ -3,7 +3,7 @@ from pathlib import Path
 
 
 # Run pep8 --exclude=venv --show-source .\source.py
-files = ["stats.py", "rwrtrack.py"]
+files = ["rwrtrack.py", "stats.py"]
 for f in files:
     p = Path(__file__).parent / Path(f)
     try:

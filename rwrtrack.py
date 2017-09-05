@@ -70,7 +70,7 @@ def extract_stats(row):
         kills = int(cols[2].get_text())
         deaths = int(cols[3].get_text())
         time_played = convert_tp_to_mins(cols[6].get_text())
-        longest_kill_streak = int(cols[7].get_text())
+        kill_streak = int(cols[7].get_text())
         targets_destroyed = int(cols[8].get_text())
         vehicles_destroyed = int(cols[9].get_text())
         soldiers_healed = int(cols[10].get_text())
@@ -87,7 +87,7 @@ def extract_stats(row):
         return None
     else:
         return Stats(username, xp, time_played,
-                     kills, deaths, longest_kill_streak,
+                     kills, deaths, kill_streak,
                      targets_destroyed, vehicles_destroyed,
                      soldiers_healed, distance_moved,
                      shots_fired, throwables_thrown)
