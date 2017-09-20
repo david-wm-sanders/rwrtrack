@@ -124,7 +124,7 @@ def get_stats_test():
 if __name__ == '__main__':
     logger.debug("Running rwrtrack.py as main program")
     # stats = get_stats_test()
-    stats = get_stats(5)
+    stats = get_stats(10)
     # print(stats)
     write_stats_to_csv(stats)
 
