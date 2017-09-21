@@ -8,27 +8,13 @@ from stats import load_stats_from_csv
 earth_equat_circumference = 40075  # km
 
 
-def sum_stats_and_analyse(stats):
-    xp, tp, k, d, td, vd, sh, dm, sf, tt = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-    for s in stats:
-        xp += s.xp
-        tp += s.time_played
-        k += s.kills
-        d += s.deaths
-        td += s.targets_destroyed
-        vd += s.vehicles_destroyed
-        sh += s.soldiers_healed
-        dm += s.distance_moved
-        sf += s.shots_fired
-        tt += s.throwables_thrown
-    # print(xp, tp, k, d, td, vd, sh, dm, sf, tt)
-
+def print_analysis(num_rows_summed, xp, tp, k, d, td, vd, sh, dm, sf, tt):
     # Convert some stats to more useful forms
     tp_hours = tp / 60
     dm_km = dm / 1000
 
     # Print sums with basic conversions for time_played and distance_moved
-    print(f"Number of rows summed: {len(stats)}")
+    print(f"Number of rows summed: {num_rows_summed}")
     print(f"XP: {xp}")
     print(f"Time played: {tp_hours:.2f} hours")
     print(f"Kills: {k}")
@@ -56,10 +42,32 @@ def sum_stats_and_analyse(stats):
     print("\nDerived statistics:")
     print(f"Average K/D: {k/d:.2f}")
     print(f"Runs around the equator: {dm_km/earth_equat_circumference:.2f}")
+    print("\n")
+
+
+def sum_stats_and_analyse(stats, output_at_rows):
+    xp, tp, k, d, td, vd, sh, dm, sf, tt = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+    for i, s in enumerate(stats, 1):
+        xp += s.xp
+        tp += s.time_played
+        k += s.kills
+        d += s.deaths
+        td += s.targets_destroyed
+        vd += s.vehicles_destroyed
+        sh += s.soldiers_healed
+        dm += s.distance_moved
+        sf += s.shots_fired
+        tt += s.throwables_thrown
+
+        if i in output_at_rows:
+            print_analysis(i, xp, tp, k, d, td, vd, sh, dm, sf, tt)
 
 
 if __name__ == '__main__':
-    d = date(2017, 9, 3)
-    p = Path(__file__).parent / Path(f"csv_historical/{d}.csv")
-    stats = load_stats_from_csv(p)
-    sum_stats_and_analyse(stats)
+    csv_hist_path = Path(__file__).parent / Path("csv_historical")
+    csv_files = sorted(list(csv_hist_path.glob("*.csv")), reverse=True)
+    most_recent_csv_file = csv_files[0]
+    print(f"Loading {most_recent_csv_file.name}...\n\n")
+    stats = load_stats_from_csv(most_recent_csv_file)
+    output_at_rows = [5, 10, 25, 50, 100, 250, 500, 750, 1000]
+    sum_stats_and_analyse(stats, output_at_rows)
