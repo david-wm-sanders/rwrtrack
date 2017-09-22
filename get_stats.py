@@ -86,11 +86,14 @@ def extract_stats(row):
         logger.error(f"Skipping row\n'{row}'\ndue to ValueError", exc_info=1)
         return None
     else:
-        return Stats(username, xp, time_played,
-                     kills, deaths, kill_streak,
-                     targets_destroyed, vehicles_destroyed,
-                     soldiers_healed, distance_moved,
-                     shots_fired, throwables_thrown)
+        return Stats(username=username, xp=xp, time_played=time_played,
+                     kills=kills, deaths=deaths, kill_streak=kill_streak,
+                     targets_destroyed=targets_destroyed,
+                     vehicles_destroyed=vehicles_destroyed,
+                     soldiers_healed=soldiers_healed,
+                     distance_moved=distance_moved,
+                     shots_fired=shots_fired,
+                     throwables_thrown=throwables_thrown)
 
 
 def get_stats(num_pages):
