@@ -6,8 +6,8 @@ from analysis import calculate_metrics, print_analysis
 
 def sum_stats_and_analyse(stats, output_at_rows):
     sums = Stats(xp=0, time_played=0, kills=0, deaths=0, kill_streak=0,
-                  targets_destroyed=0, vehicles_destroyed=0, soldiers_healed=0,
-                  distance_moved=0, shots_fired=0, throwables_thrown=0)
+                 targets_destroyed=0, vehicles_destroyed=0, soldiers_healed=0,
+                 distance_moved=0, shots_fired=0, throwables_thrown=0)
     for i, s in enumerate(stats, 1):
         sums.xp += s.xp
         sums.time_played += s.time_played
