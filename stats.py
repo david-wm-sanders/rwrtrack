@@ -52,3 +52,10 @@ def load_stats_from_csv(csv_path):
                       int(r["shots_fired"]), int(r["throwables_thrown"]))
             stats.append(s)
     return stats
+
+
+def stats_to_dict(stats):
+    d = {}
+    for s in stats:
+        d[s.username] = s
+    return d
