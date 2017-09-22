@@ -3,17 +3,14 @@ import csv
 import logging
 from datetime import date
 from pathlib import Path
+from types import SimpleNamespace
 
 
 logger = logging.getLogger(__name__)
 
 
-Stats = collections.namedtuple("Stats",
-                               "username xp time_played "
-                               "kills deaths kill_streak "
-                               "targets_destroyed vehicles_destroyed "
-                               "soldiers_healed distance_moved "
-                               "shots_fired throwables_thrown")
+class Stats(SimpleNamespace):
+    pass
 
 
 def write_stats_to_csv(stats):
@@ -44,12 +41,16 @@ def load_stats_from_csv(csv_path):
     with csv_path.open("r", encoding="utf-8") as csv_file:
         reader = csv.DictReader(csv_file)
         for r in reader:
-            s = Stats(r["username"], int(r["xp"]), int(r["time_played"]),
-                      int(r["kills"]), int(r["deaths"]), int(r["kill_streak"]),
-                      int(r["targets_destroyed"]),
-                      int(r["vehicles_destroyed"]),
-                      int(r["soldiers_healed"]), int(r["distance_moved"]),
-                      int(r["shots_fired"]), int(r["throwables_thrown"]))
+            s = Stats(username=r["username"],
+                      xp=int(r["xp"]), time_played=int(r["time_played"]),
+                      kills=int(r["kills"]), deaths=int(r["deaths"]),
+                      kill_streak=int(r["kill_streak"]),
+                      targets_destroyed=int(r["targets_destroyed"]),
+                      vehicles_destroyed=int(r["vehicles_destroyed"]),
+                      soldiers_healed=int(r["soldiers_healed"]),
+                      distance_moved=int(r["distance_moved"]),
+                      shots_fired=int(r["shots_fired"]),
+                      throwables_thrown=int(r["throwables_thrown"]))
             stats.append(s)
     return stats
 
