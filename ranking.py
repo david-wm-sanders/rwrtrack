@@ -6,13 +6,12 @@ from analysis import calculate_metrics
 
 
 if __name__ == '__main__':
-    if len(sys.argv) != 4:
-        print("Usage: ranking.py METRIC MINXP UPTO")
+    if len(sys.argv) < 2:
+        print("Usage: ranking.py METRIC [MINXP=0] [UPTO=50]")
         sys.exit(1)
     sorted_by = sys.argv[1]
-    min_xp = int(sys.argv[2])
-    upto = int(sys.argv[3])
-    print(sorted_by, min_xp, upto)
+    min_xp = int(sys.argv[2]) if len(sys.argv) >= 3 else 0
+    upto = int(sys.argv[3]) if len(sys.argv) >= 4 else 50
     csv_hist_path = Path(__file__).parent / Path("csv_historical")
     csv_files = sorted(list(csv_hist_path.glob("*.csv")), reverse=True)
     most_recent_csv_file = csv_files[0]
