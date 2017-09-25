@@ -9,8 +9,70 @@ from types import SimpleNamespace
 logger = logging.getLogger(__name__)
 
 
-class Stats(SimpleNamespace):
-    pass
+class Stats:
+    def __init__(self, username, xp, time_played, kills, deaths, kill_streak,
+                 targets_destroyed, vehicles_destroyed, soldiers_healed,
+                 distance_moved, shots_fired, throwables_thrown):
+        self.username = username
+        self.xp = xp
+        self.time_played = time_played
+        self.kills = kills
+        self.deaths = deaths
+        self.kill_streak = kill_streak
+        self.targets_destroyed = targets_destroyed
+        self.vehicles_destroyed = vehicles_destroyed
+        self.soldiers_healed = soldiers_healed
+        self.distance_moved = distance_moved
+        self.shots_fired = shots_fired
+        self.throwables_thrown = throwables_thrown
+
+    @property
+    def time_played_hours(self):
+        return self.time_played / 60
+
+    @property
+    def distance_moved_km(self):
+        return self.distance_moved / 1000
+
+    @property
+    def kdr(self):
+        return self.kills / self.deaths
+
+    @property
+    def xp_ph(self):
+        return self.xp / self.time_played_hours
+
+    @property
+    def kills_ph(self):
+        return self.kills / self.time_played_hours
+
+    @property
+    def deaths_ph(self):
+        return self.deaths / self.time_played_hours
+
+    @property
+    def targets_destroyed_ph(self):
+        return self.targets_destroyed / self.time_played_hours
+
+    @property
+    def vehicles_destroyed_ph(self):
+        return self.vehicles_destroyed / self.time_played_hours
+
+    @property
+    def soldiers_healed_ph(self):
+        return self.soldiers_healed / self.time_played_hours
+
+    @property
+    def distance_moved_km_ph(self):
+        return self.distance_moved_km / self.time_played_hours
+
+    @property
+    def shots_fired_ph(self):
+        return self.shots_fired / self.time_played_hours
+
+    @property
+    def throwables_thrown_ph(self):
+        return self.throwables_thrown / self.time_played_hours
 
 
 def write_stats_to_csv(stats):

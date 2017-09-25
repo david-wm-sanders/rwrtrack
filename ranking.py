@@ -2,7 +2,6 @@ import sys
 from pathlib import Path
 
 from stats import load_stats_from_csv
-from analysis import calculate_metrics
 
 
 if __name__ == '__main__':
@@ -18,8 +17,6 @@ if __name__ == '__main__':
     print(f"Loading {most_recent_csv_file.name}...")
     stats_list = load_stats_from_csv(most_recent_csv_file)
     stats_list_pruned = [s for s in stats_list if s.xp >= min_xp]
-    for s in stats_list_pruned:
-        calculate_metrics(s)
     stats_list_pruned.sort(key=lambda x: getattr(x, sorted_by), reverse=True)
     for i, s in enumerate(stats_list_pruned, 1):
         if i > upto:
