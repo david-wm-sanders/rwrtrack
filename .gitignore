@@ -1,6 +1,7 @@
 __pycache__/
 venv/
 
+csv_historical/
 *.csv
 *.db
 
