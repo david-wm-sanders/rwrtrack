@@ -30,8 +30,8 @@ def print_analysis(s):
     print(f"│{'Vehicles destroyed':>{c0w}}│{vd:>{c1w},}│{vdph:>{c2w}.2f}│")
     sh, shph = s.soldiers_healed, s.soldiers_healed_ph
     print(f"│{'Soldiers healed':>{c0w}}│{sh:>{c1w},}│{shph:>{c2w}.2f}│")
-    dm, dmph = s.distance_moved_km, s.distance_moved_km_ph
-    print(f"│{'Distance moved in km':>{c0w}}│{dm:>{c1w},.2f}│{dmph:>{c2w}.2f}│")
+    dm, dph = s.distance_moved_km, s.distance_moved_km_ph
+    print(f"│{'Distance moved in km':>{c0w}}│{dm:>{c1w},.2f}│{dph:>{c2w}.2f}│")
     rate = s.distance_moved_km / earth_equat_circumference
     print(f"│{'Runs around equator':>{c0w}}│{rate:>{c1w}.5f}│{'-':>{c2w}}│")
     sf, sfph = s.shots_fired, s.shots_fired_ph
