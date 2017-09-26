@@ -6,8 +6,4 @@ from pathlib import Path
 files = ["stats.py", "get_stats.py", "sums.py", "analysis.py", "ranking.py"]
 for f in files:
     p = Path(__file__).parent / Path(f)
-    try:
-        subprocess.check_output(["pep8", "--exclude=venv",
-                                 "--show-source", str(p)])
-    except subprocess.CalledProcessError as e:
-        print(e.output.decode("utf-8"))
+    subprocess.run(["pep8", "--exclude=venv","--show-source", str(p)])
