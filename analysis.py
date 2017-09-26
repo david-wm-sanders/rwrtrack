@@ -11,34 +11,35 @@ earth_equat_circumference = 40075  # km
 def print_analysis(s):
     # Print a beautiful table with box-drawing characters
     c0w = 20
-    cw = 10
+    c1w = 10
+    c2w = 8
     # Draw the table header
-    print(f"┌{'':─<{c0w}}┬{'':─<{cw}}┬{'':─<{cw}}┐")
-    print(f"│{'Statistic':<{c0w}}│{'Value':>{cw}}│{'per hour':>{cw}}│")
-    print(f"╞{'':═<{c0w}}╪{'':═<{cw}}╪{'':═<{cw}}╡")
+    print(f"┌{'':─<{c0w}}┬{'':─<{c1w}}┬{'':─<{c2w}}┐")
+    print(f"│{'Statistic':>{c0w}}│{'Value':>{c1w}}│{'per hour':>{c2w}}│")
+    print(f"╞{'':═<{c0w}}╪{'':═<{c1w}}╪{'':═<{c2w}}╡")
     # Draw the statistics rows
     tph = s.time_played_hours
-    print(f"│{'Time played in hours':>{c0w}}│{tph:>{cw}.2f}│{'-':>{cw}}│")
-    print(f"│{'XP':>{c0w}}│{s.xp:>{cw}}│{s.xp_ph:>{cw}.2f}│")
-    print(f"│{'Kills':>{c0w}}│{s.kills:>{cw}}│{s.kills_ph:>{cw}.2f}│")
-    print(f"│{'Deaths':>{c0w}}│{s.deaths:>{cw}}│{s.deaths_ph:>{cw}.2f}│")
-    print(f"│{'K/D':>{c0w}}│{s.kdr:>{cw}.2f}│{'-':>{cw}}│")
+    print(f"│{'Time played in hours':>{c0w}}│{tph:>{c1w}.2f}│{'-':>{c2w}}│")
+    print(f"│{'XP':>{c0w}}│{s.xp:>{c1w}}│{s.xp_ph:>{c2w}.2f}│")
+    print(f"│{'Kills':>{c0w}}│{s.kills:>{c1w}}│{s.kills_ph:>{c2w}.2f}│")
+    print(f"│{'Deaths':>{c0w}}│{s.deaths:>{c1w}}│{s.deaths_ph:>{c2w}.2f}│")
+    print(f"│{'K/D':>{c0w}}│{s.kdr:>{c1w}.2f}│{'-':>{c2w}}│")
     td, tdph = s.targets_destroyed, s.targets_destroyed_ph
-    print(f"│{'Targets destroyed':>{c0w}}│{td:>{cw}}│{tdph:>{cw}.2f}│")
+    print(f"│{'Targets destroyed':>{c0w}}│{td:>{c1w}}│{tdph:>{c2w}.2f}│")
     vd, vdph = s.vehicles_destroyed, s.vehicles_destroyed_ph
-    print(f"│{'Vehicles destroyed':>{c0w}}│{vd:>{cw}}│{vdph:>{cw}.2f}│")
+    print(f"│{'Vehicles destroyed':>{c0w}}│{vd:>{c1w}}│{vdph:>{c2w}.2f}│")
     sh, shph = s.soldiers_healed, s.soldiers_healed_ph
-    print(f"│{'Soldiers healed':>{c0w}}│{sh:>{cw}}│{shph:>{cw}.2f}│")
+    print(f"│{'Soldiers healed':>{c0w}}│{sh:>{c1w}}│{shph:>{c2w}.2f}│")
     dm, dmph = s.distance_moved_km, s.distance_moved_km_ph
-    print(f"│{'Distance moved in km':>{c0w}}│{dm:>{cw}.2f}│{dmph:>{cw}.2f}│")
+    print(f"│{'Distance moved in km':>{c0w}}│{dm:>{c1w}.2f}│{dmph:>{c2w}.2f}│")
     rate = s.distance_moved_km / earth_equat_circumference
-    print(f"│{'Runs around equator':>{c0w}}│{rate:>{cw}.5f}│{'-':>{cw}}│")
+    print(f"│{'Runs around equator':>{c0w}}│{rate:>{c1w}.5f}│{'-':>{c2w}}│")
     sf, sfph = s.shots_fired, s.shots_fired_ph
-    print(f"│{'Shots fired':>{c0w}}│{sf:>{cw}}│{sfph:>{cw}.2f}│")
+    print(f"│{'Shots fired':>{c0w}}│{sf:>{c1w}}│{sfph:>{c2w}.2f}│")
     tt, ttph = s.throwables_thrown, s.throwables_thrown_ph
-    print(f"│{'Throwables thrown':>{c0w}}│{tt:>{cw}}│{ttph:>{cw}.2f}│")
+    print(f"│{'Throwables thrown':>{c0w}}│{tt:>{c1w}}│{ttph:>{c2w}.2f}│")
     # Print the table footer
-    print(f"└{'':─<{c0w}}┴{'':─<{cw}}┴{'':─<{cw}}┘")
+    print(f"└{'':─<{c0w}}┴{'':─<{c1w}}┴{'':─<{c2w}}┘")
 
 
 if __name__ == '__main__':
