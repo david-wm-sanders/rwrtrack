@@ -26,6 +26,49 @@ class Stats:
         self.shots_fired = shots_fired
         self.throwables_thrown = throwables_thrown
 
+    def __repr__(self):
+        return f"Stats(username={self.username}, " \
+               f"xp={self.xp}, time_played={self.time_played}, " \
+               f"kills={self.kills}, deaths={self.deaths}, " \
+               f"kill_streak={self.kill_streak}, " \
+               f"targets_destroyed={self.targets_destroyed}, " \
+               f"vehicles_destroyed={self.vehicles_destroyed}, " \
+               f"soldiers_healed={self.soldiers_healed}, " \
+               f"distance_moved={self.distance_moved}, " \
+               f"shots_fired={self.shots_fired}, " \
+               f"throwables_thrown={self.throwables_thrown})"
+
+    def __iadd__(self, other):
+        self.xp += other.xp
+        self.time_played += other.time_played
+        self.kills += other.kills
+        self.deaths += other.deaths
+        self.kill_streak += other.kill_streak
+        self.targets_destroyed += other.targets_destroyed
+        self.vehicles_destroyed += other.vehicles_destroyed
+        self.soldiers_healed += other.soldiers_healed
+        self.distance_moved += other.distance_moved
+        self.shots_fired += other.shots_fired
+        self.throwables_thrown += other.throwables_thrown
+        return self
+
+    def __sub__(self, other):
+        username = self.username
+        xp = self.xp - other.xp
+        time_played = self.time_played - other.time_played
+        kills = self.kills - other.kills
+        deaths = self.deaths - other.deaths
+        kill_streak = self.kill_streak - other.kill_streak
+        targets_destroyed = self.targets_destroyed - other.targets_destroyed
+        vehicles_destroyed = self.vehicles_destroyed - other.vehicles_destroyed
+        soldiers_healed = self.soldiers_healed - other.soldiers_healed
+        distance_moved = self.distance_moved - other.distance_moved
+        shots_fired = self.shots_fired - other.shots_fired
+        throwables_thrown = self.throwables_thrown - other.throwables_thrown
+        return Stats(username, xp, time_played, kills, deaths, kill_streak,
+                     targets_destroyed, vehicles_destroyed, soldiers_healed,
+                     distance_moved, shots_fired, throwables_thrown)
+
     @property
     def time_played_hours(self):
         return self.time_played / 60
