@@ -29,6 +29,8 @@ def print_analysis(s):
     print(f"│{'Vehicles destroyed':>{c0w}}│{vd:>{c1w},}│{vdph:>{c2w}.2f}│")
     sh, shph = s.soldiers_healed, s.soldiers_healed_ph
     print(f"│{'Soldiers healed':>{c0w}}│{sh:>{c1w},}│{shph:>{c2w}.2f}│")
+    tk, tkph = s.team_kills, s.team_kills_ph
+    print(f"│{'Team kills':>{c0w}}│{tk:>{c1w},}│{tkph:>{c2w}.2f}│")
     dm, dph = s.distance_moved_km, s.distance_moved_km_ph
     print(f"│{'Distance moved in km':>{c0w}}│{dm:>{c1w},.2f}│{dph:>{c2w}.2f}│")
     sf, sfph = s.shots_fired, s.shots_fired_ph
@@ -38,6 +40,8 @@ def print_analysis(s):
     # Print a table break
     print(f"├{'':─<{c0w}}┼{'':─<{c1w}}┼{'':─<{c2w}}┤")
     # Print some derived statistics
+    score = s.kills - s.deaths
+    print(f"│{'Score':>{c0w}}│{score:>{c1w},}│{'-':>{c2w}}│")
     print(f"│{'K/D':>{c0w}}│{s.kdr:>{c1w}.2f}│{'-':>{c2w}}│")
     xp_pk = s.xp / s.kills
     print(f"│{'XP per kill':>{c0w}}│{xp_pk:>{c1w},.2f}│{'-':>{c2w}}│")
@@ -45,6 +49,8 @@ def print_analysis(s):
     print(f"│{'XP per shot fired':>{c0w}}│{xp_pb:>{c1w},.2f}│{'-':>{c2w}}│")
     sf_pk = s.shots_fired / s.kills
     print(f"│{'Shots per kill':>{c0w}}│{sf_pk:>{c1w},.2f}│{'-':>{c2w}}│")
+    tk_pk = s.team_kills / s.kills
+    print(f"│{'Team kills per kill':>{c0w}}│{tk_pk:>{c1w},.5f}│{'-':>{c2w}}│")
     rate = s.distance_moved_km / earth_equat_circumference
     print(f"│{'Runs around equator':>{c0w}}│{rate:>{c1w}.5f}│{'-':>{c2w}}│")
     # Print the table footer

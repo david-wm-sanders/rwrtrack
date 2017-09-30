@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 class Stats:
     def __init__(self, username, xp, time_played, kills, deaths, kill_streak,
                  targets_destroyed, vehicles_destroyed, soldiers_healed,
-                 distance_moved, shots_fired, throwables_thrown):
+                 team_kills, distance_moved, shots_fired, throwables_thrown):
         self.username = username
         self.xp = xp
         self.time_played = time_played
@@ -22,6 +22,7 @@ class Stats:
         self.targets_destroyed = targets_destroyed
         self.vehicles_destroyed = vehicles_destroyed
         self.soldiers_healed = soldiers_healed
+        self.team_kills = team_kills
         self.distance_moved = distance_moved
         self.shots_fired = shots_fired
         self.throwables_thrown = throwables_thrown
@@ -34,6 +35,7 @@ class Stats:
                f"targets_destroyed={self.targets_destroyed}, " \
                f"vehicles_destroyed={self.vehicles_destroyed}, " \
                f"soldiers_healed={self.soldiers_healed}, " \
+               f"team_kills={self.team_kills}, " \
                f"distance_moved={self.distance_moved}, " \
                f"shots_fired={self.shots_fired}, " \
                f"throwables_thrown={self.throwables_thrown})"
@@ -47,6 +49,7 @@ class Stats:
         self.targets_destroyed += other.targets_destroyed
         self.vehicles_destroyed += other.vehicles_destroyed
         self.soldiers_healed += other.soldiers_healed
+        self.team_kills += other.team_kills
         self.distance_moved += other.distance_moved
         self.shots_fired += other.shots_fired
         self.throwables_thrown += other.throwables_thrown
@@ -62,12 +65,14 @@ class Stats:
         targets_destroyed = self.targets_destroyed - other.targets_destroyed
         vehicles_destroyed = self.vehicles_destroyed - other.vehicles_destroyed
         soldiers_healed = self.soldiers_healed - other.soldiers_healed
+        team_kills = self.team_kills - other.team_kills
         distance_moved = self.distance_moved - other.distance_moved
         shots_fired = self.shots_fired - other.shots_fired
         throwables_thrown = self.throwables_thrown - other.throwables_thrown
         return Stats(username, xp, time_played, kills, deaths, kill_streak,
                      targets_destroyed, vehicles_destroyed, soldiers_healed,
-                     distance_moved, shots_fired, throwables_thrown)
+                     team_kills, distance_moved, shots_fired,
+                     throwables_thrown)
 
     @property
     def time_played_hours(self):
@@ -106,6 +111,10 @@ class Stats:
         return self.soldiers_healed / self.time_played_hours
 
     @property
+    def team_kills_ph(self):
+        return self.team_kills / self.time_played_hours
+
+    @property
     def distance_moved_km_ph(self):
         return self.distance_moved_km / self.time_played_hours
 
@@ -124,7 +133,7 @@ def write_stats_to_csv(stats):
     field_headers = ["username", "xp", "time_played",
                      "kills", "deaths", "kill_streak",
                      "targets_destroyed", "vehicles_destroyed",
-                     "soldiers_healed", "distance_moved",
+                     "soldiers_healed", "team_kills", "distance_moved",
                      "shots_fired", "throwables_thrown"]
     csv_path = Path(__file__).parent / Path(f"csv_historical/{date_today}.csv")
     # TODO: Consider checking if a csv file for date_today already exists
@@ -137,7 +146,7 @@ def write_stats_to_csv(stats):
             writer.writerow([s.username, s.xp, s.time_played,
                              s.kills, s.deaths, s.kill_streak,
                              s.targets_destroyed, s.vehicles_destroyed,
-                             s.soldiers_healed, s.distance_moved,
+                             s.soldiers_healed, s.team_kills, s.distance_moved,
                              s.shots_fired, s.throwables_thrown])
 
 
@@ -153,6 +162,7 @@ def load_stats_from_csv(csv_path):
                       targets_destroyed=int(r["targets_destroyed"]),
                       vehicles_destroyed=int(r["vehicles_destroyed"]),
                       soldiers_healed=int(r["soldiers_healed"]),
+                      team_kills=int(r["team_kills"]),
                       distance_moved=int(r["distance_moved"]),
                       shots_fired=int(r["shots_fired"]),
                       throwables_thrown=int(r["throwables_thrown"]))

@@ -74,7 +74,7 @@ def extract_stats(row):
         targets_destroyed = int(cols[8].get_text())
         vehicles_destroyed = int(cols[9].get_text())
         soldiers_healed = int(cols[10].get_text())
-        teamkills = int(cols[11].get_text())
+        team_kills = int(cols[11].get_text())
         distance_moved = convert_dm_to_metres(cols[12].get_text())
         shots_fired = int(cols[13].get_text())
         throwables_thrown = int(cols[14].get_text())
@@ -91,6 +91,7 @@ def extract_stats(row):
                      targets_destroyed=targets_destroyed,
                      vehicles_destroyed=vehicles_destroyed,
                      soldiers_healed=soldiers_healed,
+                     team_kills=team_kills,
                      distance_moved=distance_moved,
                      shots_fired=shots_fired,
                      throwables_thrown=throwables_thrown)

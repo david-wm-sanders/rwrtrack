@@ -9,19 +9,19 @@ from analysis import print_analysis
 if __name__ == '__main__':
     if len(sys.argv) < 3:
         print("Usage: diff.py analysis NAME")
-        print("Usage: diff.py rank METRIC [MINXP=0] [UPTO=50]")
+        print("Usage: diff.py ranking METRIC [MINXP=0] [UPTO=50]")
         sys.exit(1)
 
     mode = sys.argv[1]
     if mode == "analysis":
         name = sys.argv[2]
-    elif mode == "rank":
+    elif mode == "ranking":
         metric = sys.argv[2]
         min_xp = int(sys.argv[3]) if len(sys.argv) >= 4 else 0
         upto = int(sys.argv[4]) if len(sys.argv) >= 5 else 50
     else:
         print("Usage: diff.py analysis NAME|\"NAME WITH SPACES\"")
-        print("Usage: diff.py rank METRIC [MINXP=0] [UPTO=50]")
+        print("Usage: diff.py ranking METRIC [MINXP=0] [UPTO=50]")
         sys.exit(1)
 
     csv_hist_path = Path(__file__).parent / Path("csv_historical")
@@ -50,7 +50,7 @@ if __name__ == '__main__':
         except KeyError as e:
             print(f"'{name}' not found in {most_recent_csv_file.name}")
             sys.exit(1)
-    elif mode == "rank":
+    elif mode == "ranking":
         stats_list = []
         for s in stats_change.values():
             if s.time_played > 0:
