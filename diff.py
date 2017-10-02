@@ -8,13 +8,18 @@ from analysis import print_analysis
 
 if __name__ == '__main__':
     if len(sys.argv) < 3:
-        print("Usage: diff.py analysis NAME")
+        print("Usage: diff.py analysis NAME DATESTART DATEEND")
         print("Usage: diff.py ranking METRIC [MINXP=0] [UPTO=50]")
         sys.exit(1)
 
     mode = sys.argv[1]
     if mode == "analysis":
         name = sys.argv[2]
+        date_start = sys.argv[3] if len(sys.argv) >= 4 else None
+        date_end = sys.argv[4] if len(sys.argv) >= 5 else None
+        if date_start and date_end:
+            date_start = datetime.strptime(date_start, "%Y%m%d").date()
+            date_end = datetime.strptime(date_end, "%Y%m%d").date()
     elif mode == "ranking":
         metric = sys.argv[2]
         min_xp = int(sys.argv[3]) if len(sys.argv) >= 4 else 0
@@ -26,16 +31,17 @@ if __name__ == '__main__':
 
     csv_hist_path = Path(__file__).parent / Path("csv_historical")
     csv_files = sorted(list(csv_hist_path.glob("*.csv")), reverse=True)
-    most_recent_csv_file = csv_files[0]
-    older_csv_file = csv_files[1]
-    # d = datetime.strptime(most_recent_csv_file.stem, "%Y-%m-%d").date()
-    # d_week_ago = d - timedelta(weeks=1)
-    # older_csv_file = csv_hist_path / Path(f"{d_week_ago}.csv")
-    print(f"Loading {most_recent_csv_file.name}...")
-    most_recent_stats_list = load_stats_from_csv(most_recent_csv_file)
+    if date_start and date_end:
+        older_csv_file = csv_hist_path / Path(f"{date_start}.csv")
+        newer_csv_file = csv_hist_path / Path(f"{date_end}.csv")
+    else:
+        newer_csv_file = csv_files[0]
+        older_csv_file = csv_files[1]
     print(f"Loading {older_csv_file.name}...")
     older_stats_list = load_stats_from_csv(older_csv_file)
-    stats_now = stats_to_dict(most_recent_stats_list)
+    print(f"Loading {newer_csv_file.name}...")
+    newer__stats_list = load_stats_from_csv(newer_csv_file)
+    stats_now = stats_to_dict(newer__stats_list)
     stats_then = stats_to_dict(older_stats_list)
     stats_change = {}
     for username in stats_now:
@@ -49,7 +55,7 @@ if __name__ == '__main__':
             ps = stats_change[name]
             print_analysis(ps)
         except KeyError as e:
-            print(f"'{name}' not found in {most_recent_csv_file.name}")
+            print(f"'{name}' not found in {newer_csv_file.name}")
             sys.exit(1)
     elif mode == "ranking":
         stats_list = []

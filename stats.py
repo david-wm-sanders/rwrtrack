@@ -190,7 +190,8 @@ def load_stats_from_csv(csv_path):
                       targets_destroyed=int(r["targets_destroyed"]),
                       vehicles_destroyed=int(r["vehicles_destroyed"]),
                       soldiers_healed=int(r["soldiers_healed"]),
-                      team_kills=int(r["team_kills"]),
+                      # team_kills=int(r["team_kills"]),
+                      team_kills=int(r.get("team_kills", 0)),
                       distance_moved=int(r["distance_moved"]),
                       shots_fired=int(r["shots_fired"]),
                       throwables_thrown=int(r["throwables_thrown"]))
