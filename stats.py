@@ -9,6 +9,10 @@ from types import SimpleNamespace
 logger = logging.getLogger(__name__)
 
 
+# Approximate equatorial circumference of Earth
+earth_equat_circumference = 40075  # km
+
+
 class Stats:
     def __init__(self, username, xp, time_played, kills, deaths, kill_streak,
                  targets_destroyed, vehicles_destroyed, soldiers_healed,
@@ -125,6 +129,30 @@ class Stats:
     @property
     def throwables_thrown_ph(self):
         return self.throwables_thrown / self.time_played_hours
+
+    @property
+    def score(self):
+        return self.kills - self.deaths
+
+    @property
+    def xp_pk(self):
+        return self.xp / self.kills
+
+    @property
+    def xp_pb(self):
+        return self.xp / self.shots_fired
+
+    @property
+    def shots_fired_pk(self):
+        return self.shots_fired / self.kills
+
+    @property
+    def team_kills_pk(self):
+        return self.team_kills / self.kills
+
+    @property
+    def runs_around_the_equator(self):
+        return self.distance_moved_km / earth_equat_circumference
 
 
 def write_stats_to_csv(stats):

@@ -4,10 +4,6 @@ from pathlib import Path
 from stats import load_stats_from_csv, stats_to_dict
 
 
-# Approximate equatorial circumference of Earth
-earth_equat_circumference = 40075  # km
-
-
 def print_analysis(s):
     # Print a beautiful table with box-drawing characters
     c0w = 20
@@ -40,18 +36,15 @@ def print_analysis(s):
     # Print a table break
     print(f"├{'':─<{c0w}}┼{'':─<{c1w}}┼{'':─<{c2w}}┤")
     # Print some derived statistics
-    score = s.kills - s.deaths
-    print(f"│{'Score':>{c0w}}│{score:>{c1w},}│{'-':>{c2w}}│")
+    print(f"│{'Score':>{c0w}}│{s.score:>{c1w},}│{'-':>{c2w}}│")
     print(f"│{'K/D':>{c0w}}│{s.kdr:>{c1w}.2f}│{'-':>{c2w}}│")
-    xp_pk = s.xp / s.kills
-    print(f"│{'XP per kill':>{c0w}}│{xp_pk:>{c1w},.2f}│{'-':>{c2w}}│")
-    xp_pb = s.xp / s.shots_fired
-    print(f"│{'XP per shot fired':>{c0w}}│{xp_pb:>{c1w},.2f}│{'-':>{c2w}}│")
-    sf_pk = s.shots_fired / s.kills
+    print(f"│{'XP per kill':>{c0w}}│{s.xp_pk:>{c1w},.2f}│{'-':>{c2w}}│")
+    print(f"│{'XP per shot fired':>{c0w}}│{s.xp_pb:>{c1w},.2f}│{'-':>{c2w}}│")
+    sf_pk = s.shots_fired_pk
     print(f"│{'Shots per kill':>{c0w}}│{sf_pk:>{c1w},.2f}│{'-':>{c2w}}│")
-    tk_pk = s.team_kills / s.kills
+    tk_pk = s.team_kills_pk
     print(f"│{'Team kills per kill':>{c0w}}│{tk_pk:>{c1w},.5f}│{'-':>{c2w}}│")
-    rate = s.distance_moved_km / earth_equat_circumference
+    rate = s.runs_around_the_equator
     print(f"│{'Runs around equator':>{c0w}}│{rate:>{c1w}.5f}│{'-':>{c2w}}│")
     # Print the table footer
     print(f"╘{'':═<{c0w}}╧{'':═<{c1w}}╧{'':═<{c2w}}╛")
