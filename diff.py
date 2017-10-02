@@ -27,15 +27,16 @@ if __name__ == '__main__':
     csv_hist_path = Path(__file__).parent / Path("csv_historical")
     csv_files = sorted(list(csv_hist_path.glob("*.csv")), reverse=True)
     most_recent_csv_file = csv_files[0]
-    d = datetime.strptime(most_recent_csv_file.stem, "%Y-%m-%d").date()
-    d_week_ago = d - timedelta(weeks=1)
-    week_ago_csv_file = csv_hist_path / Path(f"{d_week_ago}.csv")
+    older_csv_file = csv_files[1]
+    # d = datetime.strptime(most_recent_csv_file.stem, "%Y-%m-%d").date()
+    # d_week_ago = d - timedelta(weeks=1)
+    # older_csv_file = csv_hist_path / Path(f"{d_week_ago}.csv")
     print(f"Loading {most_recent_csv_file.name}...")
     most_recent_stats_list = load_stats_from_csv(most_recent_csv_file)
-    print(f"Loading {week_ago_csv_file.name}...")
-    week_ago_stats_list = load_stats_from_csv(week_ago_csv_file)
+    print(f"Loading {older_csv_file.name}...")
+    older_stats_list = load_stats_from_csv(older_csv_file)
     stats_now = stats_to_dict(most_recent_stats_list)
-    stats_then = stats_to_dict(week_ago_stats_list)
+    stats_then = stats_to_dict(older_stats_list)
     stats_change = {}
     for username in stats_now:
         try:
