@@ -24,6 +24,7 @@ if __name__ == '__main__':
         metric = sys.argv[2]
         min_xp = int(sys.argv[3]) if len(sys.argv) >= 4 else 0
         upto = int(sys.argv[4]) if len(sys.argv) >= 5 else 50
+        date_start, date_end = None, None
     else:
         print("Usage: diff.py analysis NAME|\"NAME WITH SPACES\"")
         print("Usage: diff.py ranking METRIC [MINXP=0] [UPTO=50]")
