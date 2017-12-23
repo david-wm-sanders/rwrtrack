@@ -88,7 +88,10 @@ class Stats:
 
     @property
     def kdr(self):
-        return self.kills / self.deaths
+        try:
+            return self.kills / self.deaths
+        except ZeroDivisionError:
+            return self.kills
 
     @property
     def xp_ph(self):
