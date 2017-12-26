@@ -8,8 +8,10 @@ from bs4 import BeautifulSoup
 from stats import Stats, write_stats_to_csv
 
 
+script_dir = Path(__file__).parent
+log_conf_p = script_dir / "logging.conf"
 logger = logging.getLogger(__name__)
-logging.config.fileConfig("logging.conf", disable_existing_loggers=False)
+logging.config.fileConfig(log_conf_p, disable_existing_loggers=False)
 logger.debug("Logging configured from logging.conf")
 
 
@@ -126,7 +128,7 @@ def get_stats_test():
 
 
 if __name__ == '__main__':
-    logger.debug("Running rwrtrack.py as main program")
+    logger.debug("Running get_stats.py as main program")
     # stats = get_stats_test()
     stats = get_stats(10)
     # print(stats)
