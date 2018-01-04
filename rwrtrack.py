@@ -1,17 +1,18 @@
 """rwrtrack
 
 Usage:
-    rwrtrack.py get [<pages>]
-    rwrtrack.py analyse <name> [<othername>] [-d <dates>]
-    rwrtrack.py average <metric> [<minxp>] [-d <dates>]
-    rwrtrack.py graph
-    rwrtrack.py rank
-    rwrtrack.py sum [-d <dates>]
+    rwrtrack.py [-v] get [<pages>]
+    rwrtrack.py [-v] analyse <name> [<othername>] [-d <dates>]
+    rwrtrack.py [-v] average <metric> [<minxp>] [-d <dates>]
+    rwrtrack.py [-v] graph
+    rwrtrack.py [-v] rank
+    rwrtrack.py [-v] sum [-d <dates>]
 
 Options:
     -d <dates>  Date, or two dates separated by a hyphen
                 [default: latest]
                 Other shortcut options: day, week, month
+    -v          Verbose output, with full stdout logging
 """
 
 import logging
@@ -35,11 +36,6 @@ script_dir = Path(__file__).parent
 log_conf_p = (script_dir / "logging.conf").resolve()
 log_p = (script_dir / "rwrtrackpy.log").resolve()
 logger = logging.getLogger(__name__)
-logging.config.fileConfig(log_conf_p.as_posix(),
-                          disable_existing_loggers=False,
-                          defaults={"logfilename": log_p.as_posix()})
-logger.debug(f"Logging configured from {str(log_conf_p)}")
-logger.debug(f"Logging output will be written to {str(log_p)}")
 
 
 csv_hist_path = Path(__file__).parent / Path("csv_historical")
@@ -70,6 +66,7 @@ def load_stats_from_dates(dates):
         csv_newer = csv_hist_path / Path(f"{d_newer}.csv")
         s_newer = load_stats_from_csv(csv_newer)
 
+        # Diff the two datasets
         so = stats_list_to_dict(s_older)
         sn = stats_list_to_dict(s_newer)
         stats_change = {}
@@ -83,8 +80,18 @@ def load_stats_from_dates(dates):
 
 
 if __name__ == '__main__':
-    logger.info(f"Running rwrtrack.py with arguments: {sys.argv[1:]}")
     args = docopt(__doc__)
+
+    log_opts = {"logfilename": log_p.as_posix(), "consoleloglvl": "INFO"}
+    if args["-v"]:
+        log_opts["consoleloglvl"] = "DEBUG"
+    logging.config.fileConfig(log_conf_p.as_posix(),
+                              disable_existing_loggers=False,
+                              defaults=log_opts)
+
+    logger.debug(f"Logging configured from {str(log_conf_p)}")
+    logger.debug(f"Logging output will be written to {str(log_p)}")
+    logger.debug(f"Running rwrtrack.py with arguments: {sys.argv[1:]}")
     logger.debug(f"docopt output:\n{args}")
 
     if args["-d"] == "latest":
