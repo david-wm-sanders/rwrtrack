@@ -15,6 +15,10 @@ def sum_stats_and_analyse(stats, output_at_rows):
             print(f"Number of rows summed: {i}")
             print_analysis(sums)
 
+    if len(stats) < output_at_rows[-1]:
+        print(f"Number of rows summed: {len(stats)}")
+        print_analysis(sums)
+
 
 if __name__ == '__main__':
     csv_hist_path = Path(__file__).parent / Path("csv_historical")

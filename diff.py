@@ -2,14 +2,14 @@ import sys
 from datetime import datetime, timedelta
 from pathlib import Path
 
-from stats import Stats, load_stats_from_csv, stats_to_dict
+from stats import Stats, load_stats_from_csv, stats_list_to_dict
 from analysis import print_analysis
 
 
 if __name__ == '__main__':
     if len(sys.argv) < 3:
-        print("Usage: diff.py analysis NAME DATESTART DATEEND")
-        print("Usage: diff.py ranking METRIC [MINXP=0] [UPTO=50]")
+        print("Usage: diff.py analysis NAME [DATESTART] [DATEEND]")
+        print("Usage: diff.py ranking METRIC [MINXP=0] [UPTO=50] [DATESTART] [DATEEND]")
         sys.exit(1)
 
     mode = sys.argv[1]
@@ -24,7 +24,11 @@ if __name__ == '__main__':
         metric = sys.argv[2]
         min_xp = int(sys.argv[3]) if len(sys.argv) >= 4 else 0
         upto = int(sys.argv[4]) if len(sys.argv) >= 5 else 50
-        date_start, date_end = None, None
+        date_start = sys.argv[5] if len(sys.argv) >= 6 else None
+        date_end = sys.argv[6] if len(sys.argv) >= 7 else None
+        if date_start and date_end:
+            date_start = datetime.strptime(date_start, "%Y%m%d").date()
+            date_end = datetime.strptime(date_end, "%Y%m%d").date()
     else:
         print("Usage: diff.py analysis NAME|\"NAME WITH SPACES\"")
         print("Usage: diff.py ranking METRIC [MINXP=0] [UPTO=50]")
@@ -42,8 +46,8 @@ if __name__ == '__main__':
     older_stats_list = load_stats_from_csv(older_csv_file)
     print(f"Loading {newer_csv_file.name}...")
     newer__stats_list = load_stats_from_csv(newer_csv_file)
-    stats_now = stats_to_dict(newer__stats_list)
-    stats_then = stats_to_dict(older_stats_list)
+    stats_now = stats_list_to_dict(newer__stats_list)
+    stats_then = stats_list_to_dict(older_stats_list)
     stats_change = {}
     for username in stats_now:
         try:

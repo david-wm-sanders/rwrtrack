@@ -160,7 +160,7 @@ class Stats:
 
 def write_stats_to_csv(stats):
     date_today = date.today()
-    logger.debug(f"Writing stats to {date_today}.csv")
+    logger.info(f"Writing stats to {date_today}.csv")
     field_headers = ["username", "xp", "time_played",
                      "kills", "deaths", "kill_streak",
                      "targets_destroyed", "vehicles_destroyed",
@@ -182,6 +182,7 @@ def write_stats_to_csv(stats):
 
 
 def load_stats_from_csv(csv_path):
+    logger.info(f"Loading {csv_path.name}...")
     stats = []
     with csv_path.open("r", encoding="utf-8") as csv_file:
         reader = csv.DictReader(csv_file)
@@ -202,8 +203,15 @@ def load_stats_from_csv(csv_path):
     return stats
 
 
-def stats_to_dict(stats):
+def stats_list_to_dict(stats_list):
     d = {}
-    for s in stats:
+    for s in stats_list:
         d[s.username] = s
     return d
+
+
+def stats_dict_to_list(stats_dict):
+    l = []
+    for s in stats_dict.values():
+        l.append(s)
+    return l

@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
 
-from stats import load_stats_from_csv, stats_to_dict
+from stats import load_stats_from_csv, stats_list_to_dict
 
 
 def print_analysis(s):
@@ -50,6 +50,16 @@ def print_analysis(s):
     print(f"╘{'':═<{c0w}}╧{'':═<{c1w}}╧{'':═<{c2w}}╛")
 
 
+def print_individual_analysis(stats_dict, name):
+    print(f"Finding '{name}'...")
+    try:
+        ps = stats_dict[name]
+        print_analysis(ps)
+    except KeyError as e:
+        print(f"'{name}' not found...")
+        sys.exit(1)
+
+
 if __name__ == '__main__':
     if len(sys.argv) != 2:
         print("Usage: analysis.py NAME or analysis.py \"NAME WITH SPACES\"")
@@ -60,7 +70,7 @@ if __name__ == '__main__':
     most_recent_csv_file = csv_files[0]
     print(f"Loading {most_recent_csv_file.name}...")
     stats_list = load_stats_from_csv(most_recent_csv_file)
-    stats = stats_to_dict(stats_list)
+    stats = stats_list_to_dict(stats_list)
     print(f"Finding '{name}'...")
     try:
         ps = stats[name]

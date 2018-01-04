@@ -8,12 +8,15 @@ from bs4 import BeautifulSoup
 from stats import Stats, write_stats_to_csv
 
 
-script_dir = Path(__file__).parent
-log_conf_p = script_dir / "logging.conf"
+# script_dir = Path(__file__).parent
+# log_conf_p = (script_dir / "logging.conf").resolve()
+# log_p = (script_dir / "rwrtrack.log").resolve()
 logger = logging.getLogger(__name__)
-logging.config.fileConfig(log_conf_p, disable_existing_loggers=False)
-logger.debug("Logging configured from logging.conf")
-
+# logging.config.fileConfig(log_conf_p.as_posix(),
+#                           disable_existing_loggers=False,
+#                           defaults={"logfilename": log_p.as_posix()})
+# logger.debug(f"Logging configured from {str(log_conf_p)}")
+# logger.debug(f"Logging output will be written to {str(log_p)}")
 
 playerstats_url = "http://rwr.runningwithrifles.com/rwr_stats/view_players.php"
 
@@ -100,7 +103,7 @@ def extract_stats(row):
 
 
 def get_stats(num_pages):
-    logger.debug(f"Retrieving {num_pages} pages of stats from server")
+    logger.info(f"Retrieving {num_pages} page(s) of stats from server...")
     stats = []
     for x in range(0, num_pages*100, 100):
         html = request_stats(x)
@@ -128,7 +131,15 @@ def get_stats_test():
 
 
 if __name__ == '__main__':
-    logger.debug("Running get_stats.py as main program")
+    script_dir = Path(__file__).parent
+    log_conf_p = (script_dir / "logging.conf").resolve()
+    log_p = (script_dir / "rwrtrack.log").resolve()
+    logging.config.fileConfig(log_conf_p.as_posix(),
+                              disable_existing_loggers=False,
+                              defaults={"logfilename": log_p.as_posix()})
+    logger.debug(f"Logging configured from {str(log_conf_p)}")
+    logger.debug(f"Logging output will be written to {str(log_p)}")
+    logger.info("Running get_stats.py as main program")
     # stats = get_stats_test()
     stats = get_stats(10)
     # print(stats)
