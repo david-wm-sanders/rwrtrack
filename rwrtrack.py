@@ -4,8 +4,7 @@ Usage:
     rwrtrack.py [-v] get [<pages>]
     rwrtrack.py [-v] analyse <name> [<othername>] [-d <dates>]
     rwrtrack.py [-v] average <metric> [<minxp>] [-d <dates>]
-    rwrtrack.py [-v] graph
-    rwrtrack.py [-v] rank
+    rwrtrack.py [-v] rank <metric> [<minxp>] [<upto>] [-d <dates>]
     rwrtrack.py [-v] sum [-d <dates>]
 
 Options:
@@ -27,6 +26,7 @@ from docopt import docopt
 from analysis import print_analysis, print_individual_analysis
 from avg import print_avg
 from get_stats import get_stats
+from ranking import print_ranking
 from stats import load_stats_from_csv, write_stats_to_csv, \
                     stats_list_to_dict, stats_dict_to_list
 from sums import sum_stats_and_analyse
@@ -82,9 +82,9 @@ def load_stats_from_dates(dates):
 if __name__ == '__main__':
     args = docopt(__doc__)
 
-    log_opts = {"logfilename": log_p.as_posix(), "consoleloglvl": "INFO"}
-    if args["-v"]:
-        log_opts["consoleloglvl"] = "DEBUG"
+    log_opts = {"logfilename": log_p.as_posix(), "consoleloglvl": "DEBUG"}
+    if not args["-v"]:
+        log_opts["consoleloglvl"] = "INFO"
     logging.config.fileConfig(log_conf_p.as_posix(),
                               disable_existing_loggers=False,
                               defaults=log_opts)
@@ -94,16 +94,28 @@ if __name__ == '__main__':
     logger.debug(f"Running rwrtrack.py with arguments: {sys.argv[1:]}")
     logger.debug(f"docopt output:\n{args}")
 
-    if args["-d"] == "latest":
-        most_recent_csv_path = get_latest_csv_path()
-        stats_list = load_stats_from_csv(most_recent_csv_path)
-        stats_dict = stats_list_to_dict(stats_list)
-    # elif args["-d"] == "day":
-    #     raise NotImplementedError()
-    # elif args["-d"] == "week":
-    #     raise NotImplementedError()
-    # elif args["-d"] == "month":
-    #     raise NotImplementedError()
+    if args["-d"].isalpha():
+        if args["-d"] == "latest":
+            most_recent_csv_path = get_latest_csv_path()
+            stats_list = load_stats_from_csv(most_recent_csv_path)
+            stats_dict = stats_list_to_dict(stats_list)
+        elif args["-d"] == "day":
+            most_recent_csv_path = get_latest_csv_path()
+            dn = datetime.strptime(most_recent_csv_path.stem, "%Y-%m-%d").date()
+            do = dn - timedelta(days=1)
+            dns, dos = dn.strftime("%Y%m%d"), do.strftime("%Y%m%d")
+            stats_dict = load_stats_from_dates(f"{dos}-{dns}")
+            stats_list = stats_dict_to_list(stats_dict)
+        elif args["-d"] == "week":
+            most_recent_csv_path = get_latest_csv_path()
+            dn = datetime.strptime(most_recent_csv_path.stem, "%Y-%m-%d").date()
+            do = dn - timedelta(weeks=1)
+            dns, dos = dn.strftime("%Y%m%d"), do.strftime("%Y%m%d")
+            stats_dict = load_stats_from_dates(f"{dos}-{dns}")
+            stats_list = stats_dict_to_list(stats_dict)
+        else:
+            date_opt = args["-d"]
+            raise ValueError(f"Date(s) option '{date_opt}' invalid")
     else:
         stats_dict = load_stats_from_dates(args["-d"])
         stats_list = stats_dict_to_list(stats_dict)
@@ -128,11 +140,12 @@ if __name__ == '__main__':
         min_xp = int(args["<minxp>"]) if args["<minxp>"] else 0
         print_avg(stats_pruned, metric, min_xp)
 
-    elif args["graph"]:
-        raise NotImplementedError()
-
     elif args["rank"]:
-        raise NotImplementedError()
+        stats_pruned = [s for s in stats_list if s.time_played > 0]
+        metric = args["<metric>"]
+        min_xp = int(args["<minxp>"]) if args["<minxp>"] else 0
+        upto = int(args["<upto>"]) if args["<upto>"] else 25
+        print_ranking(stats_pruned, metric, min_xp, upto)
 
     elif args["sum"]:
         output_at_rows = [10, 100, 1000]
