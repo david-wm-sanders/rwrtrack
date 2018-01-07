@@ -128,22 +128,3 @@ def get_stats_test():
             s = extract_stats(row)
             stats.append(s)
     return stats
-
-
-if __name__ == '__main__':
-    script_dir = Path(__file__).parent
-    log_conf_p = (script_dir / "logging.conf").resolve()
-    log_p = (script_dir / "rwrtrack.log").resolve()
-    logging.config.fileConfig(log_conf_p.as_posix(),
-                              disable_existing_loggers=False,
-                              defaults={"logfilename": log_p.as_posix()})
-    logger.debug(f"Logging configured from {str(log_conf_p)}")
-    logger.debug(f"Logging output will be written to {str(log_p)}")
-    logger.info("Running get_stats.py as main program")
-    # stats = get_stats_test()
-    stats = get_stats(10)
-    # print(stats)
-    write_stats_to_csv(stats)
-
-    # TODO: Consider one-script with arguments using docopt or whatever, or
-    #       multiple scripts like the offline version

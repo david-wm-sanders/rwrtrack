@@ -18,13 +18,3 @@ def sum_stats_and_analyse(stats, output_at_rows):
     if len(stats) < output_at_rows[-1]:
         print(f"Number of rows summed: {len(stats)}")
         print_analysis(sums)
-
-
-if __name__ == '__main__':
-    csv_hist_path = Path(__file__).parent / Path("csv_historical")
-    csv_files = sorted(list(csv_hist_path.glob("*.csv")), reverse=True)
-    most_recent_csv_file = csv_files[0]
-    print(f"Loading {most_recent_csv_file.name}...")
-    stats = load_stats_from_csv(most_recent_csv_file)
-    output_at_rows = [10, 100, 1000]
-    sum_stats_and_analyse(stats, output_at_rows)

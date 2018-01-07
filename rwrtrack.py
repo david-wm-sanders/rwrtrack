@@ -101,14 +101,16 @@ if __name__ == '__main__':
             stats_dict = stats_list_to_dict(stats_list)
         elif args["-d"] == "day":
             most_recent_csv_path = get_latest_csv_path()
-            dn = datetime.strptime(most_recent_csv_path.stem, "%Y-%m-%d").date()
+            dn = datetime.strptime(most_recent_csv_path.stem,
+                                   "%Y-%m-%d").date()
             do = dn - timedelta(days=1)
             dns, dos = dn.strftime("%Y%m%d"), do.strftime("%Y%m%d")
             stats_dict = load_stats_from_dates(f"{dos}-{dns}")
             stats_list = stats_dict_to_list(stats_dict)
         elif args["-d"] == "week":
             most_recent_csv_path = get_latest_csv_path()
-            dn = datetime.strptime(most_recent_csv_path.stem, "%Y-%m-%d").date()
+            dn = datetime.strptime(most_recent_csv_path.stem,
+                                   "%Y-%m-%d").date()
             do = dn - timedelta(weeks=1)
             dns, dos = dn.strftime("%Y%m%d"), do.strftime("%Y%m%d")
             stats_dict = load_stats_from_dates(f"{dos}-{dns}")

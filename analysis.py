@@ -58,23 +58,3 @@ def print_individual_analysis(stats_dict, name):
     except KeyError as e:
         print(f"'{name}' not found...")
         sys.exit(1)
-
-
-if __name__ == '__main__':
-    if len(sys.argv) != 2:
-        print("Usage: analysis.py NAME or analysis.py \"NAME WITH SPACES\"")
-        sys.exit(1)
-    name = sys.argv[1].upper()
-    csv_hist_path = Path(__file__).parent / Path("csv_historical")
-    csv_files = sorted(list(csv_hist_path.glob("*.csv")), reverse=True)
-    most_recent_csv_file = csv_files[0]
-    print(f"Loading {most_recent_csv_file.name}...")
-    stats_list = load_stats_from_csv(most_recent_csv_file)
-    stats = stats_list_to_dict(stats_list)
-    print(f"Finding '{name}'...")
-    try:
-        ps = stats[name]
-    except KeyError as e:
-        print(f"'{name}' not found in {most_recent_csv_file.name}")
-        sys.exit(1)
-    print_analysis(ps)
