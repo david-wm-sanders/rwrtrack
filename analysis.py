@@ -1,7 +1,11 @@
+import logging
 import sys
 from pathlib import Path
 
 from stats import load_stats_from_csv, stats_list_to_dict
+
+
+logger = logging.getLogger(__name__)
 
 
 def print_analysis(s):
@@ -51,10 +55,10 @@ def print_analysis(s):
 
 
 def print_individual_analysis(stats_dict, name):
-    print(f"Finding '{name}'...")
+    logger.info(f"Finding '{name}'...")
     try:
         ps = stats_dict[name]
         print_analysis(ps)
     except KeyError as e:
-        print(f"'{name}' not found...")
+        logger.error(f"'{name}' not found...")
         sys.exit(1)

@@ -8,15 +8,8 @@ from bs4 import BeautifulSoup
 from stats import Stats, write_stats_to_csv
 
 
-# script_dir = Path(__file__).parent
-# log_conf_p = (script_dir / "logging.conf").resolve()
-# log_p = (script_dir / "rwrtrack.log").resolve()
 logger = logging.getLogger(__name__)
-# logging.config.fileConfig(log_conf_p.as_posix(),
-#                           disable_existing_loggers=False,
-#                           defaults={"logfilename": log_p.as_posix()})
-# logger.debug(f"Logging configured from {str(log_conf_p)}")
-# logger.debug(f"Logging output will be written to {str(log_p)}")
+
 
 playerstats_url = "http://rwr.runningwithrifles.com/rwr_stats/view_players.php"
 

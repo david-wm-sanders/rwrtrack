@@ -1,16 +1,17 @@
 """rwrtrack
 
 Usage:
-    rwrtrack.py [-v] get [<pages>]
-    rwrtrack.py [-v] analyse <name> [<othername>] [-d <dates>]
-    rwrtrack.py [-v] average <metric> [<minxp>] [-d <dates>]
-    rwrtrack.py [-v] rank <metric> [<minxp>] [<upto>] [-d <dates>]
-    rwrtrack.py [-v] sum [-d <dates>]
+    rwrtrack.py [-q|-v] get [<pages>]
+    rwrtrack.py [-q|-v] analyse <name> [<othername>] [-d <dates>]
+    rwrtrack.py [-q|-v] average <metric> [<minxp>] [-d <dates>]
+    rwrtrack.py [-q|-v] rank <metric> [<minxp>] [<upto>] [-d <dates>]
+    rwrtrack.py [-q|-v] sum [-d <dates>]
 
 Options:
     -d <dates>  Date, or two dates separated by a hyphen
                 [default: latest]
                 Other shortcut options: day, week, month
+    -q          Quiet mode, reduces logging output to errors and above
     -v          Verbose output, with full stdout logging
 """
 
@@ -82,9 +83,11 @@ def load_stats_from_dates(dates):
 if __name__ == '__main__':
     args = docopt(__doc__)
 
-    log_opts = {"logfilename": log_p.as_posix(), "consoleloglvl": "DEBUG"}
-    if not args["-v"]:
-        log_opts["consoleloglvl"] = "INFO"
+    log_opts = {"logfilename": log_p.as_posix(), "consoleloglvl": "INFO"}
+    if args["-q"]:
+        log_opts["consoleloglvl"] = "ERROR"
+    elif args["-v"]:
+        log_opts["consoleloglvl"] = "DEBUG"
     logging.config.fileConfig(log_conf_p.as_posix(),
                               disable_existing_loggers=False,
                               defaults=log_opts)
