@@ -1,7 +1,7 @@
 from pathlib import Path
 
-from stats import Stats, load_stats_from_csv
-from analysis import print_analysis
+from .stats import Stats, load_stats_from_csv
+from .analysis import print_analysis
 
 
 def sum_stats_and_analyse(stats, output_at_rows):

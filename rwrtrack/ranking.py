@@ -1,7 +1,7 @@
 import sys
 from pathlib import Path
 
-from stats import load_stats_from_csv
+from .stats import load_stats_from_csv
 
 
 def print_ranking(stats_list, metric, min_xp, upto):

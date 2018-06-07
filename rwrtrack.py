@@ -24,13 +24,13 @@ from pathlib import Path
 
 from docopt import docopt
 
-from analysis import print_analysis, print_individual_analysis
-from avg import print_avg
-from get_stats import get_stats
-from ranking import print_ranking
-from stats import load_stats_from_csv, write_stats_to_csv, \
-                    stats_list_to_dict, stats_dict_to_list
-from sums import sum_stats_and_analyse
+from rwrtrack.analysis import print_analysis, print_individual_analysis
+from rwrtrack.avg import print_avg
+from rwrtrack.get_stats import get_stats
+from rwrtrack.ranking import print_ranking
+from rwrtrack.stats import load_stats_from_csv, write_stats_to_csv, \
+                           stats_list_to_dict, stats_dict_to_list
+from rwrtrack.sums import sum_stats_and_analyse
 
 
 script_dir = Path(__file__).parent

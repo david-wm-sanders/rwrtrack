@@ -2,7 +2,7 @@ import statistics
 import sys
 from pathlib import Path
 
-from stats import Stats, load_stats_from_csv
+from .stats import Stats, load_stats_from_csv
 
 
 def print_avg(stats_list, metric, min_xp):
