@@ -3,6 +3,6 @@ venv/
 
 csv_historical/
 *.csv
-*.db
+*.db*
 
 *.log
