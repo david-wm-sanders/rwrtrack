@@ -35,10 +35,10 @@ class Account(Base):
     throwables_thrown = Column(Integer, nullable=False)
     _first_date = Column(Integer, nullable=False)
     _date = Column(Integer, nullable=False)
-    _history = relationship("History")
+    _history = relationship("Record")
 
 
-class History(Base):
+class Record(Base):
     __tablename__ = "history"
     date = Column(Integer, primary_key=True)
     account_id = Column(Integer, ForeignKey("accounts._id"), primary_key=True)
@@ -63,6 +63,11 @@ db = db_session()
 
 if __name__ == '__main__':
     print("Running db.py as __main__ - migrating CSV to database...")
+
+    # Configure blacklist for troublesome usernames
+    username_blacklist = set()
+    username_blacklist.add("RAIOORIGINAL")
+    # print(username_blacklist)
 
     # Delete the old database
     print("Obliterating the old database (temporary)...")
@@ -90,55 +95,65 @@ if __name__ == '__main__':
         d = d - timedelta(days=1)
         d = int(d.strftime("%Y%m%d"))
 
-        # First pass: add/update accounts
         for s in stats:
+            # If username in blacklist, skip...
+            if s.username in username_blacklist:
+                continue
             if s.username not in account_usernames:
                 account_usernames.add(s.username)
-                # Create a new Account for the user
-                account = Account(username = s.username,
-                                  xp = s.xp,
-                                  time_played = s.time_played,
-                                  kills = s.kills,
-                                  deaths = s.deaths,
-                                  score = s.score,
-                                  kdr = s.kdr,
-                                  kill_streak = s.kill_streak,
-                                  targets_destroyed = s.targets_destroyed,
-                                  vehicles_destroyed = s.vehicles_destroyed,
-                                  soldiers_healed = s.soldiers_healed,
-                                  team_kills = s.team_kills,
-                                  distance_moved = s.distance_moved,
-                                  shots_fired = s.shots_fired,
-                                  throwables_thrown = s.throwables_thrown,
-                                  _first_date = d,
-                                  _date = d)
+                # Create a new Account for the username
+                account = Account(username=s.username,
+                                  xp=s.xp, time_played=s.time_played,
+                                  kills=s.kills, deaths=s.deaths,
+                                  score=s.score, kdr=s.kdr,
+                                  kill_streak=s.kill_streak,
+                                  targets_destroyed=s.targets_destroyed,
+                                  vehicles_destroyed=s.vehicles_destroyed,
+                                  soldiers_healed=s.soldiers_healed,
+                                  team_kills=s.team_kills,
+                                  distance_moved=s.distance_moved,
+                                  shots_fired=s.shots_fired,
+                                  throwables_thrown=s.throwables_thrown,
+                                  _first_date=d,
+                                  _date=d)
                 db.add(account)
+                # Need to flush so that account._id is populated
+                db.flush()
             else:
-                # TODO: Update Account
+                account = db.query(Account._id) \
+                            .filter_by(username=s.username).one()
+                db.query(Account).filter_by(username=s.username).update(
+                    {
+                        "xp": s.xp, "time_played": s.time_played,
+                        "kills": s.kills, "deaths": s.deaths,
+                        "score": s.score, "kdr": s.kdr,
+                        "kill_streak": s.kill_streak,
+                        "targets_destroyed": s.targets_destroyed,
+                        "vehicles_destroyed": s.vehicles_destroyed,
+                        "soldiers_healed": s.soldiers_healed,
+                        "team_kills": s.team_kills,
+                        "distance_moved": s.distance_moved,
+                        "shots_fired": s.shots_fired,
+                        "throwables_thrown": s.throwables_thrown,
+                        "_date": d
+                    })
+                # Update Account for tghe username
                 pass
-        db.commit()
 
-        # Second pass: add history
-        for s in stats:
-            account = db.query(Account._id) \
-                        .filter_by(username=s.username).one()
             # Create a history entry for this stat record
-            history = History(date = d,
-                              account_id = account._id,
-                              username = s.username,
-                              xp = s.xp,
-                              time_played = s.time_played,
-                              kills = s.kills,
-                              deaths = s.deaths,
-                              score = s.score,
-                              kdr = s.kdr,
-                              kill_streak = s.kill_streak,
-                              targets_destroyed = s.targets_destroyed,
-                              vehicles_destroyed = s.vehicles_destroyed,
-                              soldiers_healed = s.soldiers_healed,
-                              team_kills = s.team_kills,
-                              distance_moved = s.distance_moved,
-                              shots_fired = s.shots_fired,
-                              throwables_thrown = s.throwables_thrown)
-            db.add(history)
+            record = Record(date=d, account_id=account._id,
+                              username=s.username, xp=s.xp,
+                              time_played=s.time_played,
+                              kills=s.kills, deaths=s.deaths,
+                              score=s.score, kdr=s.kdr,
+                              kill_streak=s.kill_streak,
+                              targets_destroyed=s.targets_destroyed,
+                              vehicles_destroyed=s.vehicles_destroyed,
+                              soldiers_healed=s.soldiers_healed,
+                              team_kills=s.team_kills,
+                              distance_moved=s.distance_moved,
+                              shots_fired=s.shots_fired,
+                              throwables_thrown=s.throwables_thrown)
+            db.add(record)
+
         db.commit()
