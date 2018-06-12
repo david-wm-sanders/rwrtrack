@@ -135,13 +135,18 @@ if __name__ == '__main__':
         write_stats_to_csv(stats)
 
     elif args["analyse"]:
-        name = args["<name>"]
-        if not args["<othername>"]:
-            logger.info("Performing individual analysis...")
-            print_individual_analysis(stats_dict, name)
-        else:
-            print(">do a comparative analysis")
-            raise NotImplementedError()
+        username = args["<name>"]
+        # if not args["<othername>"]:
+        #     logger.info("Performing individual analysis...")
+        #     print_individual_analysis(stats_dict, name)
+        # else:
+        #     print(">do a comparative analysis")
+        #     raise NotImplementedError()
+        account = db.query(Account) \
+                    .filter_by(username=username).one()
+        print(account)
+        print_analysis(account.latest_record)
+        # print(account.history)
 
     elif args["average"]:
         stats_pruned = [s for s in stats_list if s.time_played > 0]

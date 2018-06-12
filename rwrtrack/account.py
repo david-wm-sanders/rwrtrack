@@ -11,3 +11,13 @@ class Account(Base):
     first_date = Column(Integer, nullable=False)
     latest_date = Column(Integer, nullable=False)
     history = relationship("Record")
+
+    def __repr__(self):
+        return f"Account(id={self._id}, " \
+               f"username='{self.username}', " \
+               f"first_date={self.first_date}, " \
+               f"latest_date={self.latest_date})"
+
+    @property
+    def latest_record(self):
+        return self.history[-1]
