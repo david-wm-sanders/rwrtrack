@@ -1,63 +1,19 @@
 from datetime import datetime, timedelta
 from pathlib import Path
 
-from sqlalchemy import create_engine, MetaData, \
-                       Table, Column, ForeignKey, \
-                       Integer, Float, String
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, relationship
+
+from db_base import Base
+from account import Account
+from record import Record
 
 from stats import load_stats_from_csv
 
 
 engine = create_engine("sqlite:///rwrtrack_history.db")
 # engine = create_engine("sqlite:///rwrtrack_history.db", echo=True)
-Base = declarative_base()
-
-
-class Account(Base):
-    __tablename__ = "accounts"
-    _id = Column(Integer, primary_key=True)
-    username = Column(String, nullable=False, unique=True)
-    xp = Column(Integer, nullable=False)
-    time_played = Column(Integer, nullable=False)
-    kills = Column(Integer, nullable=False)
-    deaths = Column(Integer, nullable=False)
-    score = Column(Integer, nullable=False)
-    kdr = Column(Float, nullable=False)
-    kill_streak = Column(Integer, nullable=False)
-    targets_destroyed = Column(Integer, nullable=False)
-    vehicles_destroyed = Column(Integer, nullable=False)
-    soldiers_healed = Column(Integer, nullable=False)
-    team_kills = Column(Integer, nullable=False)
-    distance_moved = Column(Integer, nullable=False)
-    shots_fired = Column(Integer, nullable=False)
-    throwables_thrown = Column(Integer, nullable=False)
-    _first_date = Column(Integer, nullable=False)
-    _date = Column(Integer, nullable=False)
-    _history = relationship("Record")
-
-
-class Record(Base):
-    __tablename__ = "history"
-    date = Column(Integer, primary_key=True)
-    account_id = Column(Integer, ForeignKey("accounts._id"), primary_key=True)
-    username = Column(String, nullable=False)
-    xp = Column(Integer, nullable=False)
-    time_played = Column(Integer, nullable=False)
-    kills = Column(Integer, nullable=False)
-    deaths = Column(Integer, nullable=False)
-    score = Column(Integer, nullable=False)
-    kdr = Column(Float, nullable=False)
-    kill_streak = Column(Integer, nullable=False)
-    targets_destroyed = Column(Integer, nullable=False)
-    vehicles_destroyed = Column(Integer, nullable=False)
-    soldiers_healed = Column(Integer, nullable=False)
-    team_kills = Column(Integer, nullable=False)
-    distance_moved = Column(Integer, nullable=False)
-    shots_fired = Column(Integer, nullable=False)
-    throwables_thrown = Column(Integer, nullable=False)
-
 db_session = sessionmaker(bind=engine)
 db = db_session()
 
@@ -103,57 +59,32 @@ if __name__ == '__main__':
                 account_usernames.add(s.username)
                 # Create a new Account for the username
                 account = Account(username=s.username,
-                                  xp=s.xp, time_played=s.time_played,
-                                  kills=s.kills, deaths=s.deaths,
-                                  score=s.score, kdr=s.kdr,
-                                  kill_streak=s.kill_streak,
-                                  targets_destroyed=s.targets_destroyed,
-                                  vehicles_destroyed=s.vehicles_destroyed,
-                                  soldiers_healed=s.soldiers_healed,
-                                  team_kills=s.team_kills,
-                                  distance_moved=s.distance_moved,
-                                  shots_fired=s.shots_fired,
-                                  throwables_thrown=s.throwables_thrown,
-                                  _first_date=d,
-                                  _date=d)
+                                  first_date=d, latest_date=d)
                 db.add(account)
                 # Need to flush so that account._id is populated
                 db.flush()
             else:
                 account = db.query(Account._id) \
                             .filter_by(username=s.username).one()
-                db.query(Account).filter_by(username=s.username).update(
-                    {
-                        "xp": s.xp, "time_played": s.time_played,
-                        "kills": s.kills, "deaths": s.deaths,
-                        "score": s.score, "kdr": s.kdr,
-                        "kill_streak": s.kill_streak,
-                        "targets_destroyed": s.targets_destroyed,
-                        "vehicles_destroyed": s.vehicles_destroyed,
-                        "soldiers_healed": s.soldiers_healed,
-                        "team_kills": s.team_kills,
-                        "distance_moved": s.distance_moved,
-                        "shots_fired": s.shots_fired,
-                        "throwables_thrown": s.throwables_thrown,
-                        "_date": d
-                    })
-                # Update Account for tghe username
+                db.query(Account).filter_by(_id=account._id).update(
+                    {"latest_date": d})
+                # Update Account for the username
                 pass
 
             # Create a history entry for this stat record
             record = Record(date=d, account_id=account._id,
-                              username=s.username, xp=s.xp,
-                              time_played=s.time_played,
-                              kills=s.kills, deaths=s.deaths,
-                              score=s.score, kdr=s.kdr,
-                              kill_streak=s.kill_streak,
-                              targets_destroyed=s.targets_destroyed,
-                              vehicles_destroyed=s.vehicles_destroyed,
-                              soldiers_healed=s.soldiers_healed,
-                              team_kills=s.team_kills,
-                              distance_moved=s.distance_moved,
-                              shots_fired=s.shots_fired,
-                              throwables_thrown=s.throwables_thrown)
+                            username=s.username, xp=s.xp,
+                            time_played=s.time_played,
+                            kills=s.kills, deaths=s.deaths,
+                            score=s.score, kdr=s.kdr,
+                            kill_streak=s.kill_streak,
+                            targets_destroyed=s.targets_destroyed,
+                            vehicles_destroyed=s.vehicles_destroyed,
+                            soldiers_healed=s.soldiers_healed,
+                            team_kills=s.team_kills,
+                            distance_moved=s.distance_moved,
+                            shots_fired=s.shots_fired,
+                            throwables_thrown=s.throwables_thrown)
             db.add(record)
 
         db.commit()
