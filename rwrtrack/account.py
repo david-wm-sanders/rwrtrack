@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
-from db_base import Base
+
+from .db_base import Base
 
 
 class Account(Base):

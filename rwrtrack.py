@@ -6,6 +6,7 @@ Usage:
     rwrtrack.py [-q|-v] average <metric> [<minxp>] [-d <dates>]
     rwrtrack.py [-q|-v] rank <metric> [<minxp>] [<upto>] [-d <dates>]
     rwrtrack.py [-q|-v] sum [-d <dates>]
+    rwrtrack.py _db_migrate_csv
 
 Options:
     -d <dates>  Date, or two dates separated by a hyphen
@@ -24,6 +25,9 @@ from pathlib import Path
 
 from docopt import docopt
 
+from rwrtrack.db import db
+from rwrtrack.account import Account
+from rwrtrack.record import Record
 from rwrtrack.analysis import print_analysis, print_individual_analysis
 from rwrtrack.avg import print_avg
 from rwrtrack.get_stats import get_stats
@@ -155,6 +159,77 @@ if __name__ == '__main__':
     elif args["sum"]:
         output_at_rows = [10, 100, 1000]
         sum_stats_and_analyse(stats_list, output_at_rows)
+
+    elif args["_db_migrate_csv"]:
+        logger.info("Migrating CSV to database...")
+
+        # Configure blacklist for troublesome usernames
+        username_blacklist = set()
+        username_blacklist.add("RAIOORIGINAL")
+        # print(username_blacklist)
+
+        # Delete the old database
+        logger.info("Obliterating the old database (temporary)...")
+        db_path = Path(__file__).parent / Path("rwrtrack_history.db")
+        if db_path.exists():
+            db_path.unlink()
+
+        from rwrtrack.db_base import Base
+        from rwrtrack.db import engine
+        Base.metadata.create_all(engine)
+
+        # Get all CSV files and filter
+        logger.info("Finding CSV files for migration...")
+        csv_file_paths = sorted(list(csv_hist_path.glob("*.csv")))
+        # Filter out CSV files that are not being migrated (for reasons...)
+        csv_file_paths = filter(lambda x: "2017" not in x.stem, csv_file_paths)
+
+        # TODO: Fix to load account_usernames from database
+        account_usernames = set()
+        for csv_file_path in csv_file_paths:
+            stats = load_stats_from_csv(csv_file_path)
+            # Fix dates
+            d = datetime.strptime(csv_file_path.stem, "%Y-%m-%d").date()
+            d = d - timedelta(days=1)
+            d = int(d.strftime("%Y%m%d"))
+
+            for s in stats:
+                # If username in blacklist, skip...
+                if s.username in username_blacklist:
+                    continue
+                if s.username not in account_usernames:
+                    account_usernames.add(s.username)
+                    # Create a new Account for the username
+                    account = Account(username=s.username,
+                                      first_date=d, latest_date=d)
+                    db.add(account)
+                    # Need to flush so that account._id is populated
+                    db.flush()
+                else:
+                    account = db.query(Account._id) \
+                                .filter_by(username=s.username).one()
+                    db.query(Account).filter_by(_id=account._id).update(
+                        {"latest_date": d})
+                    # Update Account for the username
+                    pass
+
+                # Create a history entry for this stat record
+                record = Record(date=d, account_id=account._id,
+                                username=s.username, xp=s.xp,
+                                time_played=s.time_played,
+                                kills=s.kills, deaths=s.deaths,
+                                score=s.score, kdr=s.kdr,
+                                kill_streak=s.kill_streak,
+                                targets_destroyed=s.targets_destroyed,
+                                vehicles_destroyed=s.vehicles_destroyed,
+                                soldiers_healed=s.soldiers_healed,
+                                team_kills=s.team_kills,
+                                distance_moved=s.distance_moved,
+                                shots_fired=s.shots_fired,
+                                throwables_thrown=s.throwables_thrown)
+                db.add(record)
+
+            db.commit()
 
     else:
         print(f"BAD USAGE!\n{__doc__}")
