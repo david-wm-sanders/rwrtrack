@@ -95,6 +95,10 @@ if __name__ == '__main__':
                 if args["-d"] == "latest":
                     print(f"'{username}' on {account.latest_date}:")
                     print(account.latest_record.as_table())
+                elif args["-d"] == "first":
+                    r = account.on_date(account.first_date)
+                    print(f"'{username}' on {account.first_date}:")
+                    print(r.as_table())
                 elif args["-d"] == "day":
                     r_newer = account.latest_record
                     r_older = account.on_date(account.latest_date, days=-1)
@@ -128,10 +132,35 @@ if __name__ == '__main__':
 
     elif args["average"]:
         # TODO: Rewrite to use write to db as well
-        stats_pruned = [s for s in stats_list if s.time_played > 0]
+        # stats_pruned = [s for s in stats_list if s.time_played > 0]
+        # metric = args["<metric>"]
+        # min_xp = int(args["<minxp>"]) if args["<minxp>"] else 0
+        # print_avg(stats_pruned, metric, min_xp)
         metric = args["<metric>"]
-        min_xp = int(args["<minxp>"]) if args["<minxp>"] else 0
-        print_avg(stats_pruned, metric, min_xp)
+        print(metric)
+        if args["-d"].isalpha():
+            if args["-d"] == "latest":
+                # TODO: Calculate average for metric on latest date
+                pass
+            elif args["-d"] == "first":
+                pass
+            elif args["-d"] == "day":
+                # TODO: Calculate average for metric for day
+                pass
+            elif args["-d"] == "week":
+                # TODO: Calculate average for metric for week
+                pass
+            else:
+                date_opt = args["-d"]
+                raise ValueError(f"Date(s) option '{date_opt}' invalid")
+        else:
+            dt, d = _process_numeric_dates(args["-d"])
+            if dt == "single":
+                # TODO: Calculate average for metric on date
+                pass
+            elif dt == "range":
+                # TODO: Calculate average for metric across date range
+                pass
 
     elif args["rank"]:
         # TODO: Rewrite to use write to db as well
