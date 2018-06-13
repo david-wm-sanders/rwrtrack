@@ -7,8 +7,12 @@ from .account import Account
 from .record import Record
 
 
-# engine = create_engine("sqlite:///rwrtrack_history.db")
-engine = create_engine("sqlite:///rwrtrack_history.db", echo=True)
+engine = create_engine("sqlite:///rwrtrack_history.db")
+# engine = create_engine("sqlite:///rwrtrack_history.db", echo=True)
 Base.metadata.create_all(engine)
 db_session = sessionmaker(bind=engine)
 sesh = db_session()
+
+
+def get_account_from_db(username):
+    return sesh.query(Account).filter_by(username=username).one()

@@ -10,7 +10,7 @@ class Account(Base):
     username = Column(String, nullable=False, unique=True)
     first_date = Column(Integer, nullable=False)
     latest_date = Column(Integer, nullable=False)
-    history = relationship("Record")
+    _history = relationship("Record", lazy="dynamic")
 
     def __repr__(self):
         return f"Account(id={self._id}, " \
@@ -19,5 +19,12 @@ class Account(Base):
                f"latest_date={self.latest_date})"
 
     @property
+    def first_record(self):
+        return self._history.filter_by(date=self.first_date).one()
+
+    @property
     def latest_record(self):
-        return self.history[-1]
+        return self._history.filter_by(date=self.latest_date).one()
+
+    def on_date(self, date):
+        return self._history.filter_by(date=date).one()

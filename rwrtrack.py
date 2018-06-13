@@ -28,7 +28,7 @@ from docopt import docopt
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import and_
 
-from rwrtrack.db import sesh
+from rwrtrack.db import sesh, get_account_from_db
 from rwrtrack.account import Account
 from rwrtrack.record import Record
 from rwrtrack.analysis import print_analysis, print_individual_analysis
@@ -141,7 +141,7 @@ if __name__ == '__main__':
         username = args["<name>"]
         logger.info(f"Performing individual analysis for '{username}'...")
         try:
-            account = sesh.query(Account).filter_by(username=username).one()
+            account = get_account_from_db(username)
             account_id = account._id
         except NoResultFound as e:
             logger.error(f"'{username}' not found in database.")
