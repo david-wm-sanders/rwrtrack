@@ -2,7 +2,7 @@ from .derivedstats import DerivedStatsMixin
 from .display import RenderTableMixin
 
 
-class StatsDiff(DerivedStatsMixin, RenderTableMixin):
+class Stats(DerivedStatsMixin, RenderTableMixin):
     def __init__(self, dates, account_ids, usernames, xp, time_played,
                  kills, deaths, score, kdr, kill_streak,
                  targets_destroyed, vehicles_destroyed, soldiers_healed,

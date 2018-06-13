@@ -3,7 +3,7 @@ from sqlalchemy import Column, ForeignKey, Integer, Float, String
 from .db_base import Base
 from .derivedstats import DerivedStatsMixin
 from .display import RenderTableMixin
-from .statsdiff import StatsDiff
+from .stats import Stats
 
 
 class Record(Base, DerivedStatsMixin, RenderTableMixin):
@@ -59,8 +59,8 @@ class Record(Base, DerivedStatsMixin, RenderTableMixin):
         distance_moved = self.distance_moved - other.distance_moved
         shots_fired = self.shots_fired - other.shots_fired
         throwables_thrown = self.throwables_thrown - other.throwables_thrown
-        return StatsDiff(dates, account_ids, usernames, xp, time_played,
-                         kills, deaths, score, kdr, kill_streak,
-                         targets_destroyed, vehicles_destroyed,
-                         soldiers_healed, team_kills, distance_moved,
-                         shots_fired, throwables_thrown)
+        return Stats(dates, account_ids, usernames, xp, time_played,
+                     kills, deaths, score, kdr, kill_streak,
+                     targets_destroyed, vehicles_destroyed,
+                     soldiers_healed, team_kills, distance_moved,
+                     shots_fired, throwables_thrown)

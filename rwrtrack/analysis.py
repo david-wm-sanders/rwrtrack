@@ -2,7 +2,7 @@ import logging
 import sys
 from pathlib import Path
 
-from .stats import load_stats_from_csv, stats_list_to_dict
+from .stats_csv import load_stats_from_csv, stats_list_to_dict
 
 
 logger = logging.getLogger(__name__)

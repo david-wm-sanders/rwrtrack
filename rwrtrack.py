@@ -37,8 +37,8 @@ from rwrtrack.core import Account, Record
 from rwrtrack.avg import print_avg
 from rwrtrack.get_stats import get_stats
 from rwrtrack.ranking import print_ranking
-from rwrtrack.stats import load_stats_from_csv, write_stats_to_csv, \
-                           stats_list_to_dict, stats_dict_to_list
+# from rwrtrack.stats import load_stats_from_csv, write_stats_to_csv, \
+#                            stats_list_to_dict, stats_dict_to_list
 from rwrtrack.sums import sum_stats_and_analyse
 
 

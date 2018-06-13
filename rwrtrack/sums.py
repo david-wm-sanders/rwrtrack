@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from .stats import Stats, load_stats_from_csv
+from .stats_csv import Stats, load_stats_from_csv
 from .analysis import print_analysis
 
 

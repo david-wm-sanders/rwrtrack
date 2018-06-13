@@ -5,7 +5,7 @@ from pathlib import Path
 import requests
 from bs4 import BeautifulSoup
 
-from .stats import Stats, write_stats_to_csv
+from .stats_csv import Stats, write_stats_to_csv
 
 
 logger = logging.getLogger(__name__)
