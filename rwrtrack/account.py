@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
 
@@ -19,6 +21,10 @@ class Account(Base):
                f"latest_date={self.latest_date})"
 
     @property
+    def history(self):
+        return self._history.all()
+
+    @property
     def first_record(self):
         return self._history.filter_by(date=self.first_date).one()
 
@@ -26,5 +32,13 @@ class Account(Base):
     def latest_record(self):
         return self._history.filter_by(date=self.latest_date).one()
 
-    def on_date(self, date):
-        return self._history.filter_by(date=date).one()
+    def on_date(self, date, **kwargs):
+        if not kwargs:
+            return self._history.filter_by(date=date).one()
+        else:
+            # print(kwargs)
+            latest_date = str(self.latest_date)
+            d = datetime.strptime(str(date), "%Y%m%d").date()
+            d = d + timedelta(**kwargs)
+            d = int(d.strftime("%Y%m%d"))
+            return self._history.filter_by(date=d).one()

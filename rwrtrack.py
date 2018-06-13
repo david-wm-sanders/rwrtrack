@@ -82,7 +82,8 @@ csv_hist_path = Path(__file__).parent / Path("csv_historical")
 #             try:
 #                 stats_change[username] = sn[username] - so[username]
 #             except KeyError:
-#                 logger.warn(f"'{username}' not in '{csv_older.name}', no diff")
+#                 logger.warn(f"'{username}' not in '{csv_older.name}',
+#                               no diff")
 #
 #         return stats_change
 
@@ -150,39 +151,21 @@ if __name__ == '__main__':
             if args["-d"].isalpha():
                 if args["-d"] == "latest":
                     print_analysis(account.latest_record)
+                    print(account.history)
                 elif args["-d"] == "day":
-                    latest_date = account.latest_date
-                    # print(latest_date)
-                    d_new = datetime.strptime(str(latest_date), "%Y%m%d").date()
-                    d_old = d_new - timedelta(days=1)
-                    # print(d_new, d_old)
-                    d_old = int(d_old.strftime("%Y%m%d"))
-                    r_new = sesh.query(Record).filter_by(account_id=account_id,
-                                                         date=latest_date) \
-                                                        .one()
-                    r_old = sesh.query(Record).filter_by(account_id=account_id,
-                                                         date=d_old) \
-                                                        .one()
-                    print(r_new)
-                    print(r_old)
-                    # TODO: r_new - r_old and display!
-                    # d = int(d.strftime("%Y%m%d"))
-            #         most_recent_csv_path = get_latest_csv_path()
-            #         dn = datetime.strptime(most_recent_csv_path.stem,
-            #                                "%Y-%m-%d").date()
-            #         do = dn - timedelta(days=1)
-            #         dns, dos = dn.strftime("%Y%m%d"), do.strftime("%Y%m%d")
-            #         stats_dict = load_stats_from_dates(f"{dos}-{dns}")
-            #         stats_list = stats_dict_to_list(stats_dict)
+                    r_newer = account.latest_record
+                    r_older = account.on_date(account.latest_date, days=-1)
+
+                    print(r_newer)
+                    print(r_older)
+                    # TODO: r_newer - r_older and display!
                 elif args["-d"] == "week":
-                    pass
-            #         most_recent_csv_path = get_latest_csv_path()
-            #         dn = datetime.strptime(most_recent_csv_path.stem,
-            #                                "%Y-%m-%d").date()
-            #         do = dn - timedelta(weeks=1)
-            #         dns, dos = dn.strftime("%Y%m%d"), do.strftime("%Y%m%d")
-            #         stats_dict = load_stats_from_dates(f"{dos}-{dns}")
-            #         stats_list = stats_dict_to_list(stats_dict)
+                    r_newer = account.latest_record
+                    r_older = account.on_date(account.latest_date, weeks=-1)
+
+                    print(r_newer)
+                    print(r_older)
+                    # TODO: r_newer - r_older and display!
                 else:
                     date_opt = args["-d"]
                     raise ValueError(f"Date(s) option '{date_opt}' invalid")
