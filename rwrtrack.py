@@ -28,17 +28,11 @@ from docopt import docopt
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import and_
 
-# from rwrtrack.db import sesh, get_account_from_db
-from rwrtrack.core import sesh, get_account_from_db
-from rwrtrack.core import Account, Record
-# from rwrtrack.account import Account
-# from rwrtrack.record import Record
-# from rwrtrack.analysis import print_analysis
+from rwrtrack.core import Account, Record, sesh, get_account_from_db
 from rwrtrack.avg import print_avg
 from rwrtrack.get_stats import get_stats
 from rwrtrack.ranking import print_ranking
-# from rwrtrack.stats import load_stats_from_csv, write_stats_to_csv, \
-#                            stats_list_to_dict, stats_dict_to_list
+from rwrtrack.stats_csv import load_stats_from_csv, write_stats_to_csv
 from rwrtrack.sums import sum_stats_and_analyse
 
 
@@ -53,16 +47,12 @@ csv_hist_path = Path(__file__).parent / Path("csv_historical")
 
 def _process_numeric_dates(date_string):
     if date_string.isnumeric():
-        # return "single", datetime.strptime(date_string, "%Y%m%d").date()
         return "single", int(date_string)
     else:
         # Handle date ranges
         dates = date_string.split("-")
         if dates[0] > dates[1]:
             raise ValueError("Dates must be older-newer")
-
-        # d_older = datetime.strptime(dates[0], "%Y%m%d").date()
-        # d_newer = datetime.strptime(dates[1], "%Y%m%d").date()
         d_older = int(dates[0])
         d_newer = int(dates[1])
         return "range", (d_older, d_newer)
@@ -86,6 +76,7 @@ if __name__ == '__main__':
     logger.debug(f"docopt output:\n{args}")
 
     if args["get"]:
+        # TODO: Rewrite to use write to db as well
         num_pages = int(args["<pages>"]) if args["<pages>"] else 10
         stats = get_stats(num_pages)
         write_stats_to_csv(stats)
@@ -136,12 +127,14 @@ if __name__ == '__main__':
             raise NotImplementedError()
 
     elif args["average"]:
+        # TODO: Rewrite to use write to db as well
         stats_pruned = [s for s in stats_list if s.time_played > 0]
         metric = args["<metric>"]
         min_xp = int(args["<minxp>"]) if args["<minxp>"] else 0
         print_avg(stats_pruned, metric, min_xp)
 
     elif args["rank"]:
+        # TODO: Rewrite to use write to db as well
         stats_pruned = [s for s in stats_list if s.time_played > 0]
         metric = args["<metric>"]
         min_xp = int(args["<minxp>"]) if args["<minxp>"] else 0
@@ -149,6 +142,7 @@ if __name__ == '__main__':
         print_ranking(stats_pruned, metric, min_xp, upto)
 
     elif args["sum"]:
+        # TODO: Rewrite to use write to db as well
         output_at_rows = [10, 100, 1000]
         sum_stats_and_analyse(stats_list, output_at_rows)
 
