@@ -28,9 +28,11 @@ from docopt import docopt
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import and_
 
-from rwrtrack.db import sesh, get_account_from_db
-from rwrtrack.account import Account
-from rwrtrack.record import Record
+# from rwrtrack.db import sesh, get_account_from_db
+from rwrtrack.core import sesh, get_account_from_db
+from rwrtrack.core import Account, Record
+# from rwrtrack.account import Account
+# from rwrtrack.record import Record
 from rwrtrack.analysis import print_analysis, print_individual_analysis
 from rwrtrack.avg import print_avg
 from rwrtrack.get_stats import get_stats
