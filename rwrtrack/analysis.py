@@ -54,11 +54,11 @@ def print_analysis(s):
     print(f"╘{'':═<{c0w}}╧{'':═<{c1w}}╧{'':═<{c2w}}╛")
 
 
-def print_individual_analysis(stats_dict, name):
-    logger.info(f"Finding '{name}'...")
-    try:
-        ps = stats_dict[name]
-        print_analysis(ps)
-    except KeyError as e:
-        logger.error(f"'{name}' not found...")
-        sys.exit(1)
+# def print_individual_analysis(stats_dict, name):
+#     logger.info(f"Finding '{name}'...")
+#     try:
+#         ps = stats_dict[name]
+#         print_analysis(ps)
+#     except KeyError as e:
+#         logger.error(f"'{name}' not found...")
+#         sys.exit(1)

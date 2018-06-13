@@ -33,7 +33,7 @@ from rwrtrack.core import sesh, get_account_from_db
 from rwrtrack.core import Account, Record
 # from rwrtrack.account import Account
 # from rwrtrack.record import Record
-from rwrtrack.analysis import print_analysis, print_individual_analysis
+# from rwrtrack.analysis import print_analysis
 from rwrtrack.avg import print_avg
 from rwrtrack.get_stats import get_stats
 from rwrtrack.ranking import print_ranking
@@ -102,17 +102,20 @@ if __name__ == '__main__':
         if not args["<othername>"]:
             if args["-d"].isalpha():
                 if args["-d"] == "latest":
-                    print_analysis(account.latest_record)
+                    print(f"'{username}' on {account.latest_date}:")
+                    print(account.latest_record.as_table())
                 elif args["-d"] == "day":
                     r_newer = account.latest_record
                     r_older = account.on_date(account.latest_date, days=-1)
-                    diff = r_newer - r_older
-                    print_analysis(diff)
+                    d = r_newer - r_older
+                    print(f"'{username}' from {d.dates[1]} to {d.dates[0]}:")
+                    print(d.as_table())
                 elif args["-d"] == "week":
                     r_newer = account.latest_record
                     r_older = account.on_date(account.latest_date, weeks=-1)
-                    diff = r_newer - r_older
-                    print_analysis(diff)
+                    d = r_newer - r_older
+                    print(f"'{username}' from {d.dates[1]} to {d.dates[0]}:")
+                    print(d.as_table())
                 else:
                     date_opt = args["-d"]
                     raise ValueError(f"Date(s) option '{date_opt}' invalid")
@@ -120,12 +123,14 @@ if __name__ == '__main__':
                 dt, d = _process_numeric_dates(args["-d"])
                 if dt == "single":
                     r = account.on_date(d)
-                    print_analysis(r)
+                    print(f"'{username}' on {r.date}:")
+                    print(r.as_table())
                 elif dt == "range":
                     r_newer = account.on_date(d[1])
                     r_older = account.on_date(d[0])
-                    diff = r_newer - r_older
-                    print_analysis(diff)
+                    d = r_newer - r_older
+                    print(f"'{username}' from {d.dates[1]} to {d.dates[0]}:")
+                    print(d.as_table())
         else:
             print(">do a comparative analysis")
             raise NotImplementedError()

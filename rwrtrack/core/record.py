@@ -2,10 +2,11 @@ from sqlalchemy import Column, ForeignKey, Integer, Float, String
 
 from .db_base import Base
 from .derivedstats import DerivedStatsMixin
+from .display import RenderTableMixin
 from .statsdiff import StatsDiff
 
 
-class Record(Base, DerivedStatsMixin):
+class Record(Base, DerivedStatsMixin, RenderTableMixin):
     __tablename__ = "records"
     date = Column(Integer, primary_key=True)
     account_id = Column(Integer, ForeignKey("accounts._id"), primary_key=True)
