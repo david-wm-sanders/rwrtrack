@@ -108,6 +108,9 @@ if __name__ == '__main__':
                     print(r_newer)
                     print(r_older)
                     # TODO: r_newer - r_older and display!
+                    diff = r_newer - r_older
+                    print(diff)
+                    print_analysis(diff)
                 elif args["-d"] == "week":
                     r_newer = account.latest_record
                     r_older = account.on_date(account.latest_date, weeks=-1)
@@ -129,6 +132,9 @@ if __name__ == '__main__':
                     print(r_newer)
                     print(r_older)
                     # TODO: r_newer - r_older and display!
+                    diff = r_newer - r_older
+                    print(diff)
+                    print_analysis(diff)
         else:
             print(">do a comparative analysis")
             raise NotImplementedError()

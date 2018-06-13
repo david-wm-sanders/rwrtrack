@@ -1,13 +1,11 @@
 from sqlalchemy import Column, ForeignKey, Integer, Float, String
 
 from .db_base import Base
+from .derivedstats import DerivedStatsMixin
+from .statsdiff import StatsDiff
 
 
-# Approximate equatorial circumference of Earth
-earth_equat_circumference = 40075  # km
-
-
-class Record(Base):
+class Record(Base, DerivedStatsMixin):
     __tablename__ = "records"
     date = Column(Integer, primary_key=True)
     account_id = Column(Integer, ForeignKey("accounts._id"), primary_key=True)
@@ -42,81 +40,30 @@ class Record(Base):
                f"shots_fired={self.shots_fired}, " \
                f"throwables_thrown={self.throwables_thrown})"
 
-    @property
-    def time_played_hours(self):
-        return self.time_played / 60
-
-    @property
-    def distance_moved_km(self):
-        return self.distance_moved / 1000
-
-    # @property
-    # def kdr(self):
-    #     try:
-    #         return self.kills / self.deaths
-    #     except ZeroDivisionError:
-    #         return self.kills
-
-    @property
-    def xp_ph(self):
-        return self.xp / self.time_played_hours
-
-    @property
-    def kills_ph(self):
-        return self.kills / self.time_played_hours
-
-    @property
-    def deaths_ph(self):
-        return self.deaths / self.time_played_hours
-
-    @property
-    def targets_destroyed_ph(self):
-        return self.targets_destroyed / self.time_played_hours
-
-    @property
-    def vehicles_destroyed_ph(self):
-        return self.vehicles_destroyed / self.time_played_hours
-
-    @property
-    def soldiers_healed_ph(self):
-        return self.soldiers_healed / self.time_played_hours
-
-    @property
-    def team_kills_ph(self):
-        return self.team_kills / self.time_played_hours
-
-    @property
-    def distance_moved_km_ph(self):
-        return self.distance_moved_km / self.time_played_hours
-
-    @property
-    def shots_fired_ph(self):
-        return self.shots_fired / self.time_played_hours
-
-    @property
-    def throwables_thrown_ph(self):
-        return self.throwables_thrown / self.time_played_hours
-
-    # @property
-    # def score(self):
-    #     return self.kills - self.deaths
-
-    @property
-    def xp_pk(self):
-        return self.xp / self.kills
-
-    @property
-    def xp_pb(self):
-        return self.xp / self.shots_fired
-
-    @property
-    def shots_fired_pk(self):
-        return self.shots_fired / self.kills
-
-    @property
-    def team_kills_pk(self):
-        return self.team_kills / self.kills
-
-    @property
-    def runs_around_the_equator(self):
-        return self.distance_moved_km / earth_equat_circumference
+    def __sub__(self, other):
+        dates = [self.date, other.date]
+        if self.account_id == other.account_id:
+            account_id = self.account_id
+            username = self.username
+        else:
+            account_id = [self.account_id, other.account_id]
+            username = [self.username, other.username]
+        xp = self.xp - other.xp
+        time_played = self.time_played - other.time_played
+        kills = self.kills - other.kills
+        deaths = self.deaths - other.deaths
+        score = self.score - other.score
+        kdr = self.kdr - other.kdr
+        kill_streak = self.kill_streak - other.kill_streak
+        targets_destroyed = self.targets_destroyed - other.targets_destroyed
+        vehicles_destroyed = self.vehicles_destroyed - other.vehicles_destroyed
+        soldiers_healed = self.soldiers_healed - other.soldiers_healed
+        team_kills = self.team_kills - other.team_kills
+        distance_moved = self.distance_moved - other.distance_moved
+        shots_fired = self.shots_fired - other.shots_fired
+        throwables_thrown = self.throwables_thrown - other.throwables_thrown
+        return StatsDiff(dates, account_id, username, xp, time_played,
+                         kills, deaths, score, kdr, kill_streak,
+                         targets_destroyed, vehicles_destroyed,
+                         soldiers_healed, team_kills, distance_moved,
+                         shots_fired, throwables_thrown)
