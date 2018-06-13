@@ -42,12 +42,8 @@ class Record(Base, DerivedStatsMixin):
 
     def __sub__(self, other):
         dates = [self.date, other.date]
-        if self.account_id == other.account_id:
-            account_id = self.account_id
-            username = self.username
-        else:
-            account_id = [self.account_id, other.account_id]
-            username = [self.username, other.username]
+        account_ids = [self.account_id, other.account_id]
+        usernames = [self.username, other.username]
         xp = self.xp - other.xp
         time_played = self.time_played - other.time_played
         kills = self.kills - other.kills
@@ -62,7 +58,7 @@ class Record(Base, DerivedStatsMixin):
         distance_moved = self.distance_moved - other.distance_moved
         shots_fired = self.shots_fired - other.shots_fired
         throwables_thrown = self.throwables_thrown - other.throwables_thrown
-        return StatsDiff(dates, account_id, username, xp, time_played,
+        return StatsDiff(dates, account_ids, usernames, xp, time_played,
                          kills, deaths, score, kdr, kill_streak,
                          targets_destroyed, vehicles_destroyed,
                          soldiers_healed, team_kills, distance_moved,

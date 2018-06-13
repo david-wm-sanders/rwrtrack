@@ -104,20 +104,13 @@ if __name__ == '__main__':
                 elif args["-d"] == "day":
                     r_newer = account.latest_record
                     r_older = account.on_date(account.latest_date, days=-1)
-
-                    print(r_newer)
-                    print(r_older)
-                    # TODO: r_newer - r_older and display!
                     diff = r_newer - r_older
-                    print(diff)
                     print_analysis(diff)
                 elif args["-d"] == "week":
                     r_newer = account.latest_record
                     r_older = account.on_date(account.latest_date, weeks=-1)
-
-                    print(r_newer)
-                    print(r_older)
-                    # TODO: r_newer - r_older and display!
+                    diff = r_newer - r_older
+                    print_analysis(diff)
                 else:
                     date_opt = args["-d"]
                     raise ValueError(f"Date(s) option '{date_opt}' invalid")
@@ -129,11 +122,7 @@ if __name__ == '__main__':
                 elif dt == "range":
                     r_newer = account.on_date(d[1])
                     r_older = account.on_date(d[0])
-                    print(r_newer)
-                    print(r_older)
-                    # TODO: r_newer - r_older and display!
                     diff = r_newer - r_older
-                    print(diff)
                     print_analysis(diff)
         else:
             print(">do a comparative analysis")
