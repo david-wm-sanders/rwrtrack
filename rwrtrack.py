@@ -49,43 +49,21 @@ logger = logging.getLogger(__name__)
 csv_hist_path = Path(__file__).parent / Path("csv_historical")
 
 
-# def get_latest_csv_path():
-#     csv_paths = sorted(list(csv_hist_path.glob("*.csv")), reverse=True)
-#     most_recent_csv_path = csv_paths[0]
-#     return most_recent_csv_path
-#
-#
-# def load_stats_from_dates(dates):
-#     if dates.isnumeric():
-#         date = datetime.strptime(dates, "%Y%m%d").date()
-#         csv_path = csv_hist_path / Path(f"{date}.csv")
-#         stats_list = load_stats_from_csv(csv_path)
-#         return stats_list_to_dict(stats_list)
-#     else:
-#         # Handle date ranges
-#         dates = dates.split("-")
-#         if dates[0] > dates[1]:
-#             raise ValueError("Dates must be older-newer")
-#
-#         d_older = datetime.strptime(dates[0], "%Y%m%d").date()
-#         csv_older = csv_hist_path / Path(f"{d_older}.csv")
-#         s_older = load_stats_from_csv(csv_older)
-#         d_newer = datetime.strptime(dates[1], "%Y%m%d").date()
-#         csv_newer = csv_hist_path / Path(f"{d_newer}.csv")
-#         s_newer = load_stats_from_csv(csv_newer)
-#
-#         # Diff the two datasets
-#         so = stats_list_to_dict(s_older)
-#         sn = stats_list_to_dict(s_newer)
-#         stats_change = {}
-#         for username in sn:
-#             try:
-#                 stats_change[username] = sn[username] - so[username]
-#             except KeyError:
-#                 logger.warn(f"'{username}' not in '{csv_older.name}',
-#                               no diff")
-#
-#         return stats_change
+def _process_numeric_dates(date_string):
+    if date_string.isnumeric():
+        # return "single", datetime.strptime(date_string, "%Y%m%d").date()
+        return "single", int(date_string)
+    else:
+        # Handle date ranges
+        dates = date_string.split("-")
+        if dates[0] > dates[1]:
+            raise ValueError("Dates must be older-newer")
+
+        # d_older = datetime.strptime(dates[0], "%Y%m%d").date()
+        # d_newer = datetime.strptime(dates[1], "%Y%m%d").date()
+        d_older = int(dates[0])
+        d_newer = int(dates[1])
+        return "range", (d_older, d_newer)
 
 
 if __name__ == '__main__':
@@ -105,34 +83,6 @@ if __name__ == '__main__':
     logger.debug(f"Running rwrtrack.py with arguments: {sys.argv[1:]}")
     logger.debug(f"docopt output:\n{args}")
 
-    # if args["-d"].isalpha():
-    #     if args["-d"] == "latest":
-    #         most_recent_csv_path = get_latest_csv_path()
-    #         stats_list = load_stats_from_csv(most_recent_csv_path)
-    #         stats_dict = stats_list_to_dict(stats_list)
-    #     elif args["-d"] == "day":
-    #         most_recent_csv_path = get_latest_csv_path()
-    #         dn = datetime.strptime(most_recent_csv_path.stem,
-    #                                "%Y-%m-%d").date()
-    #         do = dn - timedelta(days=1)
-    #         dns, dos = dn.strftime("%Y%m%d"), do.strftime("%Y%m%d")
-    #         stats_dict = load_stats_from_dates(f"{dos}-{dns}")
-    #         stats_list = stats_dict_to_list(stats_dict)
-    #     elif args["-d"] == "week":
-    #         most_recent_csv_path = get_latest_csv_path()
-    #         dn = datetime.strptime(most_recent_csv_path.stem,
-    #                                "%Y-%m-%d").date()
-    #         do = dn - timedelta(weeks=1)
-    #         dns, dos = dn.strftime("%Y%m%d"), do.strftime("%Y%m%d")
-    #         stats_dict = load_stats_from_dates(f"{dos}-{dns}")
-    #         stats_list = stats_dict_to_list(stats_dict)
-    #     else:
-    #         date_opt = args["-d"]
-    #         raise ValueError(f"Date(s) option '{date_opt}' invalid")
-    # else:
-    #     stats_dict = load_stats_from_dates(args["-d"])
-    #     stats_list = stats_dict_to_list(stats_dict)
-
     if args["get"]:
         num_pages = int(args["<pages>"]) if args["<pages>"] else 10
         stats = get_stats(num_pages)
@@ -151,7 +101,6 @@ if __name__ == '__main__':
             if args["-d"].isalpha():
                 if args["-d"] == "latest":
                     print_analysis(account.latest_record)
-                    print(account.history)
                 elif args["-d"] == "day":
                     r_newer = account.latest_record
                     r_older = account.on_date(account.latest_date, days=-1)
@@ -170,15 +119,16 @@ if __name__ == '__main__':
                     date_opt = args["-d"]
                     raise ValueError(f"Date(s) option '{date_opt}' invalid")
             else:
-                pass
-            #     stats_dict = load_stats_from_dates(args["-d"])
-            #     stats_list = stats_dict_to_list(stats_dict)
-
-            # print_individual_analysis(stats_dict, name)
-
-            # print(account)
-            # print(account.history)
-
+                dt, d = _process_numeric_dates(args["-d"])
+                if dt == "single":
+                    r = account.on_date(d)
+                    print_analysis(r)
+                elif dt == "range":
+                    r_newer = account.on_date(d[1])
+                    r_older = account.on_date(d[0])
+                    print(r_newer)
+                    print(r_older)
+                    # TODO: r_newer - r_older and display!
         else:
             print(">do a comparative analysis")
             raise NotImplementedError()
