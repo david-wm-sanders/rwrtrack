@@ -7,8 +7,8 @@ from .account import Account
 from .record import Record
 
 
-engine = create_engine("sqlite:///rwrtrack_history.db")
-# engine = create_engine("sqlite:///rwrtrack_history.db", echo=True)
+# engine = create_engine("sqlite:///rwrtrack_history.db")
+engine = create_engine("sqlite:///rwrtrack_history.db", echo=True)
 Base.metadata.create_all(engine)
 db_session = sessionmaker(bind=engine)
-db = db_session()
+sesh = db_session()

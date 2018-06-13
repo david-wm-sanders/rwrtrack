@@ -32,6 +32,7 @@ class Record(Base):
                f"username='{self.username}', " \
                f"xp={self.xp}, time_played={self.time_played}, " \
                f"kills={self.kills}, deaths={self.deaths}, " \
+               f"score={self.score}, kdr={self.kdr}, " \
                f"kill_streak={self.kill_streak}, " \
                f"targets_destroyed={self.targets_destroyed}, " \
                f"vehicles_destroyed={self.vehicles_destroyed}, " \
@@ -49,12 +50,12 @@ class Record(Base):
     def distance_moved_km(self):
         return self.distance_moved / 1000
 
-    @property
-    def kdr(self):
-        try:
-            return self.kills / self.deaths
-        except ZeroDivisionError:
-            return self.kills
+    # @property
+    # def kdr(self):
+    #     try:
+    #         return self.kills / self.deaths
+    #     except ZeroDivisionError:
+    #         return self.kills
 
     @property
     def xp_ph(self):
@@ -96,9 +97,9 @@ class Record(Base):
     def throwables_thrown_ph(self):
         return self.throwables_thrown / self.time_played_hours
 
-    @property
-    def score(self):
-        return self.kills - self.deaths
+    # @property
+    # def score(self):
+    #     return self.kills - self.deaths
 
     @property
     def xp_pk(self):
