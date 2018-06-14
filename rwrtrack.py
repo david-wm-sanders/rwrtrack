@@ -224,13 +224,21 @@ if __name__ == '__main__':
                 # If username in blacklist, skip...
                 if s.username in username_blacklist:
                     continue
-                account_usernames.add(s.username)
-                # Create a new Account for the username
-                account = Account(username=s.username,
-                                  first_date=d, latest_date=d)
-                sesh.add(account)
-                # Need to flush so that account._id is populated
-                sesh.flush()
+                if s.username not in account_usernames:
+                    account_usernames.add(s.username)
+                    # Create a new Account for the username
+                    account = Account(username=s.username,
+                                      first_date=d, latest_date=d)
+                    sesh.add(account)
+                    # Need to flush so that account._id is populated
+                    sesh.flush()
+                else:
+                    # Update Account for the username
+                    account = sesh.query(Account._id) \
+                                .filter_by(username=s.username).one()
+                    sesh.query(Account).filter_by(_id=account._id).update(
+                        {"latest_date": d})
+
                 # Create a history entry for this stat record
                 record = Record(date=d, account_id=account._id,
                                 username=s.username, xp=s.xp,
@@ -261,7 +269,10 @@ if __name__ == '__main__':
                 d = datetime.strptime(csv_file_path.stem, "%Y-%m-%d").date()
                 d = d - timedelta(days=1)
                 d = int(d.strftime("%Y%m%d"))
-                if (d >= db_info.latest_date):
+                if (d > db_info.latest_date):
+                    # Update latest_date in _dbinfo table
+                    db_info.latest_date = d
+                    sesh.flush()
                     # Add stats from the first new file in the filter generator
                     stats = load_stats_from_csv(csv_file_path)
                     for s in stats:
@@ -309,7 +320,6 @@ if __name__ == '__main__':
                 d = int(d.strftime("%Y%m%d"))
 
                 # Update latest_date in _dbinfo table
-                # sesh.query(DbInfo).one().update({"latest_date": d})
                 db_info.latest_date = d
                 sesh.flush()
 
@@ -348,7 +358,7 @@ if __name__ == '__main__':
                                     throwables_thrown=s.throwables_thrown)
                     sesh.add(record)
 
-                sesh.commit()
+            sesh.commit()
 
     else:
         print(f"BAD USAGE!\n{__doc__}")
