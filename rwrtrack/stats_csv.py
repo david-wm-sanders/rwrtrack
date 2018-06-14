@@ -182,7 +182,7 @@ def write_stats_to_csv(stats):
 
 
 def load_stats_from_csv(csv_path):
-    logger.info(f"Loading {csv_path.name}...")
+    logger.debug(f"Loading {csv_path.name}...")
     stats = []
     with csv_path.open("r", encoding="utf-8") as csv_file:
         reader = csv.DictReader(csv_file)

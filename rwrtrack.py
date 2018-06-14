@@ -6,7 +6,7 @@ Usage:
     rwrtrack.py [-q|-v] average <metric> [<minxp>] [-d <dates>]
     rwrtrack.py [-q|-v] rank <metric> [<minxp>] [<upto>] [-d <dates>]
     rwrtrack.py [-q|-v] sum [-d <dates>]
-    rwrtrack.py _db_migrate_csv
+    rwrtrack.py [-q|-v] _db_migrate_csv
 
 Options:
     -d <dates>  Date, or two dates separated by a hyphen
@@ -177,36 +177,22 @@ if __name__ == '__main__':
 
     elif args["_db_migrate_csv"]:
         logger.info("Migrating CSV to database...")
-
         # Configure blacklist for troublesome usernames
         username_blacklist = set()
         username_blacklist.add("RAIOORIGINAL")
-        # print(username_blacklist)
-
-        # Delete the old database
-        # logger.info("Obliterating the old database (temporary)...")
-        # db_path = Path(__file__).parent / Path("rwrtrack_history.db")
-        # if db_path.exists():
-        #     db_path.unlink()
-        #
-        # from rwrtrack.db_base import Base
-        # from rwrtrack.db import engine
-        # Base.metadata.create_all(engine)
-
         # Get all CSV files and filter
         logger.info("Finding CSV files for migration...")
         csv_file_paths = sorted(list(csv_hist_path.glob("*.csv")))
         # Filter out CSV files that are not being migrated (for reasons...)
         csv_file_paths = filter(lambda x: "2017" not in x.stem,
                                 csv_file_paths)
-
         account_usernames = set()
-
         try:
+            # Attempt to access the DbInfo
             db_info = sesh.query(DbInfo).one()
         except NoResultFound:
+            # If no DbInfo, db is blank, initialise from origin CSV file
             logger.info("Blank database found - beginning full migration...")
-
             first_csv_path = next(csv_file_paths)
             logger.info(f"First CSV file at '{first_csv_path}'")
             # Fix dates
@@ -217,7 +203,6 @@ if __name__ == '__main__':
             db_info = DbInfo(first_date=d, latest_date=d)
             sesh.add(db_info)
             sesh.flush()
-
             # Add stats from the first file in the filter generator
             stats = load_stats_from_csv(first_csv_path)
             for s in stats:
@@ -238,7 +223,6 @@ if __name__ == '__main__':
                                 .filter_by(username=s.username).one()
                     sesh.query(Account).filter_by(_id=account._id).update(
                         {"latest_date": d})
-
                 # Create a history entry for this stat record
                 record = Record(date=d, account_id=account._id,
                                 username=s.username, xp=s.xp,
@@ -254,18 +238,19 @@ if __name__ == '__main__':
                                 shots_fired=s.shots_fired,
                                 throwables_thrown=s.throwables_thrown)
                 sesh.add(record)
-
         else:
             logger.info("Existing database found - continuing migration...")
-            # print(db_info)
             # Populate the account_usernames set from accounts already in db
             usernames = sesh.query(Account.username).all()
             for u in usernames:
                 account_usernames.add(u[0])
-            # print(account_usernames)
             # Step the csv_file_paths filter until we are at the first new file
             while True:
-                csv_file_path = next(csv_file_paths)
+                try:
+                    csv_file_path = next(csv_file_paths)
+                except StopIteration:
+                    logger.info("No new CSV files to migrate")
+                    sys.exit(1)
                 d = datetime.strptime(csv_file_path.stem, "%Y-%m-%d").date()
                 d = d - timedelta(days=1)
                 d = int(d.strftime("%Y%m%d"))
@@ -293,7 +278,6 @@ if __name__ == '__main__':
                                         .filter_by(username=s.username).one()
                             sesh.query(Account).filter_by(_id=account._id).update(
                                 {"latest_date": d})
-
                         # Create a history entry for this stat record
                         record = Record(date=d, account_id=account._id,
                                         username=s.username, xp=s.xp,
@@ -312,17 +296,14 @@ if __name__ == '__main__':
                     break
         finally:
             for csv_file_path in csv_file_paths:
-                # print(csv_file_path)
                 stats = load_stats_from_csv(csv_file_path)
                 # Fix dates
                 d = datetime.strptime(csv_file_path.stem, "%Y-%m-%d").date()
                 d = d - timedelta(days=1)
                 d = int(d.strftime("%Y%m%d"))
-
                 # Update latest_date in _dbinfo table
                 db_info.latest_date = d
                 sesh.flush()
-
                 for s in stats:
                     # If username in blacklist, skip...
                     if s.username in username_blacklist:
@@ -341,7 +322,6 @@ if __name__ == '__main__':
                                     .filter_by(username=s.username).one()
                         sesh.query(Account).filter_by(_id=account._id).update(
                             {"latest_date": d})
-
                     # Create a history entry for this stat record
                     record = Record(date=d, account_id=account._id,
                                     username=s.username, xp=s.xp,
@@ -357,7 +337,6 @@ if __name__ == '__main__':
                                     shots_fired=s.shots_fired,
                                     throwables_thrown=s.throwables_thrown)
                     sesh.add(record)
-
             sesh.commit()
 
     else:
