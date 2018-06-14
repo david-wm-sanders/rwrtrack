@@ -200,13 +200,15 @@ if __name__ == '__main__':
         csv_file_paths = filter(lambda x: "2017" not in x.stem,
                                 csv_file_paths)
 
+        account_usernames = set()
+
         try:
             db_info = sesh.query(DbInfo).one()
         except NoResultFound:
-            logger.info(f"Blank database found - beginning full migration...")
+            logger.info("Blank database found - beginning full migration...")
 
             first_csv_path = next(csv_file_paths)
-            print(f"First CSV file at '{first_csv_path}'")
+            logger.info(f"First CSV file at '{first_csv_path}'")
             # Fix dates
             d = datetime.strptime(first_csv_path.stem, "%Y-%m-%d").date()
             d = d - timedelta(days=1)
@@ -215,12 +217,89 @@ if __name__ == '__main__':
             db_info = DbInfo(first_date=d, latest_date=d)
             sesh.add(db_info)
             sesh.flush()
+
+            # Add stats from the first file in the filter generator
+            stats = load_stats_from_csv(first_csv_path)
+            for s in stats:
+                # If username in blacklist, skip...
+                if s.username in username_blacklist:
+                    continue
+                account_usernames.add(s.username)
+                # Create a new Account for the username
+                account = Account(username=s.username,
+                                  first_date=d, latest_date=d)
+                sesh.add(account)
+                # Need to flush so that account._id is populated
+                sesh.flush()
+                # Create a history entry for this stat record
+                record = Record(date=d, account_id=account._id,
+                                username=s.username, xp=s.xp,
+                                time_played=s.time_played,
+                                kills=s.kills, deaths=s.deaths,
+                                score=s.score, kdr=s.kdr,
+                                kill_streak=s.kill_streak,
+                                targets_destroyed=s.targets_destroyed,
+                                vehicles_destroyed=s.vehicles_destroyed,
+                                soldiers_healed=s.soldiers_healed,
+                                team_kills=s.team_kills,
+                                distance_moved=s.distance_moved,
+                                shots_fired=s.shots_fired,
+                                throwables_thrown=s.throwables_thrown)
+                sesh.add(record)
+
         else:
-            print(db_info)
+            logger.info("Existing database found - continuing migration...")
+            # print(db_info)
+            # Populate the account_usernames set from accounts already in db
+            usernames = sesh.query(Account.username).all()
+            for u in usernames:
+                account_usernames.add(u[0])
+            # print(account_usernames)
+            # Step the csv_file_paths filter until we are at the first new file
+            while True:
+                csv_file_path = next(csv_file_paths)
+                d = datetime.strptime(csv_file_path.stem, "%Y-%m-%d").date()
+                d = d - timedelta(days=1)
+                d = int(d.strftime("%Y%m%d"))
+                if (d >= db_info.latest_date):
+                    # Add stats from the first new file in the filter generator
+                    stats = load_stats_from_csv(csv_file_path)
+                    for s in stats:
+                        # If username in blacklist, skip...
+                        if s.username in username_blacklist:
+                            continue
+                        if s.username not in account_usernames:
+                            account_usernames.add(s.username)
+                            # Create a new Account for the username
+                            account = Account(username=s.username,
+                                              first_date=d, latest_date=d)
+                            sesh.add(account)
+                            # Need to flush so that account._id is populated
+                            sesh.flush()
+                        else:
+                            # Update Account for the username
+                            account = sesh.query(Account._id) \
+                                        .filter_by(username=s.username).one()
+                            sesh.query(Account).filter_by(_id=account._id).update(
+                                {"latest_date": d})
+
+                        # Create a history entry for this stat record
+                        record = Record(date=d, account_id=account._id,
+                                        username=s.username, xp=s.xp,
+                                        time_played=s.time_played,
+                                        kills=s.kills, deaths=s.deaths,
+                                        score=s.score, kdr=s.kdr,
+                                        kill_streak=s.kill_streak,
+                                        targets_destroyed=s.targets_destroyed,
+                                        vehicles_destroyed=s.vehicles_destroyed,
+                                        soldiers_healed=s.soldiers_healed,
+                                        team_kills=s.team_kills,
+                                        distance_moved=s.distance_moved,
+                                        shots_fired=s.shots_fired,
+                                        throwables_thrown=s.throwables_thrown)
+                        sesh.add(record)
+                    break
         finally:
-            # TODO: Fix to load account_usernames from database
-            account_usernames = set()
-            # first = True
             for csv_file_path in csv_file_paths:
                 # print(csv_file_path)
                 stats = load_stats_from_csv(csv_file_path)
@@ -230,7 +309,9 @@ if __name__ == '__main__':
                 d = int(d.strftime("%Y%m%d"))
 
                 # Update latest_date in _dbinfo table
-                sesh.query(DbInfo).one().update({"latest_date": d})
+                # sesh.query(DbInfo).one().update({"latest_date": d})
+                db_info.latest_date = d
+                sesh.flush()
 
                 for s in stats:
                     # If username in blacklist, skip...
@@ -245,12 +326,11 @@ if __name__ == '__main__':
                         # Need to flush so that account._id is populated
                         sesh.flush()
                     else:
+                        # Update Account for the username
                         account = sesh.query(Account._id) \
                                     .filter_by(username=s.username).one()
                         sesh.query(Account).filter_by(_id=account._id).update(
                             {"latest_date": d})
-                        # Update Account for the username
-                        pass
 
                     # Create a history entry for this stat record
                     record = Record(date=d, account_id=account._id,
