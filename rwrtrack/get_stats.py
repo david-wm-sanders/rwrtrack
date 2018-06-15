@@ -30,6 +30,7 @@ def request_stats(start=0):
 
 
 def extract_rows(html):
+    rows = None
     soup = BeautifulSoup(html, "html.parser")
     table = soup.find("table")
     if table:

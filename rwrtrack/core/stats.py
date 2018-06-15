@@ -26,7 +26,7 @@ class Stats(DerivedStatsMixin, RenderTableMixin):
         self.throwables_thrown = throwables_thrown
 
     def __repr__(self):
-        return f"StatsDiff(dates={self.dates}, " \
+        return f"Stats(dates={self.dates}, " \
                f"account_ids={self.account_ids}, " \
                f"usernames={self.usernames}, " \
                f"xp={self.xp}, time_played={self.time_played}, " \
