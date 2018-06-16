@@ -124,6 +124,7 @@ if __name__ == '__main__':
             else:
                 dt, d = _process_numeric_dates(dates)
                 if dt == "single":
+                    # TODO: Improve handling if record for date not in db
                     r = account.on_date(d)
                     print(f"'{username}' on {r.date}:")
                     print(r.as_table())
@@ -135,6 +136,7 @@ if __name__ == '__main__':
                     print(d.as_table())
         else:
             # print(">do a comparative analysis")
+            # TODO: Implement... eventually...
             raise NotImplementedError("GO COMPARE... elsewhere until later...")
 
     elif args["average"]:
@@ -144,13 +146,27 @@ if __name__ == '__main__':
         # average <metric> [-d <dates>] [-x <pre>] [-y <pst>]
         # TODO: Rewrite to use write to db as well
         # stats_pruned = [s for s in stats_list if s.time_played > 0]
-        # metric = args["<metric>"]
         # min_xp = int(args["<minxp>"]) if args["<minxp>"] else 0
         # print_avg(stats_pruned, metric, min_xp)
+        # TODO: Rework to allow a list of permissible metrics to be specified
         metric = args["<metric>"]
+        # Fail fast if the metric specified is not one of those listed below
+        if metric not in ["xp", "time_played_hours", "kills", "deaths",
+                          "score", "kdr", "kill_streak", "targets_destroyed",
+                          "vehicles_destroyed", "soldiers_healed",
+                          "team_kills", "distance_moved_km", "shots_fired",
+                          "throwables_thrown", "xp_ph", "kills_ph",
+                          "deaths_ph", "targets_destroyed_ph",
+                          "vehicles_destroyed_ph", "soldiers_healed_ph",
+                          "team_kills_ph", "distance_moved_km_ph",
+                          "shots_fired_ph", "throwables_thrown_ph",
+                          "xp_pk", "xp_pb", "shots_fired_pk",
+                          "team_kills_pk", "runs_around_the_equator"]:
+            raise ValueError("Bad metric!")
         dates = args["-d"]
-        prefilter = args["-x"]
-        postfilter = args["-y"]
+        prefilters = args["-x"]
+        pstfilters = args["-y"]
+        # TODO: Process filter specifiers into stuff we can operate with...
 
         try:
             db_info = sesh.query(DbInfo).one()
@@ -161,15 +177,23 @@ if __name__ == '__main__':
         logger.info(f"Calculating average of '{metric}' for '{dates}'...")
         if dates.isalpha():
             if dates == "latest":
-                # TODO: Calculate average for metric on latest date
-                rs = get_records_on_date(db_info.latest_date)
-                logger.info(f"Averaging {len(rs)} records...")
+                d = db_info.latest_date
+                rs = get_records_on_date(d)
+                # TODO: Apply pref here, pstf irrelevant for individual dates
+                logger.info(f"Averaging {len(rs)} records for {d}...")
                 meanv = statistics.mean(getattr(r, metric) for r in rs)
                 medianv = statistics.median(getattr(r, metric) for r in rs)
                 print(f"Mean '{metric}' is {meanv:.2f}")
                 print(f"Median '{metric}' is {medianv:.2f}")
             elif dates == "first":
-                pass
+                d = db_info.first_date
+                rs = get_records_on_date(d)
+                # TODO: Apply pref here, pstf irrelevant for individual dates
+                logger.info(f"Averaging {len(rs)} records for {d}...")
+                meanv = statistics.mean(getattr(r, metric) for r in rs)
+                medianv = statistics.median(getattr(r, metric) for r in rs)
+                print(f"Mean '{metric}' is {meanv:.2f}")
+                print(f"Median '{metric}' is {medianv:.2f}")
             elif dates == "day":
                 # TODO: Calculate average for metric for day
                 raise NotImplementedError("No diffs for averages... yet...")
@@ -182,8 +206,14 @@ if __name__ == '__main__':
         else:
             dt, d = _process_numeric_dates(dates)
             if dt == "single":
-                # TODO: Calculate average for metric on date
-                pass
+                # TODO: Improve handling if record for date not in db
+                rs = get_records_on_date(d)
+                # TODO: Apply pref here, pstf irrelevant for individual dates
+                logger.info(f"Averaging {len(rs)} records for {d}...")
+                meanv = statistics.mean(getattr(r, metric) for r in rs)
+                medianv = statistics.median(getattr(r, metric) for r in rs)
+                print(f"Mean '{metric}' is {meanv:.2f}")
+                print(f"Median '{metric}' is {medianv:.2f}")
             elif dt == "range":
                 # TODO: Calculate average for metric across date range
                 raise NotImplementedError("No diffs for averages... yet...")
