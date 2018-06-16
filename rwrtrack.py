@@ -3,17 +3,19 @@
 Usage:
     rwrtrack.py [-q|-v] get [<pages>]
     rwrtrack.py [-q|-v] analyse <name> [<othername>] [-d <dates>]
-    rwrtrack.py [-q|-v] average <metric> [<minxp>] [-d <dates>]
-    rwrtrack.py [-q|-v] rank <metric> [<minxp>] [<upto>] [-d <dates>]
+    rwrtrack.py [-q|-v] average <metric> [-d <dates>] [-x <pre>] [-y <pst>]
+    rwrtrack.py [-q|-v] rank <metric> [<n>] [-d <dates>] [-x <pre>] [-y <pst>]
     rwrtrack.py [-q|-v] sum [-d <dates>]
     rwrtrack.py [-q|-v] _db_migrate_csv
 
 Options:
+    -q          Quiet mode, reduces logging output to errors and above
+    -v          Verbose output, with full stdout logging
     -d <dates>  Date, or two dates separated by a hyphen
                 [default: latest]
                 Other shortcut options: day, week, month
-    -q          Quiet mode, reduces logging output to errors and above
-    -v          Verbose output, with full stdout logging
+    -x <pre>    Prefilter specifier
+    -y <pst>    Postfilter specifier
 """
 
 import logging
@@ -29,7 +31,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import and_
 
 from rwrtrack.core import DbInfo, Account, Record, sesh, get_account_from_db, \
-                            update_db_from_stats
+                            get_records_on_date, update_db_from_stats
 from rwrtrack.avg import print_avg
 from rwrtrack.get_stats import get_stats
 from rwrtrack.ranking import print_ranking
@@ -83,7 +85,11 @@ if __name__ == '__main__':
         write_stats_to_csv(stats)
 
     elif args["analyse"]:
+        # analyse <name> [<othername>] [-d <dates>]
         username = args["<name>"]
+        othername = args["<othername>"]
+        dates = args["-d"]
+
         logger.info(f"Performing individual analysis for '{username}'...")
         try:
             account = get_account_from_db(username)
@@ -91,32 +97,32 @@ if __name__ == '__main__':
         except NoResultFound as e:
             logger.error(f"'{username}' not found in database.")
             sys.exit(1)
-        if not args["<othername>"]:
-            if args["-d"].isalpha():
-                if args["-d"] == "latest":
+        if not othername:
+            if dates.isalpha():
+                if dates == "latest":
                     print(f"'{username}' on {account.latest_date}:")
                     print(account.latest_record.as_table())
-                elif args["-d"] == "first":
+                elif dates == "first":
                     r = account.on_date(account.first_date)
                     print(f"'{username}' on {account.first_date}:")
                     print(r.as_table())
-                elif args["-d"] == "day":
+                elif dates == "day":
                     r_newer = account.latest_record
                     r_older = account.on_date(account.latest_date, days=-1)
                     d = r_newer - r_older
                     print(f"'{username}' from {d.dates[1]} to {d.dates[0]}:")
                     print(d.as_table())
-                elif args["-d"] == "week":
+                elif dates == "week":
                     r_newer = account.latest_record
                     r_older = account.on_date(account.latest_date, weeks=-1)
                     d = r_newer - r_older
                     print(f"'{username}' from {d.dates[1]} to {d.dates[0]}:")
                     print(d.as_table())
                 else:
-                    date_opt = args["-d"]
+                    date_opt = dates
                     raise ValueError(f"Date(s) option '{date_opt}' invalid")
             else:
-                dt, d = _process_numeric_dates(args["-d"])
+                dt, d = _process_numeric_dates(dates)
                 if dt == "single":
                     r = account.on_date(d)
                     print(f"'{username}' on {r.date}:")
@@ -128,42 +134,65 @@ if __name__ == '__main__':
                     print(f"'{username}' from {d.dates[1]} to {d.dates[0]}:")
                     print(d.as_table())
         else:
-            print(">do a comparative analysis")
-            raise NotImplementedError()
+            # print(">do a comparative analysis")
+            raise NotImplementedError("GO COMPARE... elsewhere until later...")
 
     elif args["average"]:
+        # Old:
+        # average <metric> [<minxp>] [-d <dates>]
+        # New (provisionally):
+        # average <metric> [-d <dates>] [-x <pre>] [-y <pst>]
         # TODO: Rewrite to use write to db as well
         # stats_pruned = [s for s in stats_list if s.time_played > 0]
         # metric = args["<metric>"]
         # min_xp = int(args["<minxp>"]) if args["<minxp>"] else 0
         # print_avg(stats_pruned, metric, min_xp)
         metric = args["<metric>"]
-        print(metric)
-        if args["-d"].isalpha():
-            if args["-d"] == "latest":
+        dates = args["-d"]
+        prefilter = args["-x"]
+        postfilter = args["-y"]
+
+        try:
+            db_info = sesh.query(DbInfo).one()
+        except NoResultFound:
+            logger.error("Database is blank... (or non-existent)... Exit.")
+            sys.exit(1)
+
+        logger.info(f"Calculating average of '{metric}' for '{dates}'...")
+        if dates.isalpha():
+            if dates == "latest":
                 # TODO: Calculate average for metric on latest date
+                rs = get_records_on_date(db_info.latest_date)
+                logger.info(f"Averaging {len(rs)} records...")
+                meanv = statistics.mean(getattr(r, metric) for r in rs)
+                medianv = statistics.median(getattr(r, metric) for r in rs)
+                print(f"Mean '{metric}' is {meanv:.2f}")
+                print(f"Median '{metric}' is {medianv:.2f}")
+            elif dates == "first":
                 pass
-            elif args["-d"] == "first":
-                pass
-            elif args["-d"] == "day":
+            elif dates == "day":
                 # TODO: Calculate average for metric for day
-                pass
-            elif args["-d"] == "week":
+                raise NotImplementedError("No diffs for averages... yet...")
+            elif dates == "week":
                 # TODO: Calculate average for metric for week
-                pass
+                raise NotImplementedError("No diffs for averages... yet...")
             else:
-                date_opt = args["-d"]
+                date_opt = dates
                 raise ValueError(f"Date(s) option '{date_opt}' invalid")
         else:
-            dt, d = _process_numeric_dates(args["-d"])
+            dt, d = _process_numeric_dates(dates)
             if dt == "single":
                 # TODO: Calculate average for metric on date
                 pass
             elif dt == "range":
                 # TODO: Calculate average for metric across date range
-                pass
+                raise NotImplementedError("No diffs for averages... yet...")
 
     elif args["rank"]:
+        # Old:
+        # rank <metric> [<minxp>] [<upto>] [-d <dates>]
+        # New (provisionally):
+        # rank <metric> [<n>] [-d <dates>] [-x <pre>] [-y <pst>]
         # TODO: Rewrite to use write to db as well
         stats_pruned = [s for s in stats_list if s.time_played > 0]
         metric = args["<metric>"]

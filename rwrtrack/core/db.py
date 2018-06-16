@@ -34,6 +34,10 @@ def get_account_from_db(username):
     return sesh.query(Account).filter_by(username=username).one()
 
 
+def get_records_on_date(date):
+    return sesh.query(Record).filter_by(date=date).all()
+
+
 def update_db_from_stats(stats, d):
     account_usernames = set()
     usernames = sesh.query(Account.username).all()

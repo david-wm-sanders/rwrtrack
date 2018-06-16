@@ -19,8 +19,6 @@ class RenderTableMixin:
                  f"│{self.kills:>{c1w},}│{self.kills_ph:>{c2w}.2f}│")
         r.append(f"│{'Deaths':>{c0w}}"
                  f"│{self.deaths:>{c1w},}│{self.deaths_ph:>{c2w}.2f}│")
-        r.append(f"│{'Score':>{c0w}}│{self.score:>{c1w},}│{'-':>{c2w}}│")
-        r.append(f"│{'K/D':>{c0w}}│{self.kdr:>{c1w}.2f}│{'-':>{c2w}}│")
         td, tdph = self.targets_destroyed, self.targets_destroyed_ph
         r.append(f"│{'Targets destroyed':>{c0w}}"
                  f"│{td:>{c1w},}│{tdph:>{c2w}.2f}│")
@@ -43,6 +41,13 @@ class RenderTableMixin:
         # Make a table break
         r.append(f"├{'':─<{c0w}}┼{'':─<{c1w}}┼{'':─<{c2w}}┤")
         # Make some derived statistics
+        r.append(f"│{'Score':>{c0w}}│{self.score:>{c1w},}│{'-':>{c2w}}│")
+        try:
+            kdri = self.kills / self.deaths
+        except ZeroDivisionError:
+            kdri = self.kills
+        r.append(f"│{'K/D':>{c0w}}│{kdri:>{c1w}.2f}│{'-':>{c2w}}│")
+        r.append(f"│{'K/D (diff)':>{c0w}}│{self.kdr:>{c1w}.2f}│{'-':>{c2w}}│")
         r.append(f"│{'XP per kill':>{c0w}}│"
                  f"{self.xp_pk:>{c1w},.2f}│{'-':>{c2w}}│")
         r.append(f"│{'XP per shot fired':>{c0w}}"
