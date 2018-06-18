@@ -20,6 +20,7 @@ Options:
 
 import logging
 import logging.config
+import operator
 import statistics
 import sys
 from datetime import datetime, timedelta
@@ -59,6 +60,16 @@ def _process_numeric_dates(date_string):
         d_older = int(dates[0])
         d_newer = int(dates[1])
         return "range", (d_older, d_newer)
+
+
+def _unpack_filters(fs):
+    _fs = []
+    for f in fs.split(","):
+        # logger.debug(f"Unpacking {f}")
+        m, o, v = f.split(":")
+        # logger.debug(f"metric: {m}, op: {o}, value: {v}")
+        _fs.append((m, o, int(v)))
+    return _fs
 
 
 if __name__ == '__main__':
@@ -167,6 +178,12 @@ if __name__ == '__main__':
         prefilters = args["-x"]
         pstfilters = args["-y"]
         # TODO: Process filter specifiers into stuff we can operate with...
+        logger.debug(f"Prefilters specified: '{prefilters}'")
+        prefs = _unpack_filters(prefilters) if prefilters else []
+        # logger.debug(f"prefs: {prefs}")
+        logger.debug(f"Postfilters specified: '{pstfilters}'")
+        pstfs = _unpack_filters(pstfilters) if pstfilters else []
+        # logger.debug(f"pstfs: {pstfs}")
 
         try:
             db_info = sesh.query(DbInfo).one()
@@ -180,6 +197,14 @@ if __name__ == '__main__':
                 d = db_info.latest_date
                 rs = get_records_on_date(d)
                 # TODO: Apply pref here, pstf irrelevant for individual dates
+                for pref in prefs:
+                    m, o, v = pref
+                    _opmap = {">": operator.ge, "<": operator.le}
+                    _op = _opmap.get(o, None)
+                    if _op:
+                        rs = [r for r in rs if _op(getattr(r, m), v)]
+                    else:
+                        logger.error(f"Operator '{o}' not workable... ignored")
                 logger.info(f"Averaging {len(rs)} records for {d}...")
                 meanv = statistics.mean(getattr(r, metric) for r in rs)
                 medianv = statistics.median(getattr(r, metric) for r in rs)
