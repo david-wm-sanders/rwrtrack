@@ -159,14 +159,14 @@ class Stats:
 
 
 def write_stats_to_csv(stats):
-    date_today = date.today()
-    logger.info(f"Writing stats to {date_today}.csv")
+    dt = date.today()
+    logger.info(f"Writing stats to {dt}.csv")
     field_headers = ["username", "xp", "time_played",
                      "kills", "deaths", "kill_streak",
                      "targets_destroyed", "vehicles_destroyed",
                      "soldiers_healed", "team_kills", "distance_moved",
                      "shots_fired", "throwables_thrown"]
-    csv_path = Path(__file__).parent / Path(f"csv_historical/{date_today}.csv")
+    csv_path = Path(__file__).parent / Path(f"../csv_historical/{dt}.csv")
     # TODO: Consider checking if a csv file for date_today already exists
     if not csv_path.parent.exists():
         csv_path.parent.mkdir(parents=True, exist_ok=True)
