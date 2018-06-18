@@ -65,11 +65,21 @@ def _process_numeric_dates(date_string):
 def _unpack_filters(fs):
     _fs = []
     for f in fs.split(","):
-        # logger.debug(f"Unpacking {f}")
         m, o, v = f.split(":")
-        # logger.debug(f"metric: {m}, op: {o}, value: {v}")
         _fs.append((m, o, int(v)))
     return _fs
+
+
+def apply_filters(rs, filters):
+    fs = _unpack_filters(filters)
+    for m, o, v in fs:
+        _opmap = {">": operator.ge, "<": operator.le}
+        _op = _opmap.get(o, None)
+        if _op:
+            rs = [r for r in rs if _op(getattr(r, m), v)]
+        else:
+            logger.error(f"Operator '{o}' not workable... ignored")
+    return rs
 
 
 if __name__ == '__main__':
@@ -179,11 +189,7 @@ if __name__ == '__main__':
         pstfilters = args["-y"]
         # TODO: Process filter specifiers into stuff we can operate with...
         logger.debug(f"Prefilters specified: '{prefilters}'")
-        prefs = _unpack_filters(prefilters) if prefilters else []
-        # logger.debug(f"prefs: {prefs}")
         logger.debug(f"Postfilters specified: '{pstfilters}'")
-        pstfs = _unpack_filters(pstfilters) if pstfilters else []
-        # logger.debug(f"pstfs: {pstfs}")
 
         try:
             db_info = sesh.query(DbInfo).one()
@@ -196,15 +202,13 @@ if __name__ == '__main__':
             if dates == "latest":
                 d = db_info.latest_date
                 rs = get_records_on_date(d)
-                # TODO: Apply pref here, pstf irrelevant for individual dates
-                for pref in prefs:
-                    m, o, v = pref
-                    _opmap = {">": operator.ge, "<": operator.le}
-                    _op = _opmap.get(o, None)
-                    if _op:
-                        rs = [r for r in rs if _op(getattr(r, m), v)]
-                    else:
-                        logger.error(f"Operator '{o}' not workable... ignored")
+                # Apply prefilters
+                if prefilters:
+                    logger.info(f"Applying prefilters: '{prefilters}'")
+                    rs = apply_filters(rs, prefilters)
+                if len(rs) == 0:
+                    logger.error("No records to average... exit.")
+                    sys.exit(1)
                 logger.info(f"Averaging {len(rs)} records for {d}...")
                 meanv = statistics.mean(getattr(r, metric) for r in rs)
                 medianv = statistics.median(getattr(r, metric) for r in rs)
@@ -213,7 +217,10 @@ if __name__ == '__main__':
             elif dates == "first":
                 d = db_info.first_date
                 rs = get_records_on_date(d)
-                # TODO: Apply pref here, pstf irrelevant for individual dates
+                # Apply prefilters
+                if prefilters:
+                    logger.info(f"Applying prefilters: '{prefilters}'")
+                    rs = apply_filters(rs, prefilters)
                 logger.info(f"Averaging {len(rs)} records for {d}...")
                 meanv = statistics.mean(getattr(r, metric) for r in rs)
                 medianv = statistics.median(getattr(r, metric) for r in rs)
@@ -233,7 +240,10 @@ if __name__ == '__main__':
             if dt == "single":
                 # TODO: Improve handling if record for date not in db
                 rs = get_records_on_date(d)
-                # TODO: Apply pref here, pstf irrelevant for individual dates
+                # Apply prefilters
+                if prefilters:
+                    logger.info(f"Applying prefilters: '{prefilters}'")
+                    rs = apply_filters(rs, prefilters)
                 logger.info(f"Averaging {len(rs)} records for {d}...")
                 meanv = statistics.mean(getattr(r, metric) for r in rs)
                 medianv = statistics.median(getattr(r, metric) for r in rs)
