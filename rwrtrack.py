@@ -33,11 +33,10 @@ from sqlalchemy import and_
 
 from rwrtrack.core import DbInfo, Account, Record, sesh, get_account_from_db, \
                             get_records_on_date, update_db_from_stats
-from rwrtrack.avg import print_avg
 from rwrtrack.get_stats import get_stats
 from rwrtrack.ranking import print_ranking
 from rwrtrack.stats_csv import load_stats_from_csv, write_stats_to_csv
-from rwrtrack.sums import sum_stats_and_analyse
+# from rwrtrack.sums import sum_stats_and_analyse
 
 
 script_dir = Path(__file__).parent
