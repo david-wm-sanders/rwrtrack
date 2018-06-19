@@ -55,10 +55,11 @@ def _process_numeric_dates(date_string):
     else:
         # Handle date ranges
         dates = date_string.split("-")
-        if dates[0] > dates[1]:
-            raise ValueError("Dates must be older-newer")
         d_older = int(dates[0])
         d_newer = int(dates[1])
+        if (d_older > d_newer):
+            logger.error("Dates must be older-newer!")
+            sys.exit(1)
         return "range", (d_older, d_newer)
 
 
@@ -80,6 +81,11 @@ def apply_filters(rs, filters):
         else:
             logger.error(f"Operator '{o}' not workable... ignored")
     return rs
+
+
+def _dbg_write_record_ids(rs):
+    ids = [r.account_id for r in rs]
+    logger.debug(f"Record ids: {ids}")
 
 
 if __name__ == '__main__':
@@ -210,6 +216,7 @@ if __name__ == '__main__':
                     logger.error("No records to average... exit.")
                     sys.exit(1)
                 logger.info(f"Averaging {len(rs)} records for {d}...")
+                _dbg_write_record_ids(rs)
                 meanv = statistics.mean(getattr(r, metric) for r in rs)
                 medianv = statistics.median(getattr(r, metric) for r in rs)
                 print(f"Mean '{metric}' is {meanv:.2f}")
@@ -221,7 +228,11 @@ if __name__ == '__main__':
                 if prefilters:
                     logger.info(f"Applying prefilters: '{prefilters}'")
                     rs = apply_filters(rs, prefilters)
+                if len(rs) == 0:
+                    logger.error("No records to average... exit.")
+                    sys.exit(1)
                 logger.info(f"Averaging {len(rs)} records for {d}...")
+                _dbg_write_record_ids(rs)
                 meanv = statistics.mean(getattr(r, metric) for r in rs)
                 medianv = statistics.median(getattr(r, metric) for r in rs)
                 print(f"Mean '{metric}' is {meanv:.2f}")
@@ -229,6 +240,12 @@ if __name__ == '__main__':
             elif dates == "day":
                 # TODO: Calculate average for metric for day
                 raise NotImplementedError("No diffs for averages... yet...")
+                # TODO: This might get complicated...
+                # TODO: Get records for latest date and yesterday (relatively)
+                # TODO: Apply prefilters to latest records (hereafter lrecords)
+                # TODO: For each lrecord, if yrecord for id, lrecord-yrecord
+                # TODO: Apply postfilters to the diffrecords
+                # TODO: Average whatever is left and display...
             elif dates == "week":
                 # TODO: Calculate average for metric for week
                 raise NotImplementedError("No diffs for averages... yet...")
@@ -244,7 +261,11 @@ if __name__ == '__main__':
                 if prefilters:
                     logger.info(f"Applying prefilters: '{prefilters}'")
                     rs = apply_filters(rs, prefilters)
+                if len(rs) == 0:
+                    logger.error("No records to average... exit.")
+                    sys.exit(1)
                 logger.info(f"Averaging {len(rs)} records for {d}...")
+                _dbg_write_record_ids(rs)
                 meanv = statistics.mean(getattr(r, metric) for r in rs)
                 medianv = statistics.median(getattr(r, metric) for r in rs)
                 print(f"Mean '{metric}' is {meanv:.2f}")
