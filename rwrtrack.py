@@ -353,6 +353,8 @@ if __name__ == '__main__':
 
     elif args["_interactive_mode"]:
         print("Entering interactive mode...")
+        d = get_dbinfo()
+        a = get_account_by_name("MR. BANG")
 
     else:
         print(f"BAD USAGE!\n{__doc__}")

@@ -1,18 +1,48 @@
+import logging
 from datetime import datetime, timedelta
 
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
+from sqlalchemy.ext.hybrid import hybrid_property
 
 from .db_base import Base
+
+
+logger = logging.getLogger(__name__)
 
 
 class Account(Base):
     __tablename__ = "accounts"
     _id = Column(Integer, primary_key=True)
-    username = Column(String, nullable=False, unique=True)
-    first_date = Column(Integer, nullable=False)
-    latest_date = Column(Integer, nullable=False)
+    _username = Column("username", String, nullable=False, unique=True)
+    _first_date = Column("first_date", Integer, nullable=False)
+    _latest_date = Column("latest_date", Integer, nullable=False)
     _history = relationship("Record", lazy="dynamic")
+
+    def __init__(self, username, date):
+        self._username = username
+        self._first_date = date
+        self._latest_date = date
+
+    @hybrid_property
+    def id_(self):
+        return self._id
+
+    @hybrid_property
+    def username(self):
+        return self._username
+
+    @hybrid_property
+    def first_date(self):
+        return self._first_date
+
+    @hybrid_property
+    def latest_date(self):
+        return self._latest_date
+
+    @latest_date.setter
+    def latest_date(self, value):
+        self._latest_date = value
 
     def __repr__(self):
         return f"Account(id={self._id}, " \
@@ -21,7 +51,7 @@ class Account(Base):
                f"latest_date={self.latest_date})"
 
     @property
-    def history(self):
+    def all_history(self):
         return self._history.all()
 
     @property

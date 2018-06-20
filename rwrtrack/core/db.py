@@ -81,17 +81,16 @@ def update_db_from_stats(stats, d):
         if s.username not in account_usernames:
             account_usernames.add(s.username)
             # Create a new Account for the username
-            account = Account(username=s.username,
-                              first_date=d, latest_date=d)
+            account = Account(username=s.username, date=d)
             sesh.add(account)
             # Need to flush so that account._id is populated
             sesh.flush()
         else:
             # Update Account for the username
-            account = sesh.query(Account._id) \
-                        .filter_by(username=s.username).one()
-            sesh.query(Account).filter_by(_id=account._id).update(
-                {"latest_date": d})
+            account = sesh.query(Account).filter_by(username=s.username).one()
+            account.latest_date = d
+            # sesh.query(Account).filter_by(_id=account._id).update(
+            #     {"latest_date": d})
         # Create a history entry for this stat record
         record = Record(date=d, account_id=account._id,
                         username=s.username, xp=s.xp,
