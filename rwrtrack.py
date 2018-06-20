@@ -129,23 +129,32 @@ if __name__ == '__main__':
         if not othername:
             if dates.isalpha():
                 if dates == "latest":
-                    # print(f"'{username}' on {account.latest_date}:")
+                    print(f"'{account.username}' on {account.latest_date}:")
                     print(account.latest_record.as_table())
                 elif dates == "first":
                     r = account.on_date(account.first_date)
-                    # print(f"'{username}' on {account.first_date}:")
+                    print(f"'{account.username}' on {account.first_date}:")
                     print(r.as_table())
                 elif dates == "day":
                     r_newer = account.latest_record
                     r_older = account.on_date(account.latest_date, days=-1)
                     d = r_newer - r_older
-                    # print(f"'{username}' from {d.dates[1]} to {d.dates[0]}:")
+                    print(f"'{account.username}' from "
+                          f"{r_older.date} to {r_newer.date}:")
                     print(d.as_table())
                 elif dates == "week":
                     r_newer = account.latest_record
                     r_older = account.on_date(account.latest_date, weeks=-1)
                     d = r_newer - r_older
-                    # print(f"'{username}' from {d.dates[1]} to {d.dates[0]}:")
+                    print(f"'{account.username}' from "
+                          f"{r_older.date} to {r_newer.date}:")
+                    print(d.as_table())
+                elif dates == "all":
+                    r_newer = account.latest_record
+                    r_older = account.first_record
+                    d = r_newer - r_older
+                    print(f"'{account.username}' from "
+                          f"{r_older.date} to {r_newer.date}:")
                     print(d.as_table())
                 else:
                     date_opt = dates
@@ -155,13 +164,14 @@ if __name__ == '__main__':
                 if dt == "single":
                     # TODO: Improve handling if record for date not in db
                     r = account.on_date(d)
-                    # print(f"'{username}' on {r.date}:")
+                    print(f"'{account.username}' on {r.date}:")
                     print(r.as_table())
                 elif dt == "range":
                     r_newer = account.on_date(d[1])
                     r_older = account.on_date(d[0])
                     d = r_newer - r_older
-                    # print(f"'{username}' from {d.dates[1]} to {d.dates[0]}:")
+                    print(f"'{account.username}' from "
+                          f"{r_older.date} to {r_newer.date}:")
                     print(d.as_table())
         else:
             # print(">do a comparative analysis")
@@ -251,6 +261,8 @@ if __name__ == '__main__':
             elif dates == "week":
                 # TODO: Calculate average for metric for week
                 raise NotImplementedError("No diffs for averages... yet...")
+            elif dates == "all":
+                pass
             else:
                 date_opt = dates
                 raise ValueError(f"Date(s) option '{date_opt}' invalid")
