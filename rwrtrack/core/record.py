@@ -1,4 +1,5 @@
 import logging
+from enum import Enum, unique
 
 from sqlalchemy import orm
 from sqlalchemy import Column, ForeignKey, Integer, Float, String
@@ -146,6 +147,7 @@ class Record(Base):
                f"shots_fired={self.shots_fired}, " \
                f"throwables_thrown={self.throwables_thrown})"
 
+    # TODO: Move derivedstats back into class as hybridprops with exprs
     @property
     def time_played_hours(self):
         return self.time_played / 60
@@ -275,8 +277,6 @@ class Record(Base):
         shots_fired = self.shots_fired - other.shots_fired
         throwables_thrown = self.throwables_thrown - other.throwables_thrown
         diff = (other.username, other.date)
-        # TODO: Remove RenderTableMixin and handle in class
-        # TODO: Move derivedstats back into class as hybridprops with exprs
         return Record(date, account_id, username, xp, time_played,
                       kills, deaths, score, kdr, kill_streak,
                       targets_destroyed, vehicles_destroyed,
@@ -289,26 +289,9 @@ class Record(Base):
         c0w = 20
         c1w = 12
         c2w = 10
-        # Make the table header
-        # TODO: Rework...
-        r.append(f"┌{'':─<{c0w}}─{'':─<{c1w}}─{'':─<{c2w}}┐")
-        if self._diff:
-            if self.username == self._diff[0] and self.date != self._diff[1]:
-                header = f"'{self.username}' ({self._diff[1]}-{self.date})"
-                r.append(f"│{header:<{c0w+c1w+c2w+2}}│")
-            elif self.username != self._diff[0] and self.date == self._diff[1]:
-                # r.append("this diff between users same date")
-                logger.error("Type of diff unhandled atm... try again later.")
-                raise ValueError("BAD DIFFS")
-            else:
-                # TODO: Think about implementation strategy
-                logger.error("Type of diff unhandled atm... try again later.")
-                raise ValueError("BAD DIFFS")
-        else:
-            header = f"'{self.username}' ({self.date})"
-            r.append(f"│{header:<{c0w+c1w+c2w+2}}│")
-        r.append(f"├{'':─<{c0w}}┬{'':─<{c1w}}┬{'':─<{c2w}}┤")
 
+        # Make the table header.
+        r.append(f"┌{'':─<{c0w}}┬{'':─<{c1w}}┬{'':─<{c2w}}┐")
         # Make the table column headers
         r.append(f"│{'Statistic':>{c0w}}"
                  f"│{'Value':>{c1w}}│{'per hour':>{c2w}}│")
