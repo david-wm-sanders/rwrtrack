@@ -37,7 +37,7 @@ class Record(Base, DerivedStatsMixin, RenderTableMixin):
                  kills, deaths, score, kdr, kill_streak,
                  targets_destroyed, vehicles_destroyed,
                  soldiers_healed, team_kills, distance_moved,
-                 shots_fired, throwables_thrown, is_diff=False):
+                 shots_fired, throwables_thrown, diff=False):
         self._date = date
         self._account_id = account_id
         self._username = username
@@ -56,7 +56,7 @@ class Record(Base, DerivedStatsMixin, RenderTableMixin):
         self._shots_fired = shots_fired
         self._throwables_thrown = throwables_thrown
 
-        self._is_diff = is_diff
+        self._diff = diff
 
     @hybrid_property
     def date(self):
@@ -159,6 +159,9 @@ class Record(Base, DerivedStatsMixin, RenderTableMixin):
         distance_moved = self.distance_moved - other.distance_moved
         shots_fired = self.shots_fired - other.shots_fired
         throwables_thrown = self.throwables_thrown - other.throwables_thrown
+        # TODO: Remove Stats, return a Record with diff set to other (name, d)
+        # TODO: Remove RenderTableMixin and handle in class
+        # TODO: Move derivedstats back into class as hybridprops with exprs
         return Stats(dates, account_ids, usernames, xp, time_played,
                      kills, deaths, score, kdr, kill_streak,
                      targets_destroyed, vehicles_destroyed,

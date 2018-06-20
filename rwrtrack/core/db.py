@@ -13,6 +13,7 @@ from .record import Record
 
 
 logger = logging.getLogger(__name__)
+echo = False
 
 
 class DbInfo(Base):
@@ -42,7 +43,7 @@ class DbInfo(Base):
                f"latest_date={self.latest_date})"
 
 
-engine = create_engine("sqlite:///rwrtrack_history.db")
+engine = create_engine("sqlite:///rwrtrack_history.db", echo=echo)
 # engine = create_engine("sqlite:///rwrtrack_history.db", echo=True)
 Base.metadata.create_all(engine)
 db_session = sessionmaker(bind=engine)
@@ -53,11 +54,23 @@ username_blacklist = set()
 username_blacklist.add("RAIOORIGINAL")
 
 
+def _set_db_readonly():
+    sesh.execute("PRAGMA query_only = ON;")
+
+
+def _set_db_writable():
+    sesh.execute("PRAGMA query_only = OFF;")
+
+
+# Make the db readonly by default
+_set_db_readonly()
+
+
 def get_dbinfo():
     try:
         return sesh.query(DbInfo).one()
     except NoResultFound:
-        logger.error("No row in _dbinfo table, database appears to be blank")
+        logger.warn("No row in _dbinfo table, database appears to be blank")
         raise
 
 

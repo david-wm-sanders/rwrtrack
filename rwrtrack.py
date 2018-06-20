@@ -34,7 +34,8 @@ from sqlalchemy import and_
 
 from rwrtrack.core import DbInfo, Account, Record, sesh, get_dbinfo, \
                             get_account_by_name, get_records_on_date, \
-                            update_db_from_stats
+                            update_db_from_stats, \
+                            _set_db_readonly, _set_db_writable
 from rwrtrack.get_stats import get_stats
 from rwrtrack.ranking import print_ranking
 from rwrtrack.stats_csv import load_stats_from_csv, write_stats_to_csv
@@ -294,6 +295,8 @@ if __name__ == '__main__':
 
     elif args["_db_migrate_csv"]:
         logger.info("Migrating CSV to database...")
+        # Put the db in writable mode
+        _set_db_writable()
         # Get all CSV files and filter
         logger.info("Finding CSV files for migration...")
         csv_file_paths = sorted(list(csv_hist_path.glob("*.csv")))
@@ -350,6 +353,8 @@ if __name__ == '__main__':
 
         logger.info("Committing changes to database...")
         sesh.commit()
+        # Return the db to readonly mode
+        _set_db_readonly()
 
     elif args["_interactive_mode"]:
         print("Entering interactive mode...")
