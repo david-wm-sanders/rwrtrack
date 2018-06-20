@@ -129,11 +129,11 @@ if __name__ == '__main__':
         if not othername:
             if dates.isalpha():
                 if dates == "latest":
-                    print(f"'{username}' on {account.latest_date}:")
+                    # print(f"'{username}' on {account.latest_date}:")
                     print(account.latest_record.as_table())
                 elif dates == "first":
                     r = account.on_date(account.first_date)
-                    print(f"'{username}' on {account.first_date}:")
+                    # print(f"'{username}' on {account.first_date}:")
                     print(r.as_table())
                 elif dates == "day":
                     r_newer = account.latest_record
@@ -155,7 +155,7 @@ if __name__ == '__main__':
                 if dt == "single":
                     # TODO: Improve handling if record for date not in db
                     r = account.on_date(d)
-                    print(f"'{username}' on {r.date}:")
+                    # print(f"'{username}' on {r.date}:")
                     print(r.as_table())
                 elif dt == "range":
                     r_newer = account.on_date(d[1])

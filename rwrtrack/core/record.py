@@ -1,12 +1,10 @@
 import logging
 
+from sqlalchemy import orm
 from sqlalchemy import Column, ForeignKey, Integer, Float, String
 from sqlalchemy.ext.hybrid import hybrid_property
 
 from .db_base import Base
-# from .derivedstats import DerivedStatsMixin
-from .display import RenderTableMixin
-# from .stats import Stats
 
 
 logger = logging.getLogger(__name__)
@@ -16,7 +14,7 @@ logger = logging.getLogger(__name__)
 earth_equatorial_circumference = 40075  # km
 
 
-class Record(Base, RenderTableMixin):
+class Record(Base):
     __tablename__ = "records"
     _date = Column("date", Integer, primary_key=True)
     _account_id = Column("account_id", Integer, ForeignKey("accounts._id"),
@@ -59,8 +57,11 @@ class Record(Base, RenderTableMixin):
         self._distance_moved = distance_moved
         self._shots_fired = shots_fired
         self._throwables_thrown = throwables_thrown
-
         self._diff = diff
+
+    @orm.reconstructor
+    def init_on_load(self):
+        self._diff = False
 
     @hybrid_property
     def date(self):
@@ -274,7 +275,6 @@ class Record(Base, RenderTableMixin):
         shots_fired = self.shots_fired - other.shots_fired
         throwables_thrown = self.throwables_thrown - other.throwables_thrown
         diff = (other.username, other.date)
-        # TODO: Remove Stats, return a Record with diff set to other (name, d)
         # TODO: Remove RenderTableMixin and handle in class
         # TODO: Move derivedstats back into class as hybridprops with exprs
         return Record(date, account_id, username, xp, time_played,
@@ -282,3 +282,89 @@ class Record(Base, RenderTableMixin):
                       targets_destroyed, vehicles_destroyed,
                       soldiers_healed, team_kills, distance_moved,
                       shots_fired, throwables_thrown, diff=diff)
+
+    def as_table(self):
+        r = []
+        # Make a beautiful table with box-drawing characters
+        c0w = 20
+        c1w = 12
+        c2w = 10
+        # Make the table header
+        # TODO: Rework...
+        r.append(f"┌{'':─<{c0w}}─{'':─<{c1w}}─{'':─<{c2w}}┐")
+        if self._diff:
+            if self.username == self._diff[0] and self.date != self._diff[1]:
+                header = f"'{self.username}' ({self._diff[1]}-{self.date})"
+                r.append(f"│{header:<{c0w+c1w+c2w+2}}│")
+            elif self.username != self._diff[0] and self.date == self._diff[1]:
+                # r.append("this diff between users same date")
+                logger.error("Type of diff unhandled atm... try again later.")
+                raise ValueError("BAD DIFFS")
+            else:
+                # TODO: Think about implementation strategy
+                logger.error("Type of diff unhandled atm... try again later.")
+                raise ValueError("BAD DIFFS")
+        else:
+            header = f"'{self.username}' ({self.date})"
+            r.append(f"│{header:<{c0w+c1w+c2w+2}}│")
+        r.append(f"├{'':─<{c0w}}┬{'':─<{c1w}}┬{'':─<{c2w}}┤")
+
+        # Make the table column headers
+        r.append(f"│{'Statistic':>{c0w}}"
+                 f"│{'Value':>{c1w}}│{'per hour':>{c2w}}│")
+        r.append(f"╞{'':═<{c0w}}╪{'':═<{c1w}}╪{'':═<{c2w}}╡")
+        # Make basic statistics rows
+        tph = self.time_played_hours
+        r.append(f"│{'Time played in hours':>{c0w}}"
+                 f"│{tph:>{c1w},.2f}│{'1':>{c2w}}│")
+        r.append(f"│{'XP':>{c0w}}│{self.xp:>{c1w},}│{self.xp_ph:>{c2w},.2f}│")
+        r.append(f"│{'Kills':>{c0w}}"
+                 f"│{self.kills:>{c1w},}│{self.kills_ph:>{c2w}.2f}│")
+        r.append(f"│{'Deaths':>{c0w}}"
+                 f"│{self.deaths:>{c1w},}│{self.deaths_ph:>{c2w}.2f}│")
+        td, tdph = self.targets_destroyed, self.targets_destroyed_ph
+        r.append(f"│{'Targets destroyed':>{c0w}}"
+                 f"│{td:>{c1w},}│{tdph:>{c2w}.2f}│")
+        vd, vdph = self.vehicles_destroyed, self.vehicles_destroyed_ph
+        r.append(f"│{'Vehicles destroyed':>{c0w}}"
+                 f"│{vd:>{c1w},}│{vdph:>{c2w}.2f}│")
+        sh, shph = self.soldiers_healed, self.soldiers_healed_ph
+        r.append(f"│{'Soldiers healed':>{c0w}}"
+                 f"│{sh:>{c1w},}│{shph:>{c2w}.2f}│")
+        tk, tkph = self.team_kills, self.team_kills_ph
+        r.append(f"│{'Team kills':>{c0w}}│{tk:>{c1w},}│{tkph:>{c2w}.2f}│")
+        dm, dph = self.distance_moved_km, self.distance_moved_km_ph
+        r.append(f"│{'Distance moved in km':>{c0w}}"
+                 f"│{dm:>{c1w},.2f}│{dph:>{c2w}.2f}│")
+        sf, sfph = self.shots_fired, self.shots_fired_ph
+        r.append(f"│{'Shots fired':>{c0w}}│{sf:>{c1w},}│{sfph:>{c2w},.2f}│")
+        tt, ttph = self.throwables_thrown, self.throwables_thrown_ph
+        r.append(f"│{'Throwables thrown':>{c0w}}"
+                 f"│{tt:>{c1w},}│{ttph:>{c2w}.2f}│")
+        # Make a table break
+        r.append(f"├{'':─<{c0w}}┼{'':─<{c1w}}┼{'':─<{c2w}}┤")
+        # Make some derived statistics
+        r.append(f"│{'Score':>{c0w}}│{self.score:>{c1w},}│{'-':>{c2w}}│")
+        try:
+            kdri = self.kills / self.deaths
+        except ZeroDivisionError:
+            kdri = self.kills
+        r.append(f"│{'K/D':>{c0w}}│{kdri:>{c1w}.2f}│{'-':>{c2w}}│")
+        r.append(f"│{'K/D (diff)':>{c0w}}│{self.kdr:>{c1w}.2f}│{'-':>{c2w}}│")
+        r.append(f"│{'XP per kill':>{c0w}}│"
+                 f"{self.xp_pk:>{c1w},.2f}│{'-':>{c2w}}│")
+        r.append(f"│{'XP per shot fired':>{c0w}}"
+                 f"│{self.xp_pb:>{c1w},.2f}│{'-':>{c2w}}│")
+        sf_pk = self.shots_fired_pk
+        r.append(f"│{'Shots per kill':>{c0w}}"
+                 f"│{sf_pk:>{c1w},.2f}│{'-':>{c2w}}│")
+        tk_pk = self.team_kills_pk
+        r.append(f"│{'Team kills per kill':>{c0w}}"
+                 f"│{tk_pk:>{c1w},.5f}│{'-':>{c2w}}│")
+        rate = self.runs_around_the_equator
+        r.append(f"│{'Runs around equator':>{c0w}}"
+                 f"│{rate:>{c1w}.5f}│{'-':>{c2w}}│")
+        # Make the table footer
+        r.append(f"╘{'':═<{c0w}}╧{'':═<{c1w}}╧{'':═<{c2w}}╛")
+
+        return "\n".join(r)
