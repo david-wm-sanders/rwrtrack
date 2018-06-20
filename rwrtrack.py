@@ -139,13 +139,13 @@ if __name__ == '__main__':
                     r_newer = account.latest_record
                     r_older = account.on_date(account.latest_date, days=-1)
                     d = r_newer - r_older
-                    print(f"'{username}' from {d.dates[1]} to {d.dates[0]}:")
+                    # print(f"'{username}' from {d.dates[1]} to {d.dates[0]}:")
                     print(d.as_table())
                 elif dates == "week":
                     r_newer = account.latest_record
                     r_older = account.on_date(account.latest_date, weeks=-1)
                     d = r_newer - r_older
-                    print(f"'{username}' from {d.dates[1]} to {d.dates[0]}:")
+                    # print(f"'{username}' from {d.dates[1]} to {d.dates[0]}:")
                     print(d.as_table())
                 else:
                     date_opt = dates
@@ -161,7 +161,7 @@ if __name__ == '__main__':
                     r_newer = account.on_date(d[1])
                     r_older = account.on_date(d[0])
                     d = r_newer - r_older
-                    print(f"'{username}' from {d.dates[1]} to {d.dates[0]}:")
+                    # print(f"'{username}' from {d.dates[1]} to {d.dates[0]}:")
                     print(d.as_table())
         else:
             # print(">do a comparative analysis")
@@ -303,6 +303,7 @@ if __name__ == '__main__':
         # Filter out CSV files that are not being migrated (for reasons...)
         csv_file_paths = filter(lambda x: "2017" not in x.stem,
                                 csv_file_paths)
+        # TODO: Rework, just get the filter as list and peek instead...
         try:
             # Attempt to access the DbInfo
             db_info = get_dbinfo()
