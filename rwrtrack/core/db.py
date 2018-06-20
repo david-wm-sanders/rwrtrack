@@ -1,11 +1,17 @@
+import logging
+
 from sqlalchemy import create_engine
 from sqlalchemy import Column, Integer
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.ext.declarative import declarative_base
 
 from .db_base import Base
 from .account import Account
 from .record import Record
+
+
+logger = logging.getLogger(__name__)
 
 
 class DbInfo(Base):
@@ -30,7 +36,15 @@ username_blacklist = set()
 username_blacklist.add("RAIOORIGINAL")
 
 
-def get_account_from_db(username):
+def get_dbinfo():
+    try:
+        return sesh.query(DbInfo).one()
+    except NoResultFound:
+        logger.error("No row in _dbinfo table, database appears to be blank")
+        raise
+
+
+def get_account_by_name(username):
     return sesh.query(Account).filter_by(username=username).one()
 
 

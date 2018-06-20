@@ -7,6 +7,7 @@ Usage:
     rwrtrack.py [-q|-v] rank <metric> [<n>] [-d <dates>] [-x <pre>] [-y <pst>]
     rwrtrack.py [-q|-v] sum [-d <dates>]
     rwrtrack.py [-q|-v] _db_migrate_csv
+    rwrtrack.py [-q|-v] _interactive_mode
 
 Options:
     -q          Quiet mode, reduces logging output to errors and above
@@ -31,8 +32,9 @@ from docopt import docopt
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import and_
 
-from rwrtrack.core import DbInfo, Account, Record, sesh, get_account_from_db, \
-                            get_records_on_date, update_db_from_stats
+from rwrtrack.core import DbInfo, Account, Record, sesh, get_dbinfo, \
+                            get_account_by_name, get_records_on_date, \
+                            update_db_from_stats
 from rwrtrack.get_stats import get_stats
 from rwrtrack.ranking import print_ranking
 from rwrtrack.stats_csv import load_stats_from_csv, write_stats_to_csv
@@ -118,7 +120,7 @@ if __name__ == '__main__':
 
         logger.info(f"Performing individual analysis for '{username}'...")
         try:
-            account = get_account_from_db(username)
+            account = get_account_by_name(username)
             account_id = account._id
         except NoResultFound as e:
             logger.error(f"'{username}' not found in database.")
@@ -197,9 +199,9 @@ if __name__ == '__main__':
         logger.debug(f"Postfilters specified: '{pstfilters}'")
 
         try:
-            db_info = sesh.query(DbInfo).one()
+            db_info = get_dbinfo()
         except NoResultFound:
-            logger.error("Database is blank... (or non-existent)... Exit.")
+            print("Database is blank... Exiting.")
             sys.exit(1)
 
         logger.info(f"Calculating average of '{metric}' for '{dates}'...")
@@ -348,6 +350,9 @@ if __name__ == '__main__':
 
         logger.info("Committing changes to database...")
         sesh.commit()
+
+    elif args["_interactive_mode"]:
+        print("Entering interactive mode...")
 
     else:
         print(f"BAD USAGE!\n{__doc__}")
