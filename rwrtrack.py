@@ -302,7 +302,7 @@ if __name__ == '__main__':
                                 csv_file_paths)
         try:
             # Attempt to access the DbInfo
-            db_info = sesh.query(DbInfo).one()
+            db_info = get_dbinfo()
         except NoResultFound:
             # If no DbInfo, db is blank, initialise from origin CSV file
             logger.info("Blank database found - beginning full migration...")
@@ -313,7 +313,7 @@ if __name__ == '__main__':
             d = d - timedelta(days=1)
             d = int(d.strftime("%Y%m%d"))
             # Populate _dbinfo table with the initial CSV in migration
-            db_info = DbInfo(first_date=d, latest_date=d)
+            db_info = DbInfo(date=d)
             sesh.add(db_info)
             # Add stats from the first file in the filter generator
             stats = load_stats_from_csv(first_csv_path)
