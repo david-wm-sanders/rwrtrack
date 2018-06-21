@@ -76,12 +76,15 @@ def _unpack_filters(fs):
 def apply_filters(rs, filters):
     fs = _unpack_filters(filters)
     for m, o, v in fs:
+        if m not in Record.metricables:
+            logger.error(f"Cannot filter by metric '{m}'... skipping filter")
+            continue
         _opmap = {">": operator.ge, "<": operator.le}
         _op = _opmap.get(o, None)
         if _op:
             rs = [r for r in rs if _op(getattr(r, m), v)]
         else:
-            logger.error(f"Operator '{o}' not workable... ignored")
+            logger.error(f"Operator '{o}' not workable... skipping filter")
     return rs
 
 
@@ -183,29 +186,14 @@ if __name__ == '__main__':
         # average <metric> [<minxp>] [-d <dates>]
         # New (provisionally):
         # average <metric> [-d <dates>] [-x <pre>] [-y <pst>]
-        # TODO: Rewrite to use write to db as well
-        # stats_pruned = [s for s in stats_list if s.time_played > 0]
-        # min_xp = int(args["<minxp>"]) if args["<minxp>"] else 0
-        # print_avg(stats_pruned, metric, min_xp)
-        # TODO: Rework to allow a list of permissible metrics to be specified
         metric = args["<metric>"]
-        # Fail fast if the metric specified is not one of those listed below
-        if metric not in ["xp", "time_played_hours", "kills", "deaths",
-                          "score", "kdr", "kill_streak", "targets_destroyed",
-                          "vehicles_destroyed", "soldiers_healed",
-                          "team_kills", "distance_moved_km", "shots_fired",
-                          "throwables_thrown", "xp_ph", "kills_ph",
-                          "deaths_ph", "targets_destroyed_ph",
-                          "vehicles_destroyed_ph", "soldiers_healed_ph",
-                          "team_kills_ph", "distance_moved_km_ph",
-                          "shots_fired_ph", "throwables_thrown_ph",
-                          "xp_pk", "xp_pb", "shots_fired_pk",
-                          "team_kills_pk", "runs_around_the_equator"]:
-            raise ValueError("Bad metric!")
+        # Fail fast if the metric specified is not one of those averageable
+        if metric not in Record.metricables:
+            logger.error(f"Bad metric '{metric}' can not be averaged! Exit.")
+            sys.exit(1)
         dates = args["-d"]
         prefilters = args["-x"]
         pstfilters = args["-y"]
-        # TODO: Process filter specifiers into stuff we can operate with...
         logger.debug(f"Prefilters specified: '{prefilters}'")
         logger.debug(f"Postfilters specified: '{pstfilters}'")
 
@@ -251,13 +239,39 @@ if __name__ == '__main__':
                 print(f"Median '{metric}' is {medianv:.2f}")
             elif dates == "day":
                 # TODO: Calculate average for metric for day
-                raise NotImplementedError("No diffs for averages... yet...")
                 # TODO: This might get complicated...
-                # TODO: Get records for latest date and yesterday (relatively)
-                # TODO: Apply prefilters to latest records (hereafter lrecords)
-                # TODO: For each lrecord, if yrecord for id, lrecord-yrecord
-                # TODO: Apply postfilters to the diffrecords
-                # TODO: Average whatever is left and display...
+                # Get records for latest date and yesterday (relatively)
+                d = db_info.latest_date
+                rs_newer = get_records_on_date(d)
+                rs_older = get_records_on_date(d, days=-1)
+                rs_older = {r.account_id: r for r in rs_older}
+                # Apply prefilters to latest records
+                if prefilters:
+                    rs_newer = apply_filters(rs_newer, prefilters)
+                if len(rs_newer) == 0:
+                    logger.error("No records to average... exit.")
+                    sys.exit(1)
+                # For each lrecord, if yrecord for id, lrecord-yrecord
+                rs = []
+                for r_newer in rs_newer:
+                    acctid = r_newer.account_id
+                    r_older = rs_older.get(acctid, None)
+                    if r_older:
+                        diffr = r_newer - r_older
+                        rs.append(diffr)
+                # Apply postfilters to the differenced records
+                if pstfilters:
+                    rs = apply_filters(rs, pstfilters)
+                if len(rs) == 0:
+                    logger.error("No records to average... exit.")
+                    sys.exit(1)
+                # Average whatever is left and display...
+                logger.info(f"Averaging {len(rs)} daily records for {d}...")
+                _dbg_write_record_ids(rs)
+                meanv = statistics.mean(getattr(r, metric) for r in rs)
+                medianv = statistics.median(getattr(r, metric) for r in rs)
+                print(f"Mean '{metric}' is {meanv:.2f}")
+                print(f"Median '{metric}' is {medianv:.2f}")
             elif dates == "week":
                 # TODO: Calculate average for metric for week
                 raise NotImplementedError("No diffs for averages... yet...")

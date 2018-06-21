@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime, timedelta
 
 from sqlalchemy import create_engine
 from sqlalchemy import Column, Integer
@@ -78,8 +79,14 @@ def get_account_by_name(username):
     return sesh.query(Account).filter_by(username=username).one()
 
 
-def get_records_on_date(date):
-    return sesh.query(Record).filter_by(date=date).all()
+def get_records_on_date(date, **kwargs):
+    if not kwargs:
+        return sesh.query(Record).filter_by(date=date).all()
+    else:
+        d = datetime.strptime(str(date), "%Y%m%d").date()
+        d = d + timedelta(**kwargs)
+        d = int(d.strftime("%Y%m%d"))
+        return sesh.query(Record).filter_by(date=d).all()
 
 
 def update_db_from_stats(stats, d):

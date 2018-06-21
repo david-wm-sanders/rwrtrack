@@ -36,6 +36,12 @@ class Record(Base):
     _shots_fired = Column("shots_fired", Integer, nullable=False)
     _throwables_thrown = Column("throwables_thrown", Integer, nullable=False)
 
+    metricables = ["xp", "time_played_hours", "kills", "deaths", "score", "kdr",
+                    "kill_streak", "targets_destroyed", "vehicles_destroyed", "soldiers_healed", "team_kills", "distance_moved_km",
+                    "shots_fired", "throwables_thrown", "xp_ph", "kills_ph", "deaths_ph", "targets_destroyed_ph",
+                    "vehicles_destroyed_ph", "soldiers_healed_ph",
+                    "team_kills_ph", "distance_moved_km_ph", "shots_fired_ph", "throwables_thrown_ph", "xp_pk", "xp_pb", "shots_fired_pk", "team_kills_pk", "runs_around_the_equator"]
+
     def __init__(self, date, account_id, username, xp, time_played,
                  kills, deaths, score, kdr, kill_streak,
                  targets_destroyed, vehicles_destroyed,

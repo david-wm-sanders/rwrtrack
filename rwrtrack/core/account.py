@@ -66,8 +66,6 @@ class Account(Base):
         if not kwargs:
             return self._history.filter_by(date=date).one()
         else:
-            # print(kwargs)
-            latest_date = str(self.latest_date)
             d = datetime.strptime(str(date), "%Y%m%d").date()
             d = d + timedelta(**kwargs)
             d = int(d.strftime("%Y%m%d"))
