@@ -21,7 +21,6 @@ Options:
 
 import logging
 import logging.config
-import operator
 import statistics
 import sys
 from datetime import datetime, timedelta
@@ -36,6 +35,9 @@ from rwrtrack.core import DbInfo, Account, Record, sesh, get_dbinfo, \
                             get_account_by_name, get_records_on_date, \
                             update_db_from_stats, \
                             _set_db_readonly, _set_db_writable
+from rwrtrack.util import process_numeric_dates, _dbg_write_record_ids, \
+                            apply_filters
+from rwrtrack.analysis import perform_analysis
 from rwrtrack.get_stats import get_stats
 from rwrtrack.ranking import print_ranking
 from rwrtrack.stats_csv import load_stats_from_csv, write_stats_to_csv
@@ -49,48 +51,6 @@ logger = logging.getLogger(__name__)
 
 
 csv_hist_path = Path(__file__).parent / Path("csv_historical")
-
-
-def _process_numeric_dates(date_string):
-    if date_string.isnumeric():
-        return "single", int(date_string)
-    else:
-        # Handle date ranges
-        dates = date_string.split("-")
-        d_older = int(dates[0])
-        d_newer = int(dates[1])
-        if (d_older > d_newer):
-            logger.error("Dates must be older-newer!")
-            sys.exit(1)
-        return "range", (d_older, d_newer)
-
-
-def _unpack_filters(fs):
-    _fs = []
-    for f in fs.split(","):
-        m, o, v = f.split(":")
-        _fs.append((m, o, int(v)))
-    return _fs
-
-
-def apply_filters(rs, filters):
-    fs = _unpack_filters(filters)
-    for m, o, v in fs:
-        if m not in Record.metricables:
-            logger.error(f"Cannot filter by metric '{m}'... skipping filter")
-            continue
-        _opmap = {">": operator.ge, "<": operator.le}
-        _op = _opmap.get(o, None)
-        if _op:
-            rs = [r for r in rs if _op(getattr(r, m), v)]
-        else:
-            logger.error(f"Operator '{o}' not workable... skipping filter")
-    return rs
-
-
-def _dbg_write_record_ids(rs):
-    ids = [r.account_id for r in rs]
-    logger.debug(f"Record ids: {ids}")
 
 
 if __name__ == '__main__':
@@ -121,65 +81,7 @@ if __name__ == '__main__':
         username = args["<name>"]
         othername = args["<othername>"]
         dates = args["-d"]
-
-        logger.info(f"Performing individual analysis for '{username}'...")
-        try:
-            account = get_account_by_name(username)
-            account_id = account._id
-        except NoResultFound as e:
-            logger.error(f"'{username}' not found in database.")
-            sys.exit(1)
-        if not othername:
-            if dates.isalpha():
-                if dates == "latest":
-                    print(f"'{account.username}' on {account.latest_date}:")
-                    print(account.latest_record.as_table())
-                elif dates == "first":
-                    r = account.on_date(account.first_date)
-                    print(f"'{account.username}' on {account.first_date}:")
-                    print(r.as_table())
-                elif dates == "day":
-                    r_newer = account.latest_record
-                    r_older = account.on_date(account.latest_date, days=-1)
-                    d = r_newer - r_older
-                    print(f"'{account.username}' from "
-                          f"{r_older.date} to {r_newer.date}:")
-                    print(d.as_table())
-                elif dates == "week":
-                    r_newer = account.latest_record
-                    r_older = account.on_date(account.latest_date, weeks=-1)
-                    d = r_newer - r_older
-                    print(f"'{account.username}' from "
-                          f"{r_older.date} to {r_newer.date}:")
-                    print(d.as_table())
-                elif dates == "all":
-                    r_newer = account.latest_record
-                    r_older = account.first_record
-                    d = r_newer - r_older
-                    print(f"'{account.username}' from "
-                          f"{r_older.date} to {r_newer.date}:")
-                    print(d.as_table())
-                else:
-                    date_opt = dates
-                    raise ValueError(f"Date(s) option '{date_opt}' invalid")
-            else:
-                dt, d = _process_numeric_dates(dates)
-                if dt == "single":
-                    # TODO: Improve handling if record for date not in db
-                    r = account.on_date(d)
-                    print(f"'{account.username}' on {r.date}:")
-                    print(r.as_table())
-                elif dt == "range":
-                    r_newer = account.on_date(d[1])
-                    r_older = account.on_date(d[0])
-                    d = r_newer - r_older
-                    print(f"'{account.username}' from "
-                          f"{r_older.date} to {r_newer.date}:")
-                    print(d.as_table())
-        else:
-            # print(">do a comparative analysis")
-            # TODO: Implement... eventually...
-            raise NotImplementedError("GO COMPARE... elsewhere until later...")
+        perform_analysis(username, othername, dates)
 
     elif args["average"]:
         # Old:
@@ -245,13 +147,13 @@ if __name__ == '__main__':
                 rs_newer = get_records_on_date(d)
                 rs_older = get_records_on_date(d, days=-1)
                 rs_older = {r.account_id: r for r in rs_older}
-                # Apply prefilters to latest records
+                # Apply prefilters to newer records
                 if prefilters:
                     rs_newer = apply_filters(rs_newer, prefilters)
                 if len(rs_newer) == 0:
                     logger.error("No records to average... exit.")
                     sys.exit(1)
-                # For each lrecord, if yrecord for id, lrecord-yrecord
+                # For each nrecord, if orecord for id, nrecord-orecord
                 rs = []
                 for r_newer in rs_newer:
                     acctid = r_newer.account_id
@@ -281,7 +183,7 @@ if __name__ == '__main__':
                 date_opt = dates
                 raise ValueError(f"Date(s) option '{date_opt}' invalid")
         else:
-            dt, d = _process_numeric_dates(dates)
+            dt, d = process_numeric_dates(dates)
             if dt == "single":
                 # TODO: Improve handling if record for date not in db
                 rs = get_records_on_date(d)
