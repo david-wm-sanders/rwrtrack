@@ -1,4 +1,5 @@
 import logging
+import sys
 import operator
 
 from .core import Record
@@ -21,7 +22,7 @@ def process_numeric_dates(date_string):
         return "range", (d_older, d_newer)
 
 
-def _dbg_write_record_ids(rs):
+def dbg_write_record_ids(rs):
     ids = [r.account_id for r in rs]
     logger.debug(f"Record ids: {ids}")
 
@@ -34,7 +35,7 @@ def _unpack_filters(fs):
     return _fs
 
 
-def apply_filters(rs, filters):
+def _apply_filters(rs, filters):
     fs = _unpack_filters(filters)
     for m, o, v in fs:
         if m not in Record.metricables:
@@ -46,4 +47,13 @@ def apply_filters(rs, filters):
             rs = [r for r in rs if _op(getattr(r, m), v)]
         else:
             logger.error(f"Operator '{o}' not workable... skipping filter")
+    return rs
+
+
+def apply_filters(rs, fs):
+    if fs:
+        rs = _apply_filters(rs, fs)
+    if len(rs) == 0:
+        logger.error("No records to average... exit.")
+        sys.exit(1)
     return rs

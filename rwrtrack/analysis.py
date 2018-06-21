@@ -15,7 +15,7 @@ def perform_analysis(username, othername, dates):
     except NoResultFound as e:
         logger.error(f"'{username}' not found in database.")
         sys.exit(1)
-        
+
     if not othername:
         logger.info(f"Performing individual analysis for '{username}'...")
         if dates.isalpha():

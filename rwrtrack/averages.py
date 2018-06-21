@@ -4,9 +4,60 @@ import statistics
 from sqlalchemy.orm.exc import NoResultFound
 
 from .core import Record, get_dbinfo, get_records_on_date
-from .util import process_numeric_dates, apply_filters, _dbg_write_record_ids
+from .util import process_numeric_dates, apply_filters, dbg_write_record_ids
 
 logger = logging.getLogger(__name__)
+
+
+def calculate_averages(rs, metric):
+    meanv = statistics.mean(getattr(r, metric) for r in rs)
+    medianv = statistics.median(getattr(r, metric) for r in rs)
+    return meanv, medianv
+
+
+def _print_avgs(rs, metric):
+    meanv, medianv = calculate_averages(rs, metric)
+    print(f"Mean '{metric}' is {meanv:.2f}")
+    print(f"Median '{metric}' is {medianv:.2f}")
+
+
+def _diff_records(rs_newer, rs_older):
+    rs_older = {r.account_id: r for r in rs_older}
+    # For each nrecord, if orecord for id, nrecord-orecord
+    rs = []
+    for r_newer in rs_newer:
+        acctid = r_newer.account_id
+        r_older = rs_older.get(acctid, None)
+        if r_older:
+            diffr = r_newer - r_older
+            rs.append(diffr)
+    return rs
+
+
+def _print_avgs_date(d, metric, prefilters):
+    rs = get_records_on_date(d)
+    # Apply prefilters
+    logger.info(f"Applying prefilters: '{prefilters}'")
+    rs = apply_filters(rs, prefilters)
+    # Average whatever is left and display...
+    logger.info(f"Averaging {len(rs)} records for {d}...")
+    dbg_write_record_ids(rs)
+    _print_avgs(rs, metric)
+
+
+def _print_avgs_daterange(rs_newer, rs_older, metric, prefilters, pstfilters):
+    # Apply prefilters to newer records
+    logger.info(f"Applying prefilters: '{prefilters}'")
+    rs_newer = apply_filters(rs_newer, prefilters)
+    # Difference the records
+    rs = _diff_records(rs_newer, rs_older)
+    # Apply postfilters to the differenced records
+    logger.info(f"Applying postfilters: '{pstfilters}'")
+    rs = apply_filters(rs, pstfilters)
+    # Average whatever is left and display...
+    logger.info(f"Averaging {len(rs)} records...")
+    dbg_write_record_ids(rs)
+    _print_avgs(rs, metric)
 
 
 def perform_averaging(metric, dates, prefilters, pstfilters):
@@ -24,101 +75,48 @@ def perform_averaging(metric, dates, prefilters, pstfilters):
         print("Database is blank... Exiting.")
         sys.exit(1)
 
-    logger.info(f"Calculating average of '{metric}' for '{dates}'...")
+    # logger.info(f"Calculating average of '{metric}' for '{dates}'...")
     if dates.isalpha():
         if dates == "latest":
             d = db_info.latest_date
-            rs = get_records_on_date(d)
-            # Apply prefilters
-            if prefilters:
-                logger.info(f"Applying prefilters: '{prefilters}'")
-                rs = apply_filters(rs, prefilters)
-            if len(rs) == 0:
-                logger.error("No records to average... exit.")
-                sys.exit(1)
-            logger.info(f"Averaging {len(rs)} records for {d}...")
-            _dbg_write_record_ids(rs)
-            meanv = statistics.mean(getattr(r, metric) for r in rs)
-            medianv = statistics.median(getattr(r, metric) for r in rs)
-            print(f"Mean '{metric}' is {meanv:.2f}")
-            print(f"Median '{metric}' is {medianv:.2f}")
+            logger.info(f"Averaging '{metric}' in records for {d}...")
+            _print_avgs_date(d, metric, prefilters)
         elif dates == "first":
             d = db_info.first_date
-            rs = get_records_on_date(d)
-            # Apply prefilters
-            if prefilters:
-                logger.info(f"Applying prefilters: '{prefilters}'")
-                rs = apply_filters(rs, prefilters)
-            if len(rs) == 0:
-                logger.error("No records to average... exit.")
-                sys.exit(1)
-            logger.info(f"Averaging {len(rs)} records for {d}...")
-            _dbg_write_record_ids(rs)
-            meanv = statistics.mean(getattr(r, metric) for r in rs)
-            medianv = statistics.median(getattr(r, metric) for r in rs)
-            print(f"Mean '{metric}' is {meanv:.2f}")
-            print(f"Median '{metric}' is {medianv:.2f}")
+            logger.info(f"Averaging '{metric}' in records for {d}...")
+            _print_avgs_date(d, metric, prefilters)
         elif dates == "day":
-            # TODO: Calculate average for metric for day
-            # TODO: This might get complicated...
             # Get records for latest date and yesterday (relatively)
             d = db_info.latest_date
+            logger.info(f"Averaging '{metric}' in daily records for {d}...")
             rs_newer = get_records_on_date(d)
             rs_older = get_records_on_date(d, days=-1)
-            rs_older = {r.account_id: r for r in rs_older}
-            # Apply prefilters to newer records
-            if prefilters:
-                rs_newer = apply_filters(rs_newer, prefilters)
-            if len(rs_newer) == 0:
-                logger.error("No records to average... exit.")
-                sys.exit(1)
-            # For each nrecord, if orecord for id, nrecord-orecord
-            rs = []
-            for r_newer in rs_newer:
-                acctid = r_newer.account_id
-                r_older = rs_older.get(acctid, None)
-                if r_older:
-                    diffr = r_newer - r_older
-                    rs.append(diffr)
-            # Apply postfilters to the differenced records
-            if pstfilters:
-                rs = apply_filters(rs, pstfilters)
-            if len(rs) == 0:
-                logger.error("No records to average... exit.")
-                sys.exit(1)
-            # Average whatever is left and display...
-            logger.info(f"Averaging {len(rs)} daily records for {d}...")
-            _dbg_write_record_ids(rs)
-            meanv = statistics.mean(getattr(r, metric) for r in rs)
-            medianv = statistics.median(getattr(r, metric) for r in rs)
-            print(f"Mean '{metric}' is {meanv:.2f}")
-            print(f"Median '{metric}' is {medianv:.2f}")
+            _print_avgs_daterange(rs_newer, rs_older, metric,
+                                  prefilters, pstfilters)
         elif dates == "week":
-            # TODO: Calculate average for metric for week
-            raise NotImplementedError("No diffs for averages... yet...")
+            d = db_info.latest_date
+            logger.info(f"Averaging '{metric}' in weekly records for {d}...")
+            rs_newer = get_records_on_date(d)
+            rs_older = get_records_on_date(d, weeks=-1)
+            _print_avgs_daterange(rs_newer, rs_older, metric,
+                                  prefilters, pstfilters)
         elif dates == "all":
-            pass
+            logger.info(f"Averaging '{metric}' in historical records...")
+            rs_newer = get_records_on_date(db_info.latest_date)
+            rs_older = get_records_on_date(db_info.first_date)
+            _print_avgs_daterange(rs_newer, rs_older, metric,
+                                  prefilters, pstfilters)
         else:
             date_opt = dates
             raise ValueError(f"Date(s) option '{date_opt}' invalid")
     else:
         dt, d = process_numeric_dates(dates)
         if dt == "single":
-            # TODO: Improve handling if record for date not in db
-            rs = get_records_on_date(d)
-            # Apply prefilters
-            if prefilters:
-                logger.info(f"Applying prefilters: '{prefilters}'")
-                rs = apply_filters(rs, prefilters)
-            if len(rs) == 0:
-                logger.error("No records to average... exit.")
-                sys.exit(1)
-            logger.info(f"Averaging {len(rs)} records for {d}...")
-            _dbg_write_record_ids(rs)
-            meanv = statistics.mean(getattr(r, metric) for r in rs)
-            medianv = statistics.median(getattr(r, metric) for r in rs)
-            print(f"Mean '{metric}' is {meanv:.2f}")
-            print(f"Median '{metric}' is {medianv:.2f}")
+            logger.info(f"Averaging '{metric}' in records for {d}...")
+            _print_avgs_date(d, metric, prefilters)
         elif dt == "range":
-            # TODO: Calculate average for metric across date range
-            raise NotImplementedError("No diffs for averages... yet...")
+            logger.info(f"Averaging '{metric}' for {d[0]}-{d[1]}...")
+            rs_newer = get_records_on_date(d[1])
+            rs_older = get_records_on_date(d[0])
+            _print_avgs_daterange(rs_newer, rs_older, metric,
+                                  prefilters, pstfilters)
