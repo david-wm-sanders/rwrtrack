@@ -41,7 +41,8 @@ def _apply_filters(rs, filters):
         if m not in Record.metricables:
             logger.error(f"Cannot filter by metric '{m}'... skipping filter")
             continue
-        _opmap = {">": operator.ge, "<": operator.le}
+        _opmap = {">=": operator.ge, "<=": operator.le,
+                  ">": operator.gt, "<": operator.lt}
         _op = _opmap.get(o, None)
         if _op:
             rs = [r for r in rs if _op(getattr(r, m), v)]

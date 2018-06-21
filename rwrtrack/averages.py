@@ -52,7 +52,7 @@ def _print_avgs_daterange(rs_newer, rs_older, metric, prefilters, pstfilters):
     # Difference the records
     rs = _diff_records(rs_newer, rs_older)
     # Apply postfilters to the differenced records
-    logger.info(f"Applying postfilters: '{pstfilters}'")
+    logger.info(f"Applying pstfilters: '{pstfilters}'")
     rs = apply_filters(rs, pstfilters)
     # Average whatever is left and display...
     logger.info(f"Averaging {len(rs)} records...")
@@ -67,7 +67,7 @@ def perform_averaging(metric, dates, prefilters, pstfilters):
         sys.exit(1)
 
     logger.debug(f"Prefilters specified: '{prefilters}'")
-    logger.debug(f"Postfilters specified: '{pstfilters}'")
+    logger.debug(f"Pstfilters specified: '{pstfilters}'")
 
     try:
         db_info = get_dbinfo()
