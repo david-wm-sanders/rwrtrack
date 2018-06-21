@@ -23,8 +23,8 @@ def process_numeric_dates(date_string):
 
 
 def dbg_write_record_ids(rs):
-    ids = [r.account_id for r in rs]
-    logger.debug(f"Record ids: {ids}")
+    ids = [(r.account_id, r.username) for r in rs]
+    logger.info(f"Records: {ids}")
 
 
 def _unpack_filters(fs):
