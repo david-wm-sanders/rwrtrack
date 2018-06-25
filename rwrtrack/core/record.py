@@ -237,9 +237,9 @@ class Record(Base):
             return 0
 
     @property
-    def xp_pk(self):
+    def kills_pd(self):
         try:
-            return self.xp / self.kills
+            return self.kills /self.distance_moved_km
         except ZeroDivisionError:
             return 0
 
@@ -247,6 +247,13 @@ class Record(Base):
     def xp_pb(self):
         try:
             return self.xp / self.shots_fired
+        except ZeroDivisionError:
+            return 0
+
+    @property
+    def xp_pk(self):
+        try:
+            return self.xp / self.kills
         except ZeroDivisionError:
             return 0
 
@@ -344,10 +351,12 @@ class Record(Base):
             kdri = self.kills
         r.append(f"│{'K/D':>{c0w}}│{kdri:>{c1w}.2f}│{'-':>{c2w}}│")
         r.append(f"│{'K/D (diff)':>{c0w}}│{self.kdr:>{c1w}.2f}│{'-':>{c2w}}│")
-        r.append(f"│{'XP per kill':>{c0w}}│"
-                 f"{self.xp_pk:>{c1w},.2f}│{'-':>{c2w}}│")
+        r.append(f"│{'Kills per km':>{c0w}}"
+                 f"│{self.kills_pd:>{c1w},.2f}│{'-':>{c2w}}│")
         r.append(f"│{'XP per shot fired':>{c0w}}"
                  f"│{self.xp_pb:>{c1w},.2f}│{'-':>{c2w}}│")
+        r.append(f"│{'XP per kill':>{c0w}}│"
+                 f"{self.xp_pk:>{c1w},.2f}│{'-':>{c2w}}│")
         sf_pk = self.shots_fired_pk
         r.append(f"│{'Shots per kill':>{c0w}}"
                  f"│{sf_pk:>{c1w},.2f}│{'-':>{c2w}}│")
