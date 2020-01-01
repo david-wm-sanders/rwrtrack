@@ -119,7 +119,7 @@ if __name__ == '__main__':
         logger.info("Finding CSV files for migration...")
         csv_file_paths = sorted(list(csv_hist_path.glob("*.csv")))
         # Filter out CSV files that are not being migrated (for reasons...)
-        csv_file_paths = filter(lambda x: "2017" not in x.stem,
+        csv_file_paths = filter(lambda x: "2017" not in x.stem and "2018" not in x.stem,
                                 csv_file_paths)
         # TODO: Rework, just get the filter as list and peek instead...
         try:
@@ -161,6 +161,7 @@ if __name__ == '__main__':
                     break
         finally:
             for csv_file_path in csv_file_paths:
+                logger.info(f"Processing CSV file at '{csv_file_path}'...")
                 stats = load_stats_from_csv(csv_file_path)
                 # Fix dates
                 d = datetime.strptime(csv_file_path.stem, "%Y-%m-%d").date()
@@ -169,9 +170,9 @@ if __name__ == '__main__':
                 # Update latest_date in _dbinfo table
                 db_info.latest_date = d
                 update_db_from_stats(stats, d)
+                # logger.info("Committing changes to database...")
+                sesh.commit()
 
-        logger.info("Committing changes to database...")
-        sesh.commit()
         # Return the db to readonly mode
         _set_db_readonly()
 
