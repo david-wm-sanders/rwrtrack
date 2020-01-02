@@ -22,39 +22,39 @@ def process_numeric_dates(date_string):
         return "range", (d_older, d_newer)
 
 
-def _write_record_names(rs):
-    names = [r.username for r in rs]
+def _write_record_names(records):
+    names = [record.username for record in records]
     logger.info(f"Records: {', '.join(names)}")
 
 
-def _unpack_filters(fs):
-    _fs = []
-    for f in fs.split(","):
-        m, o, v = f.split(":")
-        _fs.append((m, o, int(v)))
-    return _fs
+def _unpack_filters(filters):
+    filters_unpacked = []
+    for _filter in filters.split(","):
+        metric, op, value = _filter.split(":")
+        filters_unpacked.append((metric, op, int(value)))
+    return filters_unpacked
 
 
-def _apply_filters(rs, filters):
-    fs = _unpack_filters(filters)
-    for m, o, v in fs:
-        if m not in Record.metricables:
-            logger.error(f"Cannot filter by metric '{m}'... skipping filter")
+def _apply_filters(records, filters_unpacked):
+    for metric, op, value in filters_unpacked:
+        if metric not in Record.metricables:
+            logger.error(f"Cannot filter by metric '{metric}'... skipping filter")
             continue
         _opmap = {">=": operator.ge, "<=": operator.le,
                   ">": operator.gt, "<": operator.lt}
-        _op = _opmap.get(o, None)
+        _op = _opmap.get(op, None)
         if _op:
-            rs = [r for r in rs if _op(getattr(r, m), v)]
+            records = [record for record in records if _op(getattr(record, metric), value)]
         else:
-            logger.error(f"Operator '{o}' not workable... skipping filter")
-    return rs
+            logger.error(f"Operator '{op}' not workable... skipping filter")
+    return records
 
 
-def apply_filters(rs, fs):
-    if fs:
-        rs = _apply_filters(rs, fs)
-    if len(rs) == 0:
+def apply_filters(records, filters):
+    if filters:
+        filters_unpacked = _unpack_filters(filters)
+        records = _apply_filters(records, filters_unpacked)
+    if len(records) == 0:
         logger.error("No records to average... exit.")
         sys.exit(1)
-    return rs
+    return records
