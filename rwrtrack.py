@@ -2,12 +2,9 @@
 
 Usage:
     rwrtrack.py [-q|-v] get [<pages>]
-    rwrtrack.py [-q|-v] analyse <name> [<othername>] [-d <dates>]
+    rwrtrack.py [-q|-v] analyse <name> [-d <dates>]
     rwrtrack.py [-q|-v] average <metric> [-d <dates>] [-x <pre>] [-y <pst>]
-    rwrtrack.py [-q|-v] rank <metric> [<n>] [-d <dates>] [-x <pre>] [-y <pst>]
-    rwrtrack.py [-q|-v] sum [-d <dates>]
     rwrtrack.py [-q|-v] _db_migrate_csv
-    rwrtrack.py [-q|-v] _interactive_mode
 
 Options:
     -q          Quiet mode, reduces logging output to errors and above
@@ -34,14 +31,12 @@ from rwrtrack.core import DbInfo, Account, Record, sesh, get_dbinfo, \
                             get_account_by_name, get_records_on_date, \
                             update_db_from_stats, \
                             _set_db_readonly, _set_db_writable
-from rwrtrack.util import process_numeric_dates, dbg_write_record_ids, \
+from rwrtrack.util import process_numeric_dates, _dbg_write_record_ids, \
                             apply_filters
 from rwrtrack.analysis import perform_analysis
 from rwrtrack.averages import perform_averaging
 from rwrtrack.get_stats import get_stats
-from rwrtrack.ranking import print_ranking
 from rwrtrack.stats_csv import load_stats_from_csv, write_stats_to_csv
-# from rwrtrack.sums import sum_stats_and_analyse
 
 
 script_dir = Path(__file__).parent
@@ -77,15 +72,12 @@ if __name__ == '__main__':
         write_stats_to_csv(stats)
 
     elif args["analyse"]:
-        # analyse <name> [<othername>] [-d <dates>]
+        # analyse <name> [-d <dates>]
         username = args["<name>"]
-        othername = args["<othername>"]
         dates = args["-d"]
-        perform_analysis(username, othername, dates)
+        perform_analysis(username, dates)
 
     elif args["average"]:
-        # Old:
-        # average <metric> [<minxp>] [-d <dates>]
         # New (provisionally):
         # average <metric> [-d <dates>] [-x <pre>] [-y <pst>]
         metric = args["<metric>"]
@@ -93,23 +85,6 @@ if __name__ == '__main__':
         prefilters = args["-x"]
         pstfilters = args["-y"]
         perform_averaging(metric, dates, prefilters, pstfilters)
-
-    elif args["rank"]:
-        # Old:
-        # rank <metric> [<minxp>] [<upto>] [-d <dates>]
-        # New (provisionally):
-        # rank <metric> [<n>] [-d <dates>] [-x <pre>] [-y <pst>]
-        # TODO: Rewrite to use write to db as well
-        stats_pruned = [s for s in stats_list if s.time_played > 0]
-        metric = args["<metric>"]
-        min_xp = int(args["<minxp>"]) if args["<minxp>"] else 0
-        upto = int(args["<upto>"]) if args["<upto>"] else 25
-        print_ranking(stats_pruned, metric, min_xp, upto)
-
-    elif args["sum"]:
-        # TODO: Rewrite to use write to db as well
-        output_at_rows = [10, 100, 1000]
-        sum_stats_and_analyse(stats_list, output_at_rows)
 
     elif args["_db_migrate_csv"]:
         logger.info("Migrating CSV to database...")
@@ -175,11 +150,6 @@ if __name__ == '__main__':
 
         # Return the db to readonly mode
         _set_db_readonly()
-
-    elif args["_interactive_mode"]:
-        print("Entering interactive mode...")
-        d = get_dbinfo()
-        a = get_account_by_name("MR. BANG")
 
     else:
         print(f"BAD USAGE!\n{__doc__}")
