@@ -45,7 +45,6 @@ class DbInfo(Base):
 
 
 engine = create_engine("sqlite:///rwrtrack_history.db", echo=echo)
-# engine = create_engine("sqlite:///rwrtrack_history.db", echo=True)
 Base.metadata.create_all(engine)
 db_session = sessionmaker(bind=engine)
 sesh = db_session()
@@ -109,14 +108,11 @@ def update_db_from_stats(stats, d):
             # Update Account for the username
             account = sesh.query(Account).filter_by(username=s.username).one()
             account.latest_date = d
-            # sesh.query(Account).filter_by(_id=account._id).update(
-            #     {"latest_date": d})
         # Create a history entry for this stat record
         record = Record(date=d, account_id=account._id,
                         username=s.username, xp=s.xp,
                         time_played=s.time_played,
                         kills=s.kills, deaths=s.deaths,
-                        score=s.score, kdr=s.kdr,
                         kill_streak=s.kill_streak,
                         targets_destroyed=s.targets_destroyed,
                         vehicles_destroyed=s.vehicles_destroyed,

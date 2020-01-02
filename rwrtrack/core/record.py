@@ -10,7 +10,6 @@ from .db_base import Base
 
 logger = logging.getLogger(__name__)
 
-
 # Approximate equatorial circumference of Earth
 earth_equatorial_circumference = 40075  # km
 
@@ -25,8 +24,6 @@ class Record(Base):
     _time_played = Column("time_played", Integer, nullable=False)
     _kills = Column("kills", Integer, nullable=False)
     _deaths = Column("deaths", Integer, nullable=False)
-    _score = Column("score", Integer, nullable=False)
-    _kdr = Column("kdr", Float, nullable=False)
     _kill_streak = Column("kill_streak", Integer, nullable=False)
     _targets_destroyed = Column("targets_destroyed", Integer, nullable=False)
     _vehicles_destroyed = Column("vehicles_destroyed", Integer, nullable=False)
@@ -47,7 +44,7 @@ class Record(Base):
                    "shots_fired_per_kill", "team_kills_per_kill", "runs_around_the_equator"]
 
     def __init__(self, date, account_id, username, xp, time_played,
-                 kills, deaths, score, kdr, kill_streak,
+                 kills, deaths, kill_streak,
                  targets_destroyed, vehicles_destroyed,
                  soldiers_healed, team_kills, distance_moved,
                  shots_fired, throwables_thrown, diff=False):
@@ -58,8 +55,6 @@ class Record(Base):
         self._time_played = time_played
         self._kills = kills
         self._deaths = deaths
-        self._score = score
-        self._kdr = kdr
         self._kill_streak = kill_streak
         self._targets_destroyed = targets_destroyed
         self._vehicles_destroyed = vehicles_destroyed
@@ -104,11 +99,11 @@ class Record(Base):
 
     @hybrid_property
     def score(self):
-        return self._score
+        return self.kills - self.deaths
 
     @hybrid_property
     def kdr(self):
-        return self._kdr
+        return self.kills / self.deaths
 
     @hybrid_property
     def kill_streak(self):
@@ -283,8 +278,6 @@ class Record(Base):
         time_played = self.time_played - other.time_played
         kills = self.kills - other.kills
         deaths = self.deaths - other.deaths
-        score = self.score - other.score
-        kdr = self.kdr - other.kdr
         kill_streak = self.kill_streak - other.kill_streak
         targets_destroyed = self.targets_destroyed - other.targets_destroyed
         vehicles_destroyed = self.vehicles_destroyed - other.vehicles_destroyed
@@ -295,7 +288,7 @@ class Record(Base):
         throwables_thrown = self.throwables_thrown - other.throwables_thrown
         diff = (other.username, other.date)
         return Record(date, account_id, username, xp, time_played,
-                      kills, deaths, score, kdr, kill_streak,
+                      kills, deaths, kill_streak,
                       targets_destroyed, vehicles_destroyed,
                       soldiers_healed, team_kills, distance_moved,
                       shots_fired, throwables_thrown, diff=diff)
@@ -345,12 +338,7 @@ class Record(Base):
         r.append(f"├{'':─<{c0w}}┼{'':─<{c1w}}┼{'':─<{c2w}}┤")
         # Make some derived statistics
         r.append(f"│{'Score':>{c0w}}│{self.score:>{c1w},}│{'-':>{c2w}}│")
-        try:
-            kdri = self.kills / self.deaths
-        except ZeroDivisionError:
-            kdri = self.kills
-        r.append(f"│{'K/D':>{c0w}}│{kdri:>{c1w}.2f}│{'-':>{c2w}}│")
-        r.append(f"│{'K/D (diff)':>{c0w}}│{self.kdr:>{c1w}.2f}│{'-':>{c2w}}│")
+        r.append(f"│{'K/D':>{c0w}}│{self.kdr:>{c1w}.2f}│{'-':>{c2w}}│")
         r.append(f"│{'Kills per km':>{c0w}}"
                  f"│{self.kills_per_km_moved:>{c1w},.2f}│{'-':>{c2w}}│")
         r.append(f"│{'XP per shot fired':>{c0w}}"
