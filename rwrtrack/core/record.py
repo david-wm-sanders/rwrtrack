@@ -239,7 +239,7 @@ class Record(Base):
     @property
     def kills_pd(self):
         try:
-            return self.kills /self.distance_moved_km
+            return self.kills / self.distance_moved_km
         except ZeroDivisionError:
             return 0
 
