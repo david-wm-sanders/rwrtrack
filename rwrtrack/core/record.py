@@ -40,11 +40,11 @@ class Record(Base):
                    "kdr", "kill_streak", "targets_destroyed",
                    "vehicles_destroyed", "soldiers_healed", "team_kills",
                    "distance_moved_km", "shots_fired", "throwables_thrown",
-                   "xp_ph", "kills_ph", "deaths_ph", "targets_destroyed_ph",
-                   "vehicles_destroyed_ph", "soldiers_healed_ph",
-                   "team_kills_ph", "distance_moved_km_ph", "shots_fired_ph",
-                   "throwables_thrown_ph", "xp_pk", "xp_pb", "shots_fired_pk",
-                   "team_kills_pk", "runs_around_the_equator"]
+                   "xp_per_hour", "kills_per_hour", "deaths_per_hour", "targets_destroyed_per_hour",
+                   "vehicles_destroyed_per_hour", "soldiers_healed_per_hour",
+                   "team_kills_per_hour", "distance_moved_km_per_hour", "shots_fired_per_hour",
+                   "throwables_thrown_per_hour", "kills_per_km_moved", "xp_per_kill", "xp_per_shot_fired",
+                   "shots_fired_per_kill", "team_kills_per_kill", "runs_around_the_equator"]
 
     def __init__(self, date, account_id, username, xp, time_played,
                  kills, deaths, score, kdr, kill_streak,
@@ -167,105 +167,105 @@ class Record(Base):
         return self.distance_moved / 1000
 
     @property
-    def xp_ph(self):
+    def xp_per_hour(self):
         try:
             return self.xp / self.time_played_hours
         except ZeroDivisionError:
             return 0
 
     @property
-    def kills_ph(self):
+    def kills_per_hour(self):
         try:
             return self.kills / self.time_played_hours
         except ZeroDivisionError:
             return 0
 
     @property
-    def deaths_ph(self):
+    def deaths_per_hour(self):
         try:
             return self.deaths / self.time_played_hours
         except ZeroDivisionError:
             return 0
 
     @property
-    def targets_destroyed_ph(self):
+    def targets_destroyed_per_hour(self):
         try:
             return self.targets_destroyed / self.time_played_hours
         except ZeroDivisionError:
             return 0
 
     @property
-    def vehicles_destroyed_ph(self):
+    def vehicles_destroyed_per_hour(self):
         try:
             return self.vehicles_destroyed / self.time_played_hours
         except ZeroDivisionError:
             return 0
 
     @property
-    def soldiers_healed_ph(self):
+    def soldiers_healed_per_hour(self):
         try:
             return self.soldiers_healed / self.time_played_hours
         except ZeroDivisionError:
             return 0
 
     @property
-    def team_kills_ph(self):
+    def team_kills_per_hour(self):
         try:
             return self.team_kills / self.time_played_hours
         except ZeroDivisionError:
             return 0
 
     @property
-    def distance_moved_km_ph(self):
+    def distance_moved_km_per_hour(self):
         try:
             return self.distance_moved_km / self.time_played_hours
         except ZeroDivisionError:
             return 0
 
     @property
-    def shots_fired_ph(self):
+    def shots_fired_per_hour(self):
         try:
             return self.shots_fired / self.time_played_hours
         except ZeroDivisionError:
             return 0
 
     @property
-    def throwables_thrown_ph(self):
+    def throwables_thrown_per_hour(self):
         try:
             return self.throwables_thrown / self.time_played_hours
         except ZeroDivisionError:
             return 0
 
     @property
-    def kills_pd(self):
+    def kills_per_km_moved(self):
         try:
             return self.kills / self.distance_moved_km
         except ZeroDivisionError:
             return 0
 
     @property
-    def xp_pb(self):
+    def xp_per_shot_fired(self):
         try:
             return self.xp / self.shots_fired
         except ZeroDivisionError:
             return 0
 
     @property
-    def xp_pk(self):
+    def xp_per_kill(self):
         try:
             return self.xp / self.kills
         except ZeroDivisionError:
             return 0
 
     @property
-    def shots_fired_pk(self):
+    def shots_fired_per_kill(self):
         try:
             return self.shots_fired / self.kills
         except ZeroDivisionError:
             return 0
 
     @property
-    def team_kills_pk(self):
+    def team_kills_per_kill(self):
         try:
             return self.team_kills / self.kills
         except ZeroDivisionError:
@@ -317,28 +317,28 @@ class Record(Base):
         tph = self.time_played_hours
         r.append(f"│{'Time played in hours':>{c0w}}"
                  f"│{tph:>{c1w},.2f}│{'1':>{c2w}}│")
-        r.append(f"│{'XP':>{c0w}}│{self.xp:>{c1w},}│{self.xp_ph:>{c2w},.2f}│")
+        r.append(f"│{'XP':>{c0w}}│{self.xp:>{c1w},}│{self.xp_per_hour:>{c2w},.2f}│")
         r.append(f"│{'Kills':>{c0w}}"
-                 f"│{self.kills:>{c1w},}│{self.kills_ph:>{c2w}.2f}│")
+                 f"│{self.kills:>{c1w},}│{self.kills_per_hour:>{c2w}.2f}│")
         r.append(f"│{'Deaths':>{c0w}}"
-                 f"│{self.deaths:>{c1w},}│{self.deaths_ph:>{c2w}.2f}│")
-        td, tdph = self.targets_destroyed, self.targets_destroyed_ph
+                 f"│{self.deaths:>{c1w},}│{self.deaths_per_hour:>{c2w}.2f}│")
+        td, tdph = self.targets_destroyed, self.targets_destroyed_per_hour
         r.append(f"│{'Targets destroyed':>{c0w}}"
                  f"│{td:>{c1w},}│{tdph:>{c2w}.2f}│")
-        vd, vdph = self.vehicles_destroyed, self.vehicles_destroyed_ph
+        vd, vdph = self.vehicles_destroyed, self.vehicles_destroyed_per_hour
         r.append(f"│{'Vehicles destroyed':>{c0w}}"
                  f"│{vd:>{c1w},}│{vdph:>{c2w}.2f}│")
-        sh, shph = self.soldiers_healed, self.soldiers_healed_ph
+        sh, shph = self.soldiers_healed, self.soldiers_healed_per_hour
         r.append(f"│{'Soldiers healed':>{c0w}}"
                  f"│{sh:>{c1w},}│{shph:>{c2w}.2f}│")
-        tk, tkph = self.team_kills, self.team_kills_ph
+        tk, tkph = self.team_kills, self.team_kills_per_hour
         r.append(f"│{'Team kills':>{c0w}}│{tk:>{c1w},}│{tkph:>{c2w}.2f}│")
-        dm, dph = self.distance_moved_km, self.distance_moved_km_ph
+        dm, dph = self.distance_moved_km, self.distance_moved_km_per_hour
         r.append(f"│{'Distance moved in km':>{c0w}}"
                  f"│{dm:>{c1w},.2f}│{dph:>{c2w}.2f}│")
-        sf, sfph = self.shots_fired, self.shots_fired_ph
+        sf, sfph = self.shots_fired, self.shots_fired_per_hour
         r.append(f"│{'Shots fired':>{c0w}}│{sf:>{c1w},}│{sfph:>{c2w},.2f}│")
-        tt, ttph = self.throwables_thrown, self.throwables_thrown_ph
+        tt, ttph = self.throwables_thrown, self.throwables_thrown_per_hour
         r.append(f"│{'Throwables thrown':>{c0w}}"
                  f"│{tt:>{c1w},}│{ttph:>{c2w}.2f}│")
         # Make a table break
@@ -352,20 +352,19 @@ class Record(Base):
         r.append(f"│{'K/D':>{c0w}}│{kdri:>{c1w}.2f}│{'-':>{c2w}}│")
         r.append(f"│{'K/D (diff)':>{c0w}}│{self.kdr:>{c1w}.2f}│{'-':>{c2w}}│")
         r.append(f"│{'Kills per km':>{c0w}}"
-                 f"│{self.kills_pd:>{c1w},.2f}│{'-':>{c2w}}│")
+                 f"│{self.kills_per_km_moved:>{c1w},.2f}│{'-':>{c2w}}│")
         r.append(f"│{'XP per shot fired':>{c0w}}"
-                 f"│{self.xp_pb:>{c1w},.2f}│{'-':>{c2w}}│")
+                 f"│{self.xp_per_shot_fired:>{c1w},.2f}│{'-':>{c2w}}│")
         r.append(f"│{'XP per kill':>{c0w}}│"
-                 f"{self.xp_pk:>{c1w},.2f}│{'-':>{c2w}}│")
-        sf_pk = self.shots_fired_pk
+                 f"{self.xp_per_kill:>{c1w},.2f}│{'-':>{c2w}}│")
+        sf_per_kill = self.shots_fired_per_kill
         r.append(f"│{'Shots per kill':>{c0w}}"
-                 f"│{sf_pk:>{c1w},.2f}│{'-':>{c2w}}│")
-        tk_pk = self.team_kills_pk
+                 f"│{sf_per_kill:>{c1w},.2f}│{'-':>{c2w}}│")
+        tk_per_kill = self.team_kills_per_kill
         r.append(f"│{'Team kills per kill':>{c0w}}"
-                 f"│{tk_pk:>{c1w},.5f}│{'-':>{c2w}}│")
-        rate = self.runs_around_the_equator
+                 f"│{tk_per_kill:>{c1w},.5f}│{'-':>{c2w}}│")
         r.append(f"│{'Runs around equator':>{c0w}}"
-                 f"│{rate:>{c1w}.5f}│{'-':>{c2w}}│")
+                 f"│{self.runs_around_the_equator:>{c1w}.5f}│{'-':>{c2w}}│")
         # Make the table footer
         r.append(f"╘{'':═<{c0w}}╧{'':═<{c1w}}╧{'':═<{c2w}}╛")
 

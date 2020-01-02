@@ -31,7 +31,7 @@ from rwrtrack.core import DbInfo, Account, Record, sesh, get_dbinfo, \
                             get_account_by_name, get_records_on_date, \
                             update_db_from_stats, \
                             _set_db_readonly, _set_db_writable
-from rwrtrack.util import process_numeric_dates, _dbg_write_record_ids, \
+from rwrtrack.util import process_numeric_dates, _write_record_names, \
                             apply_filters
 from rwrtrack.analysis import perform_analysis
 from rwrtrack.averages import perform_averaging

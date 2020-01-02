@@ -22,9 +22,9 @@ def process_numeric_dates(date_string):
         return "range", (d_older, d_newer)
 
 
-def _dbg_write_record_ids(rs):
-    ids = [(r.account_id, r.username) for r in rs]
-    logger.info(f"Records: {ids}")
+def _write_record_names(rs):
+    names = [r.username for r in rs]
+    logger.info(f"Records: {', '.join(names)}")
 
 
 def _unpack_filters(fs):

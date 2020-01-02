@@ -94,43 +94,43 @@ class Stats:
             return self.kills
 
     @property
-    def xp_ph(self):
+    def xp_per_hour(self):
         return self.xp / self.time_played_hours
 
     @property
-    def kills_ph(self):
+    def kills_per_hour(self):
         return self.kills / self.time_played_hours
 
     @property
-    def deaths_ph(self):
+    def deaths_per_hour(self):
         return self.deaths / self.time_played_hours
 
     @property
-    def targets_destroyed_ph(self):
+    def targets_destroyed_per_hour(self):
         return self.targets_destroyed / self.time_played_hours
 
     @property
-    def vehicles_destroyed_ph(self):
+    def vehicles_destroyed_per_hour(self):
         return self.vehicles_destroyed / self.time_played_hours
 
     @property
-    def soldiers_healed_ph(self):
+    def soldiers_healed_per_hour(self):
         return self.soldiers_healed / self.time_played_hours
 
     @property
-    def team_kills_ph(self):
+    def team_kills_per_hour(self):
         return self.team_kills / self.time_played_hours
 
     @property
-    def distance_moved_km_ph(self):
+    def distance_moved_km_per_hour(self):
         return self.distance_moved_km / self.time_played_hours
 
     @property
-    def shots_fired_ph(self):
+    def shots_fired_per_hour(self):
         return self.shots_fired / self.time_played_hours
 
     @property
-    def throwables_thrown_ph(self):
+    def throwables_thrown_per_hour(self):
         return self.throwables_thrown / self.time_played_hours
 
     @property
@@ -138,19 +138,19 @@ class Stats:
         return self.kills - self.deaths
 
     @property
-    def xp_pk(self):
+    def xp_per_kill(self):
         return self.xp / self.kills
 
     @property
-    def xp_pb(self):
+    def xp_per_shot_fired(self):
         return self.xp / self.shots_fired
 
     @property
-    def shots_fired_pk(self):
+    def shots_fired_per_kill(self):
         return self.shots_fired / self.kills
 
     @property
-    def team_kills_pk(self):
+    def team_kills_per_kill(self):
         return self.team_kills / self.kills
 
     @property

@@ -4,7 +4,7 @@ import statistics
 from sqlalchemy.orm.exc import NoResultFound
 
 from .core import Record, get_dbinfo, get_records_on_date
-from .util import process_numeric_dates, apply_filters, _dbg_write_record_ids
+from .util import process_numeric_dates, apply_filters, _write_record_names
 
 logger = logging.getLogger(__name__)
 
@@ -40,8 +40,8 @@ def _print_avgs_date(d, metric, prefilters):
     logger.info(f"Applying prefilters: '{prefilters}'")
     rs = apply_filters(rs, prefilters)
     # Average whatever is left and display...
+    _write_record_names(rs)
     logger.info(f"Averaging {len(rs)} records for {d}...")
-    # _dbg_write_record_ids(rs)
     _print_avgs(rs, metric)
 
 
@@ -55,8 +55,8 @@ def _print_avgs_daterange(rs_newer, rs_older, metric, prefilters, pstfilters):
     logger.info(f"Applying pstfilters: '{pstfilters}'")
     rs = apply_filters(rs, pstfilters)
     # Average whatever is left and display...
+    _write_record_names(rs)
     logger.info(f"Averaging {len(rs)} records...")
-    # _dbg_write_record_ids(rs)
     _print_avgs(rs, metric)
 
 
