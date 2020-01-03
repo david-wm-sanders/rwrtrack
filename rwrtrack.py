@@ -5,6 +5,7 @@ Usage:
     rwrtrack.py [-q|-v] analyse <name> [-d <dates>]
     rwrtrack.py [-q|-v] average <metric> [-d <dates>] [-x <pre>] [-y <pst>]
     rwrtrack.py [-q|-v] _db_migrate_csv
+    rwrtrack.py [-q|-v] _interactive_mode
 
 Options:
     -q          Quiet mode, reduces logging output to errors and above
@@ -150,6 +151,13 @@ if __name__ == '__main__':
 
         # Return the db to readonly mode
         _set_db_readonly()
+
+    elif args["_interactive_mode"]:
+        print("Entering interactive mode...")
+        import code
+        _dbinfo = get_dbinfo()
+        _bang = get_account_by_name("MR. BANG")
+        code.interact(local=locals(), banner="", exitmsg="")
 
     else:
         print(f"BAD USAGE!\n{__doc__}")

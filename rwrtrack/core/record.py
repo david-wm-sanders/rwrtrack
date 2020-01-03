@@ -4,6 +4,7 @@ from enum import Enum, unique
 from sqlalchemy import orm
 from sqlalchemy import Column, ForeignKey, Integer, Float, String
 from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy.sql import case
 
 from .db_base import Base
 
@@ -98,14 +99,6 @@ class Record(Base):
         return self._deaths
 
     @hybrid_property
-    def score(self):
-        return self.kills - self.deaths
-
-    @hybrid_property
-    def kdr(self):
-        return self.kills / self.deaths
-
-    @hybrid_property
     def kill_streak(self):
         return self._kill_streak
 
@@ -153,6 +146,24 @@ class Record(Base):
                f"throwables_thrown={self.throwables_thrown})"
 
     # TODO: Move derivedstats back into class as hybridprops with exprs
+    # Derived statistics (those that aren't stored as columns in the database)
+    @hybrid_property
+    def score(self):
+        return self.kills - self.deaths
+
+    @hybrid_property
+    def kdr(self):
+        try:
+            return self.kills / self.deaths
+        except ZeroDivisionError:
+            return self.kills
+
+    # Special expression case if using "kdr" directly in SQLAlchemy queries
+    # This effectively mirrors the logic for the property above but as something that can be translated to SQL
+    @kdr.expression
+    def kdr(cls):
+        return case([(cls.deaths > 0, cls.kills / cls.deaths)], else_ = cls.kills)
+
     @property
     def time_played_hours(self):
         return self.time_played / 60
