@@ -44,6 +44,10 @@ class Account(Base):
     def latest_date(self, value):
         self._latest_date = value
 
+    @hybrid_property
+    def history(self):
+        return self._history
+
     def __repr__(self):
         return f"Account(id={self._id}, " \
                f"username='{self.username}', " \
@@ -51,7 +55,7 @@ class Account(Base):
                f"latest_date={self.latest_date})"
 
     @property
-    def all_history(self):
+    def complete_history(self):
         return self._history.all()
 
     @property

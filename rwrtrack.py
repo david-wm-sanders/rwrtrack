@@ -4,6 +4,7 @@ Usage:
     rwrtrack.py [-q|-v] get [<pages>]
     rwrtrack.py [-q|-v] analyse <name> [-d <dates>]
     rwrtrack.py [-q|-v] average <metric> [-d <dates>] [-x <pre>] [-y <pst>]
+    rwrtrack.py [-q|-v] _dbinfo
     rwrtrack.py [-q|-v] _db_migrate_csv
     rwrtrack.py [-q|-v] _interactive_mode
 
@@ -26,7 +27,7 @@ from pathlib import Path
 from docopt import docopt
 
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy import and_
+from sqlalchemy import func, distinct
 
 from rwrtrack.core import DbInfo, Account, Record, sesh, get_dbinfo, \
                             get_account_by_name, get_records_on_date, \
@@ -86,6 +87,21 @@ if __name__ == '__main__':
         prefilters = args["-x"]
         pstfilters = args["-y"]
         perform_averaging(metric, dates, prefilters, pstfilters)
+
+    elif args["_dbinfo"]:
+        try:
+            db_info = get_dbinfo()
+        except NoResultFound:
+            logger.info("Database not populated with anything. Exit.")
+            sys.exit()
+
+        print(f"First date: {db_info.first_date} Latest date: {db_info.latest_date}")
+        num_accounts = sesh.query(func.count(Account._id)).scalar()
+        print(f"Accounts recorded: {num_accounts}")
+        num_days = sesh.query(func.count(distinct(Record.date))).scalar()
+        print(f"Days recorded: {num_days}")
+        total_records = sesh.query(func.count(Record.date)).scalar()
+        print(f"Number of records: {total_records}")
 
     elif args["_db_migrate_csv"]:
         logger.info("Migrating CSV to database...")
