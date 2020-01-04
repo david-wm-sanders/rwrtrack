@@ -1,25 +1,20 @@
 import logging
-from enum import Enum, unique
 
 from sqlalchemy import orm
-from sqlalchemy import Column, ForeignKey, Integer, Float, String
+from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.sql import case
 
 from .db_base import Base
+from .derivedstats import DerivedStats
 
 
 logger = logging.getLogger(__name__)
 
-# Approximate equatorial circumference of Earth
-earth_equatorial_circumference = 40075  # km
 
-
-class Record(Base):
+class Record(Base, DerivedStats):
     __tablename__ = "records"
     _date = Column("date", Integer, primary_key=True)
-    _account_id = Column("account_id", Integer, ForeignKey("accounts._id"),
-                         primary_key=True)
+    _account_id = Column("account_id", Integer, ForeignKey("accounts._id"), primary_key=True)
     _username = Column("username", String, nullable=False)
     _xp = Column("xp", Integer, nullable=False)
     _time_played = Column("time_played", Integer, nullable=False)
@@ -144,142 +139,6 @@ class Record(Base):
                f"distance_moved={self.distance_moved}, " \
                f"shots_fired={self.shots_fired}, " \
                f"throwables_thrown={self.throwables_thrown})"
-
-    # TODO: Move derivedstats back into class as hybridprops with exprs
-    # Derived statistics (those that aren't stored as columns in the database)
-    @hybrid_property
-    def score(self):
-        return self.kills - self.deaths
-
-    @hybrid_property
-    def kdr(self):
-        try:
-            return self.kills / self.deaths
-        except ZeroDivisionError:
-            return self.kills
-
-    # Special expression case if using "kdr" directly in SQLAlchemy queries
-    # This effectively mirrors the logic for the property above but as something that can be translated to SQL
-    @kdr.expression
-    def kdr(cls):
-        return case([(cls.deaths > 0, cls.kills / cls.deaths)], else_ = cls.kills)
-
-    @property
-    def time_played_hours(self):
-        return self.time_played / 60
-
-    @property
-    def distance_moved_km(self):
-        return self.distance_moved / 1000
-
-    @property
-    def xp_per_hour(self):
-        try:
-            return self.xp / self.time_played_hours
-        except ZeroDivisionError:
-            return 0
-
-    @property
-    def kills_per_hour(self):
-        try:
-            return self.kills / self.time_played_hours
-        except ZeroDivisionError:
-            return 0
-
-    @property
-    def deaths_per_hour(self):
-        try:
-            return self.deaths / self.time_played_hours
-        except ZeroDivisionError:
-            return 0
-
-    @property
-    def targets_destroyed_per_hour(self):
-        try:
-            return self.targets_destroyed / self.time_played_hours
-        except ZeroDivisionError:
-            return 0
-
-    @property
-    def vehicles_destroyed_per_hour(self):
-        try:
-            return self.vehicles_destroyed / self.time_played_hours
-        except ZeroDivisionError:
-            return 0
-
-    @property
-    def soldiers_healed_per_hour(self):
-        try:
-            return self.soldiers_healed / self.time_played_hours
-        except ZeroDivisionError:
-            return 0
-
-    @property
-    def team_kills_per_hour(self):
-        try:
-            return self.team_kills / self.time_played_hours
-        except ZeroDivisionError:
-            return 0
-
-    @property
-    def distance_moved_km_per_hour(self):
-        try:
-            return self.distance_moved_km / self.time_played_hours
-        except ZeroDivisionError:
-            return 0
-
-    @property
-    def shots_fired_per_hour(self):
-        try:
-            return self.shots_fired / self.time_played_hours
-        except ZeroDivisionError:
-            return 0
-
-    @property
-    def throwables_thrown_per_hour(self):
-        try:
-            return self.throwables_thrown / self.time_played_hours
-        except ZeroDivisionError:
-            return 0
-
-    @property
-    def kills_per_km_moved(self):
-        try:
-            return self.kills / self.distance_moved_km
-        except ZeroDivisionError:
-            return 0
-
-    @property
-    def xp_per_shot_fired(self):
-        try:
-            return self.xp / self.shots_fired
-        except ZeroDivisionError:
-            return 0
-
-    @property
-    def xp_per_kill(self):
-        try:
-            return self.xp / self.kills
-        except ZeroDivisionError:
-            return 0
-
-    @property
-    def shots_fired_per_kill(self):
-        try:
-            return self.shots_fired / self.kills
-        except ZeroDivisionError:
-            return 0
-
-    @property
-    def team_kills_per_kill(self):
-        try:
-            return self.team_kills / self.kills
-        except ZeroDivisionError:
-            return 0
-
-    @property
-    def runs_around_the_equator(self):
-        return self.distance_moved_km / earth_equatorial_circumference
 
     def __sub__(self, other):
         date = self.date
