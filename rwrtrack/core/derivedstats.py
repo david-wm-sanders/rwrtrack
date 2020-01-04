@@ -18,11 +18,11 @@ class DerivedStats:
         try:
             return self.kills / self.deaths
         except ZeroDivisionError:
-            return self.kills
+            return 0
 
     @kdr.expression
     def kdr(cls):
-        return case([(cls.deaths > 0, cast(cls.kills, Float) / cls.deaths)], else_=cls.kills)
+        return case([(cls.deaths > 0, cast(cls.kills, Float) / cls.deaths)], else_=0)
 
     # Time played in hours
     @hybrid_property
