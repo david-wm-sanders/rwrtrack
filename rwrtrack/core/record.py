@@ -1,6 +1,5 @@
 import logging
 
-from sqlalchemy import orm
 from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.ext.hybrid import hybrid_property
 
@@ -39,11 +38,9 @@ class Record(Base, DerivedStats):
                    "throwables_thrown_per_hour", "kills_per_km_moved", "xp_per_kill", "xp_per_shot_fired",
                    "shots_fired_per_kill", "team_kills_per_kill", "runs_around_the_equator"]
 
-    def __init__(self, date, account_id, username, xp, time_played,
-                 kills, deaths, kill_streak,
-                 targets_destroyed, vehicles_destroyed,
-                 soldiers_healed, team_kills, distance_moved,
-                 shots_fired, throwables_thrown, diff=False):
+    def __init__(self, date, account_id, username, xp, time_played, kills, deaths, kill_streak,
+                 targets_destroyed, vehicles_destroyed, soldiers_healed, team_kills, distance_moved,
+                 shots_fired, throwables_thrown):
         self._date = date
         self._account_id = account_id
         self._username = username
@@ -59,11 +56,6 @@ class Record(Base, DerivedStats):
         self._distance_moved = distance_moved
         self._shots_fired = shots_fired
         self._throwables_thrown = throwables_thrown
-        self._diff = diff
-
-    @orm.reconstructor
-    def init_on_load(self):
-        self._diff = False
 
     @hybrid_property
     def date(self):
@@ -156,12 +148,9 @@ class Record(Base, DerivedStats):
         distance_moved = self.distance_moved - other.distance_moved
         shots_fired = self.shots_fired - other.shots_fired
         throwables_thrown = self.throwables_thrown - other.throwables_thrown
-        diff = (other.username, other.date)
-        return Record(date, account_id, username, xp, time_played,
-                      kills, deaths, kill_streak,
-                      targets_destroyed, vehicles_destroyed,
-                      soldiers_healed, team_kills, distance_moved,
-                      shots_fired, throwables_thrown, diff=diff)
+        return Record(date, account_id, username, xp, time_played, kills, deaths, kill_streak,
+                      targets_destroyed, vehicles_destroyed, soldiers_healed, team_kills, distance_moved,
+                      shots_fired, throwables_thrown)
 
     def as_table(self):
         r = []
