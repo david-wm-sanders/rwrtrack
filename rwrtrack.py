@@ -27,10 +27,10 @@ from pathlib import Path
 from docopt import docopt
 
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy import func, distinct
+from sqlalchemy import func, distinct, text
 
 from rwrtrack.core import DbInfo, Account, Record, sesh, get_dbinfo, \
-                            get_account_by_name, get_records_on_date, \
+                            get_account_by_name, get_records_on_date, difference, \
                             update_db_from_stats, \
                             _set_db_readonly, _set_db_writable
 from rwrtrack.util import process_numeric_dates, _write_record_names, \

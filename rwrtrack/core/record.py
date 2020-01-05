@@ -133,7 +133,7 @@ class Record(Base, DerivedStats):
                f"throwables_thrown={self.throwables_thrown})"
 
     def __sub__(self, other):
-        date = self.date
+        date = f"'diff:{other.date}-{self.date}'"
         account_id = self.account_id
         username = self.username
         xp = self.xp - other.xp
@@ -148,9 +148,10 @@ class Record(Base, DerivedStats):
         distance_moved = self.distance_moved - other.distance_moved
         shots_fired = self.shots_fired - other.shots_fired
         throwables_thrown = self.throwables_thrown - other.throwables_thrown
-        return Record(date, account_id, username, xp, time_played, kills, deaths, kill_streak,
-                      targets_destroyed, vehicles_destroyed, soldiers_healed, team_kills, distance_moved,
-                      shots_fired, throwables_thrown)
+        r = Record(date, account_id, username, xp, time_played, kills, deaths, kill_streak,
+                   targets_destroyed, vehicles_destroyed, soldiers_healed, team_kills, distance_moved,
+                   shots_fired, throwables_thrown)
+        return r
 
     def as_table(self):
         r = []
