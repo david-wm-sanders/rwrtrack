@@ -1,0 +1,4 @@
+SELECT a.account_id AS account_id, a.username AS username, a.xp - b.xp AS xp, a.time_played - b.time_played AS time_played, a.kills - b.kills AS kills, a.deaths - b.deaths AS deaths, a.kill_streak - b.kill_streak AS kill_streak, a.targets_destroyed - b.targets_destroyed AS targets_destroyed, a.vehicles_destroyed - b.vehicles_destroyed AS vehicles_destroyed, a.soldiers_healed - b.soldiers_healed AS soldiers_healed, a.team_kills - b.team_kills AS team_kills, a.distance_moved - b.distance_moved AS distance_moved, a.shots_fired - b.shots_fired AS shots_fired
+FROM records AS a, records AS b
+WHERE a.date = 20191231 AND b.date = 20181231 AND a.account_id = b.account_id
+ORDER BY time_played DESC
