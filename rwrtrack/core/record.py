@@ -1,4 +1,5 @@
 from sqlalchemy import Column, ForeignKey, Integer, String
+from sqlalchemy.orm import aliased
 from sqlalchemy.ext.hybrid import hybrid_property
 
 from .db import DeclarativeBase
@@ -212,3 +213,7 @@ class Record(DeclarativeBase, DerivedStats):
         r.append(f"╘{'':═<{c0w}}╧{'':═<{c1w}}╧{'':═<{c2w}}╛")
 
         return "\n".join(r)
+
+
+# Set aliases for Record to use in self-join scenarios
+RA, RB = aliased(Record, name="ra"), aliased(Record, name="rb")
