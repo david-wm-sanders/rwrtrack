@@ -5,12 +5,14 @@ from sqlalchemy import and_, text
 from sqlalchemy.orm import aliased
 from sqlalchemy.orm.exc import NoResultFound # as SQLNoResultFound
 
-from .db import DbInfo, sesh
+from .db import sesh
+from .dbinfo import DbInfo
 from .account import Account
 from .record import Record
 
 
 logger = logging.getLogger(__name__)
+
 # Configure blacklist for troublesome usernames
 username_blacklist = set()
 username_blacklist.add("RAIOORIGINAL")
