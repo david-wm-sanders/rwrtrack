@@ -2,7 +2,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.sql import case, cast
 from sqlalchemy import Float
 
-from .constants import earth_equatorial_circumference
+from .constants import EARTH_EQUAT_CIRC
 
 
 class DerivedStats:
@@ -217,4 +217,4 @@ class DerivedStats:
     # Runs around the Earth equator
     @hybrid_property
     def runs_around_the_equator(self):
-        return self.distance_moved_km / earth_equatorial_circumference
+        return self.distance_moved_km / EARTH_EQUAT_CIRC
