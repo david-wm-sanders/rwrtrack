@@ -1,6 +1,6 @@
-from sqlalchemy.ext.hybrid import hybrid_property
-from sqlalchemy.sql import case, cast
 from sqlalchemy import Float
+from sqlalchemy.sql import cast
+from sqlalchemy.ext.hybrid import hybrid_property
 
 from .constants import EARTH_EQUAT_CIRC
 
@@ -22,7 +22,7 @@ class DerivedStats:
 
     @kdr.expression
     def kdr(cls):
-        return case([(cls.deaths > 0, cast(cls.kills, Float) / cls.deaths)], else_=0)
+        return cast(cls.kills, Float) / cls.deaths
 
     # Time played in hours
     @hybrid_property
@@ -44,7 +44,7 @@ class DerivedStats:
 
     @xp_per_hour.expression
     def xp_per_hour(cls):
-        return case([(cls.time_played > 0, cast(cls.xp, Float) / cls.time_played_hours)], else_=0)
+        return cast(cls.xp, Float) / cls.time_played_hours
 
     # Kills per hour
     @hybrid_property
@@ -56,7 +56,7 @@ class DerivedStats:
 
     @kills_per_hour.expression
     def kills_per_hour(cls):
-        return case([(cls.time_played > 0, cast(cls.kills, Float) / cls.time_played_hours)], else_=0)
+        return cast(cls.kills, Float) / cls.time_played_hours
 
     # Deaths per hour
     @hybrid_property
@@ -68,7 +68,7 @@ class DerivedStats:
 
     @deaths_per_hour.expression
     def deaths_per_hour(cls):
-        return case([(cls.time_played > 0, cast(cls.deaths, Float) / cls.time_played_hours)], else_=0)
+        return cast(cls.deaths, Float) / cls.time_played_hours
 
     # Targets destroyed per hour
     @hybrid_property
@@ -80,7 +80,7 @@ class DerivedStats:
 
     @targets_destroyed_per_hour.expression
     def targets_destroyed_per_hour(cls):
-        return case([(cls.time_played > 0, cast(cls.targets_destroyed, Float) / cls.time_played_hours)], else_=0)
+        return cast(cls.targets_destroyed, Float) / cls.time_played_hours
 
     # Vehicles destroyed per hour
     @hybrid_property
@@ -92,7 +92,7 @@ class DerivedStats:
 
     @vehicles_destroyed_per_hour.expression
     def vehicles_destroyed_per_hour(cls):
-        return case([(cls.time_played > 0, cast(cls.vehicles_destroyed, Float) / cls.time_played_hours)], else_=0)
+        return cast(cls.vehicles_destroyed, Float) / cls.time_played_hours
 
     # Soldiers healed per hour
     @hybrid_property
@@ -104,7 +104,7 @@ class DerivedStats:
 
     @soldiers_healed_per_hour.expression
     def soldiers_healed_per_hour(cls):
-        return case([(cls.time_played > 0, cast(cls.soldiers_healed, Float) / cls.time_played_hours)], else_=0)
+        return cast(cls.soldiers_healed, Float) / cls.time_played_hours
 
     # Team kills per hour
     @hybrid_property
@@ -116,7 +116,7 @@ class DerivedStats:
 
     @team_kills_per_hour.expression
     def team_kills_per_hour(cls):
-        return case([(cls.time_played > 0, cast(cls.team_kills, Float) / cls.time_played_hours)], else_=0)
+        return cast(cls.team_kills, Float) / cls.time_played_hours
 
     # Distance moved (in km) per hour
     @hybrid_property
@@ -128,7 +128,7 @@ class DerivedStats:
 
     @distance_moved_km_per_hour.expression
     def distance_moved_km_per_hour(cls):
-        return case([(cls.time_played > 0, cast(cls.distance_moved_km, Float) / cls.time_played_hours)], else_=0)
+        return cast(cls.distance_moved_km, Float) / cls.time_played_hours
 
     # Shots fired per hour
     @hybrid_property
@@ -140,7 +140,7 @@ class DerivedStats:
 
     @shots_fired_per_hour.expression
     def shots_fired_per_hour(cls):
-        return case([(cls.time_played > 0, cast(cls.shots_fired, Float) / cls.time_played_hours)], else_=0)
+        return cast(cls.shots_fired, Float) / cls.time_played_hours
 
     # Throwables thrown per hour
     @hybrid_property
@@ -152,7 +152,7 @@ class DerivedStats:
 
     @throwables_thrown_per_hour.expression
     def throwables_thrown_per_hour(cls):
-        return case([(cls.time_played > 0, cast(cls.throwables_thrown, Float) / cls.time_played_hours)], else_=0)
+        return cast(cls.throwables_thrown, Float) / cls.time_played_hours
 
     # Kills per km moved
     @hybrid_property
@@ -164,7 +164,7 @@ class DerivedStats:
 
     @kills_per_km_moved.expression
     def kills_per_km_moved(cls):
-        return case([(cls.distance_moved > 0, cast(cls.kills, Float) / cls.distance_moved_km)], else_=0)
+        return cast(cls.kills, Float) / cls.distance_moved_km
 
     # XP per shot fired
     @hybrid_property
@@ -176,7 +176,7 @@ class DerivedStats:
 
     @xp_per_shot_fired.expression
     def xp_per_shot_fired(cls):
-        return case([(cls.shots_fired > 0, cast(cls.xp, Float) / cls.shots_fired)], else_=0)
+        return cast(cls.xp, Float) / cls.shots_fired
 
     # XP per kill
     @hybrid_property
@@ -188,7 +188,7 @@ class DerivedStats:
 
     @xp_per_kill.expression
     def xp_per_kill(cls):
-        return case([(cls.kills > 0, cast(cls.xp, Float) / cls.kills)], else_=0)
+        return cast(cls.xp, Float) / cls.kills
 
     # Shots fired per kill
     @hybrid_property
@@ -200,7 +200,7 @@ class DerivedStats:
 
     @shots_fired_per_kill.expression
     def shots_fired_per_kill(cls):
-        return case([(cls.kills > 0, cast(cls.shots_fired, Float) / cls.kills)], else_=0)
+        return cast(cls.shots_fired, Float) / cls.kills
 
     # Team kills per kill
     @hybrid_property
@@ -212,7 +212,7 @@ class DerivedStats:
 
     @team_kills_per_kill.expression
     def team_kills_per_kill(cls):
-        return case([(cls.kills > 0, cast(cls.team_kills, Float) / cls.kills)], else_=0)
+        return cast(cls.team_kills, Float) / cls.kills
 
     # Runs around the Earth equator
     @hybrid_property
