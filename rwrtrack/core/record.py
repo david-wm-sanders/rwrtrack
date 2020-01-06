@@ -3,7 +3,7 @@ import logging
 from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.ext.hybrid import hybrid_property
 
-from .db_base import DeclarativeBase
+from .db import DeclarativeBase
 from .derivedstats import DerivedStats
 
 

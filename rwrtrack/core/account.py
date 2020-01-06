@@ -5,7 +5,7 @@ from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.hybrid import hybrid_property
 
-from .db_base import DeclarativeBase
+from .db import DeclarativeBase
 
 
 logger = logging.getLogger(__name__)

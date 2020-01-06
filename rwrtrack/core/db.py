@@ -4,11 +4,12 @@ from sqlalchemy import create_engine
 from sqlalchemy import Column, Integer
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.hybrid import hybrid_property
-
-from .db_base import DeclarativeBase
+from sqlalchemy.ext.declarative import declarative_base
 
 
 logger = logging.getLogger(__name__)
+
+DeclarativeBase = declarative_base()
 echo = False
 
 
