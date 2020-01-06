@@ -1,4 +1,3 @@
-import logging
 from datetime import datetime, timedelta
 
 from sqlalchemy import Column, Integer, String
@@ -6,9 +5,6 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.ext.hybrid import hybrid_property
 
 from .db import DeclarativeBase
-
-
-logger = logging.getLogger(__name__)
 
 
 class Account(DeclarativeBase):

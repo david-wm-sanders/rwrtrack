@@ -1,13 +1,8 @@
-import logging
-
 from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.ext.hybrid import hybrid_property
 
 from .db import DeclarativeBase
 from .derivedstats import DerivedStats
-
-
-logger = logging.getLogger(__name__)
 
 
 class Record(DeclarativeBase, DerivedStats):
