@@ -3,14 +3,14 @@ import logging
 from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.ext.hybrid import hybrid_property
 
-from .db_base import Base
+from .db_base import DeclarativeBase
 from .derivedstats import DerivedStats
 
 
 logger = logging.getLogger(__name__)
 
 
-class Record(Base, DerivedStats):
+class Record(DeclarativeBase, DerivedStats):
     __tablename__ = "records"
     _date = Column("date", Integer, primary_key=True)
     _account_id = Column("account_id", Integer, ForeignKey("accounts._id"), primary_key=True)

@@ -5,13 +5,13 @@ from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.hybrid import hybrid_property
 
-from .db_base import Base
+from .db_base import DeclarativeBase
 
 
 logger = logging.getLogger(__name__)
 
 
-class Account(Base):
+class Account(DeclarativeBase):
     __tablename__ = "accounts"
     _id = Column(Integer, primary_key=True)
     _username = Column("username", String, nullable=False, unique=True)
