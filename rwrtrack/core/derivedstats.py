@@ -7,14 +7,24 @@ from .constants import EARTH_EQUAT_CIRC
 
 class DerivedStats:
     """Implements derived statistics"""
+    # Some special logic is needed in some places in this class to ensure float division is used by the db
+    # SQLAlchemy constructs SQL statements from the hybrid properties automatically
+    # However, whereas Python will return a float from the division of two integers, the db doesn't in SQL statements
+    # In this edge case, expressions are defined for hybrid properties to ensure A is cast as Float in A/B
+    # Note: derived properties that use time_played_hours or distance_moved_km, already Floats, don't need expressions
+
     # Time played in hours
     @hybrid_property
     def time_played_hours(self):
+        # Division by a float is essential here to ensure the underlying db returns a float from division
+        # This float will propagate into all SQL statements constructed from time_played_hours
         return self.time_played / 60.0
 
     # Distance moved in km
     @hybrid_property
     def distance_moved_km(self):
+        # Division by a float is essential here to ensure the underlying db returns a float from division
+        # This float will propagate into all SQL statements constructed from distance_moved_km
         return self.distance_moved / 1000.0
 
     # Score
@@ -32,6 +42,7 @@ class DerivedStats:
 
     @kdr.expression
     def kdr(cls):
+        # Cast to ensure that SQL statements constructed for this variable return a float from division
         return cast(cls.kills, Float) / cls.deaths
 
     # XP per hour
@@ -42,10 +53,6 @@ class DerivedStats:
         except ZeroDivisionError:
             return 0
 
-    @xp_per_hour.expression
-    def xp_per_hour(cls):
-        return cast(cls.xp, Float) / cls.time_played_hours
-
     # Kills per hour
     @hybrid_property
     def kills_per_hour(self):
@@ -53,10 +60,6 @@ class DerivedStats:
             return self.kills / self.time_played_hours
         except ZeroDivisionError:
             return 0
-
-    @kills_per_hour.expression
-    def kills_per_hour(cls):
-        return cast(cls.kills, Float) / cls.time_played_hours
 
     # Deaths per hour
     @hybrid_property
@@ -66,10 +69,6 @@ class DerivedStats:
         except ZeroDivisionError:
             return 0
 
-    @deaths_per_hour.expression
-    def deaths_per_hour(cls):
-        return cast(cls.deaths, Float) / cls.time_played_hours
-
     # Targets destroyed per hour
     @hybrid_property
     def targets_destroyed_per_hour(self):
@@ -77,10 +76,6 @@ class DerivedStats:
             return self.targets_destroyed / self.time_played_hours
         except ZeroDivisionError:
             return 0
-
-    @targets_destroyed_per_hour.expression
-    def targets_destroyed_per_hour(cls):
-        return cast(cls.targets_destroyed, Float) / cls.time_played_hours
 
     # Vehicles destroyed per hour
     @hybrid_property
@@ -90,10 +85,6 @@ class DerivedStats:
         except ZeroDivisionError:
             return 0
 
-    @vehicles_destroyed_per_hour.expression
-    def vehicles_destroyed_per_hour(cls):
-        return cast(cls.vehicles_destroyed, Float) / cls.time_played_hours
-
     # Soldiers healed per hour
     @hybrid_property
     def soldiers_healed_per_hour(self):
@@ -101,10 +92,6 @@ class DerivedStats:
             return self.soldiers_healed / self.time_played_hours
         except ZeroDivisionError:
             return 0
-
-    @soldiers_healed_per_hour.expression
-    def soldiers_healed_per_hour(cls):
-        return cast(cls.soldiers_healed, Float) / cls.time_played_hours
 
     # Team kills per hour
     @hybrid_property
@@ -114,10 +101,6 @@ class DerivedStats:
         except ZeroDivisionError:
             return 0
 
-    @team_kills_per_hour.expression
-    def team_kills_per_hour(cls):
-        return cast(cls.team_kills, Float) / cls.time_played_hours
-
     # Distance moved (in km) per hour
     @hybrid_property
     def distance_moved_km_per_hour(self):
@@ -125,10 +108,6 @@ class DerivedStats:
             return self.distance_moved_km / self.time_played_hours
         except ZeroDivisionError:
             return 0
-
-    @distance_moved_km_per_hour.expression
-    def distance_moved_km_per_hour(cls):
-        return cast(cls.distance_moved_km, Float) / cls.time_played_hours
 
     # Shots fired per hour
     @hybrid_property
@@ -138,10 +117,6 @@ class DerivedStats:
         except ZeroDivisionError:
             return 0
 
-    @shots_fired_per_hour.expression
-    def shots_fired_per_hour(cls):
-        return cast(cls.shots_fired, Float) / cls.time_played_hours
-
     # Throwables thrown per hour
     @hybrid_property
     def throwables_thrown_per_hour(self):
@@ -150,10 +125,6 @@ class DerivedStats:
         except ZeroDivisionError:
             return 0
 
-    @throwables_thrown_per_hour.expression
-    def throwables_thrown_per_hour(cls):
-        return cast(cls.throwables_thrown, Float) / cls.time_played_hours
-
     # Kills per km moved
     @hybrid_property
     def kills_per_km_moved(self):
@@ -161,10 +132,6 @@ class DerivedStats:
             return self.kills / self.distance_moved_km
         except ZeroDivisionError:
             return 0
-
-    @kills_per_km_moved.expression
-    def kills_per_km_moved(cls):
-        return cast(cls.kills, Float) / cls.distance_moved_km
 
     # XP per shot fired
     @hybrid_property
@@ -176,6 +143,7 @@ class DerivedStats:
 
     @xp_per_shot_fired.expression
     def xp_per_shot_fired(cls):
+        # Cast to ensure that SQL statements constructed for this variable return a float from division
         return cast(cls.xp, Float) / cls.shots_fired
 
     # XP per kill
@@ -188,6 +156,7 @@ class DerivedStats:
 
     @xp_per_kill.expression
     def xp_per_kill(cls):
+        # Cast to ensure that SQL statements constructed for this variable return a float from division
         return cast(cls.xp, Float) / cls.kills
 
     # Shots fired per kill
@@ -200,6 +169,7 @@ class DerivedStats:
 
     @shots_fired_per_kill.expression
     def shots_fired_per_kill(cls):
+        # Cast to ensure that SQL statements constructed for this variable return a float from division
         return cast(cls.shots_fired, Float) / cls.kills
 
     # Team kills per kill
@@ -212,6 +182,7 @@ class DerivedStats:
 
     @team_kills_per_kill.expression
     def team_kills_per_kill(cls):
+        # Cast to ensure that SQL statements constructed for this variable return a float from division
         return cast(cls.team_kills, Float) / cls.kills
 
     # Runs around the Earth equator
