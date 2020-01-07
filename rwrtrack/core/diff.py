@@ -20,28 +20,26 @@ class Diff:
     throwables_thrown = (RA.throwables_thrown - RB.throwables_thrown).label("throwables_thrown")
 
     # Converted statistics
+    # Divide by floats to ensure the division performed by the db in SQL statements is float division
+    # See derivedstats.py for more exposition on why this is necessary
+    # With time_played_hours and distance_moved_km as floats, casting isn't necessary for variables derived from them
     time_played_hours = (time_played / 60.0).label("time_played_hours")
     distance_moved_km = (distance_moved / 1000.0).label("distance_moved_km")
 
     # Derived statistics (expressed in terms of the variables above)
-    # Cast the first variable, where division occurs, to ensure that the underlying db divides properly
+    # Cast where division occurs between two ints to ensure that the underlying db divides properly
     score = (kills - deaths).label("score")
     kdr = (cast(kills, Float) / deaths).label("kdr")
-    xp_per_hour = (cast(xp, Float) / time_played_hours).label("xp_per_hour")
-    kills_per_hour = (cast(kills, Float) / time_played_hours).label("kills_per_hour")
-    deaths_per_hour = (cast(deaths, Float) / time_played_hours).label("deaths_per_hour")
-    targets_destroyed_per_hour = (cast(targets_destroyed, Float) / time_played_hours).\
-                                    label("targets_destroyed_per_hour")
-    vehicles_destroyed_per_hour = (cast(vehicles_destroyed, Float) / time_played_hours).\
-                                    label("vehicles_destroyed_per_hour")
-    soldiers_healed_per_hour = (cast(soldiers_healed, Float) / time_played_hours).\
-                                    label("soldiers_healed_per_hour")
-    team_kills_per_hour = (cast(team_kills, Float) / time_played_hours).label("team_kills_per_hour")
-    distance_moved_km_per_hour = (cast(distance_moved_km, Float) / time_played_hours).\
-                                    label("distance_moved_km_per_hour")
-    shots_fired_per_hour = (cast(shots_fired, Float) / time_played_hours).label("shots_fired_per_hour")
-    throwables_thrown_per_hour = (cast(throwables_thrown, Float) / time_played_hours).\
-                                    label("throwables_thrown_per_hour")
+    xp_per_hour = (xp / time_played_hours).label("xp_per_hour")
+    kills_per_hour = (kills / time_played_hours).label("kills_per_hour")
+    deaths_per_hour = (deaths / time_played_hours).label("deaths_per_hour")
+    targets_destroyed_per_hour = (targets_destroyed / time_played_hours).label("targets_destroyed_per_hour")
+    vehicles_destroyed_per_hour = (vehicles_destroyed / time_played_hours).label("vehicles_destroyed_per_hour")
+    soldiers_healed_per_hour = (soldiers_healed / time_played_hours).label("soldiers_healed_per_hour")
+    team_kills_per_hour = (team_kills / time_played_hours).label("team_kills_per_hour")
+    distance_moved_km_per_hour = (distance_moved_km / time_played_hours).label("distance_moved_km_per_hour")
+    shots_fired_per_hour = (shots_fired / time_played_hours).label("shots_fired_per_hour")
+    throwables_thrown_per_hour = (throwables_thrown / time_played_hours).label("throwables_thrown_per_hour")
 
     # Changes in derived statistics
     # _score = (RA.score - RB.score).label("_score")
