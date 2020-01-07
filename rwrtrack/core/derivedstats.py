@@ -7,6 +7,16 @@ from .constants import EARTH_EQUAT_CIRC
 
 class DerivedStats:
     """Implements derived statistics"""
+    # Time played in hours
+    @hybrid_property
+    def time_played_hours(self):
+        return self.time_played / 60.0
+
+    # Distance moved in km
+    @hybrid_property
+    def distance_moved_km(self):
+        return self.distance_moved / 1000.0
+
     # Score
     @hybrid_property
     def score(self):
@@ -23,16 +33,6 @@ class DerivedStats:
     @kdr.expression
     def kdr(cls):
         return cast(cls.kills, Float) / cls.deaths
-
-    # Time played in hours
-    @hybrid_property
-    def time_played_hours(self):
-        return self.time_played / 60.0
-
-    # Distance moved in km
-    @hybrid_property
-    def distance_moved_km(self):
-        return self.distance_moved / 1000.0
 
     # XP per hour
     @hybrid_property

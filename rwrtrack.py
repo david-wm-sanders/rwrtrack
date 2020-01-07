@@ -173,6 +173,8 @@ if __name__ == '__main__':
         import code
         _dbinfo = get_dbinfo()
         _bang = get_account_by_name("MR. BANG")
+        _bang_diff_q = difference(20191231, 20181231, "MR. BANG")
+        _bang_diff = _bang_diff_q.one()._asdict()
         code.interact(local=locals(), banner="", exitmsg="")
 
     else:
