@@ -24,23 +24,23 @@ class Diff:
     distance_moved_km = (distance_moved / 1000.0).label("distance_moved_km")
 
     # Derived statistics (expressed in terms of the variables above)
-    # Casting this first variable, where division occurs, to ensure that the underlying db divides properly
+    # Cast the first variable, where division occurs, to ensure that the underlying db divides properly
     score = (kills - deaths).label("score")
     kdr = (cast(kills, Float) / deaths).label("kdr")
     xp_per_hour = (cast(xp, Float) / time_played_hours).label("xp_per_hour")
     kills_per_hour = (cast(kills, Float) / time_played_hours).label("kills_per_hour")
     deaths_per_hour = (cast(deaths, Float) / time_played_hours).label("deaths_per_hour")
-    targets_destroyed_per_hour = (cast(targets_destroyed, Float) / time_played_hours). \
+    targets_destroyed_per_hour = (cast(targets_destroyed, Float) / time_played_hours).\
                                     label("targets_destroyed_per_hour")
-    vehicles_destroyed_per_hour = (cast(vehicles_destroyed, Float) / time_played_hours). \
+    vehicles_destroyed_per_hour = (cast(vehicles_destroyed, Float) / time_played_hours).\
                                     label("vehicles_destroyed_per_hour")
-    soldiers_healed_per_hour = (cast(soldiers_healed, Float) / time_played_hours). \
+    soldiers_healed_per_hour = (cast(soldiers_healed, Float) / time_played_hours).\
                                     label("soldiers_healed_per_hour")
     team_kills_per_hour = (cast(team_kills, Float) / time_played_hours).label("team_kills_per_hour")
-    distance_moved_km_per_hour = (cast(distance_moved_km, Float) / time_played_hours). \
+    distance_moved_km_per_hour = (cast(distance_moved_km, Float) / time_played_hours).\
                                     label("distance_moved_km_per_hour")
     shots_fired_per_hour = (cast(shots_fired, Float) / time_played_hours).label("shots_fired_per_hour")
-    throwables_thrown_per_hour = (cast(throwables_thrown, Float) / time_played_hours). \
+    throwables_thrown_per_hour = (cast(throwables_thrown, Float) / time_played_hours).\
                                     label("throwables_thrown_per_hour")
 
     # Changes in derived statistics
@@ -49,15 +49,15 @@ class Diff:
     _xp_per_hour = (RA.xp_per_hour - RB.xp_per_hour).label("_xp_per_hour")
     _kills_per_hour = (RA.kills_per_hour - RB.kills_per_hour).label("_kills_per_hour")
     _deaths_per_hour = (RA.deaths_per_hour - RB.deaths_per_hour).label("_deaths_per_hour")
-    _targets_destroyed_per_hour = (RA.targets_destroyed_per_hour - RB.targets_destroyed_per_hour). \
+    _targets_destroyed_per_hour = (RA.targets_destroyed_per_hour - RB.targets_destroyed_per_hour).\
                                     label("_targets_destroyed_per_hour")
-    _vehicles_destroyed_per_hour = (RA.vehicles_destroyed_per_hour - RB.vehicles_destroyed_per_hour). \
+    _vehicles_destroyed_per_hour = (RA.vehicles_destroyed_per_hour - RB.vehicles_destroyed_per_hour).\
                                     label("_vehicles_destroyed_per_hour")
-    _soldiers_healed_per_hour = (RA.soldiers_healed_per_hour - RB.soldiers_healed_per_hour). \
+    _soldiers_healed_per_hour = (RA.soldiers_healed_per_hour - RB.soldiers_healed_per_hour).\
                                     label("_soldiers_healed_per_hour")
     _team_kills_per_hour = (RA.team_kills_per_hour - RB.team_kills_per_hour).label("_team_kills_per_hour")
-    _distance_moved_km_per_hour = (RA.distance_moved_km_per_hour - RB.distance_moved_km_per_hour). \
+    _distance_moved_km_per_hour = (RA.distance_moved_km_per_hour - RB.distance_moved_km_per_hour).\
                                     label("_distance_moved_km_per_hour")
     _shots_fired_per_hour = (RA.shots_fired_per_hour - RB.shots_fired_per_hour).label("_shots_fired_per_hour")
-    _throwables_thrown_per_hour = (RA.throwables_thrown_per_hour - RB.throwables_thrown_per_hour). \
+    _throwables_thrown_per_hour = (RA.throwables_thrown_per_hour - RB.throwables_thrown_per_hour).\
                                     label("_throwables_thrown_per_hour")
