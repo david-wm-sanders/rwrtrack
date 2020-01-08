@@ -2,7 +2,7 @@
 
 Usage:
     rwrtrack.py [-q|-v] get [<pages>]
-    rwrtrack.py [-q|-v] analyse <name> [-d <dates>]
+    rwrtrack.py [-q|-v] analyse <name> [<dates>]
     rwrtrack.py [-q|-v] average <metric> [-d <dates>] [-x <pre>] [-y <pst>]
     rwrtrack.py [-q|-v] _dbinfo
     rwrtrack.py [-q|-v] _db_migrate_csv
@@ -12,8 +12,6 @@ Options:
     -q          Quiet mode, reduces logging output to errors and above
     -v          Verbose output, with full stdout logging
     -d <dates>  Date, or two dates separated by a hyphen
-                [default: latest]
-                Other shortcut options: day, week, month
     -x <pre>    Prefilter specifier
     -y <pst>    Postfilter specifier
 """
@@ -76,7 +74,7 @@ if __name__ == '__main__':
     elif args["analyse"]:
         # analyse <name> [-d <dates>]
         username = args["<name>"]
-        dates = args["-d"]
+        dates = args["<dates>"]
         perform_analysis(username, dates)
 
     elif args["average"]:

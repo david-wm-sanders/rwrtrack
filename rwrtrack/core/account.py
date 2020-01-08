@@ -2,9 +2,11 @@ from datetime import datetime, timedelta
 
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
+from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.ext.hybrid import hybrid_property
 
 from .db import DeclarativeBase
+from .exceptions import NoRecord
 
 
 class Account(DeclarativeBase):
@@ -62,11 +64,8 @@ class Account(DeclarativeBase):
     def latest_record(self):
         return self._history.filter_by(date=self.latest_date).one()
 
-    def on_date(self, date, **kwargs):
-        if not kwargs:
+    def on_date(self, date):
+        try:
             return self._history.filter_by(date=date).one()
-        else:
-            d = datetime.strptime(str(date), "%Y%m%d").date()
-            d = d + timedelta(**kwargs)
-            d = int(d.strftime("%Y%m%d"))
-            return self._history.filter_by(date=d).one()
+        except NoResultFound as e:
+            raise NoRecord(f"No record for '{self.username}' on {date}") from e
