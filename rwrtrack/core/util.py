@@ -9,7 +9,7 @@ from .dbinfo import DbInfo
 from .account import Account
 from .record import Record, RA, RB
 from .diff import Diff, diff_query
-from .exceptions import NoAccount
+from .exceptions import NoAccountError
 
 
 logger = logging.getLogger(__name__)
@@ -31,7 +31,7 @@ def get_account_by_name(username):
     try:
         return sesh.query(Account).filter_by(username=username).one()
     except NoResultFound as e:
-        raise NoAccount(f"'{username}' not found in database") from e
+        raise NoAccountError(f"'{username}' not found in database") from e
 
 
 def get_records_on_date(date, **kwargs):

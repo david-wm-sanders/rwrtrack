@@ -6,7 +6,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.ext.hybrid import hybrid_property
 
 from .db import DeclarativeBase
-from .exceptions import NoRecord
+from .exceptions import NoRecordError
 
 
 class Account(DeclarativeBase):
@@ -68,4 +68,4 @@ class Account(DeclarativeBase):
         try:
             return self._history.filter_by(date=date).one()
         except NoResultFound as e:
-            raise NoRecord(f"No record for '{self.username}' on {date}") from e
+            raise NoRecordError(f"No record for '{self.username}' on {date}") from e

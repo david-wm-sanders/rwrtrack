@@ -1,5 +1,5 @@
-class NoAccount(Exception):
+class NoAccountError(Exception):
     pass
 
-class NoRecord(Exception):
+class NoRecordError(Exception):
     pass

@@ -2,7 +2,7 @@ import logging
 import sys
 
 from rwrtrack.core import get_account_by_name
-from rwrtrack.core.exceptions import NoAccount, NoRecord
+from rwrtrack.core.exceptions import NoAccountError, NoRecordError
 from rwrtrack.util import process_numeric_dates
 from rwrtrack.tablify import render_table
 
@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 def perform_analysis(username, dates):
     try:
         account = get_account_by_name(username)
-    except NoAccount as e:
+    except NoAccountError as e:
         logger.error(e)
         sys.exit(1)
 
@@ -33,5 +33,5 @@ def perform_analysis(username, dates):
                 diff = record_newer - record_older
                 print(f"'{account.username}' from {record_older.date} to {record_newer.date}:")
                 render_table(diff)
-    except NoRecord as e:
+    except NoRecordError as e:
         logger.error(e)
