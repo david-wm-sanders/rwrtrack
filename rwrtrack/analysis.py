@@ -1,7 +1,7 @@
 import logging
 import sys
 
-from rwrtrack.core import get_account_by_name
+from rwrtrack.core.util import get_account_by_name
 from rwrtrack.core.exceptions import NoAccountError, NoRecordError
 from rwrtrack.util import process_numeric_dates
 from rwrtrack.tablify import render_table

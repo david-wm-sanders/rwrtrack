@@ -27,10 +27,14 @@ from docopt import docopt
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import func, distinct, text
 
-from rwrtrack.core import DbInfo, Account, Record, sesh, get_dbinfo, \
-                            get_account_by_name, get_records_on_date, Diff, difference, \
-                            update_db_from_stats, \
-                            _set_db_readonly, _set_db_writable
+from rwrtrack.core.db import sesh, _set_db_readonly, _set_db_writable
+from rwrtrack.core.dbinfo import DbInfo
+from rwrtrack.core.account import Account
+from rwrtrack.core.record import Record
+from rwrtrack.core.diff import Diff
+from rwrtrack.core.util import get_dbinfo, get_account_by_name, get_records_on_date, update_db_from_stats, difference
+from rwrtrack.core.exceptions import NoAccountError, NoRecordError
+
 from rwrtrack.util import process_numeric_dates, _write_record_names, \
                             apply_filters
 from rwrtrack.analysis import perform_analysis

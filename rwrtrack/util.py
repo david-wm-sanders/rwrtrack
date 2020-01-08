@@ -2,7 +2,7 @@ import logging
 import sys
 import operator
 
-from .core import Record
+from .core.record import Record
 
 
 logger = logging.getLogger(__name__)
