@@ -1,6 +1,7 @@
 from sqlalchemy import Float
 from sqlalchemy.sql import cast
 
+from .constants import EARTH_EQUAT_CIRC
 from .record import RA, RB
 
 
@@ -40,6 +41,12 @@ class Diff:
     distance_moved_km_per_hour = (distance_moved_km / time_played_hours).label("distance_moved_km_per_hour")
     shots_fired_per_hour = (shots_fired / time_played_hours).label("shots_fired_per_hour")
     throwables_thrown_per_hour = (throwables_thrown / time_played_hours).label("throwables_thrown_per_hour")
+    kills_per_km_moved = (kills / distance_moved_km).label("kills_per_km_moved")
+    xp_per_shot_fired = (cast(xp, Float) / shots_fired).label("xp_per_shot_fired")
+    xp_per_kill = (cast(xp, Float) / kills).label("xp_per_kill")
+    shots_fired_per_kill = (cast(shots_fired, Float) / kills).label("shots_fired_per_kill")
+    team_kills_per_kill = (cast(team_kills, Float) / kills).label("team_kills_per_kill")
+    runs_around_the_equator = (distance_moved_km / EARTH_EQUAT_CIRC).label("runs_around_the_equator")
 
     # Changes in derived statistics
     # _score = (RA.score - RB.score).label("_score")
@@ -59,3 +66,8 @@ class Diff:
     _shots_fired_per_hour = (RA.shots_fired_per_hour - RB.shots_fired_per_hour).label("_shots_fired_per_hour")
     _throwables_thrown_per_hour = (RA.throwables_thrown_per_hour - RB.throwables_thrown_per_hour).\
                                     label("_throwables_thrown_per_hour")
+    _kills_per_km_moved = (RA.kills_per_km_moved - RB.kills_per_km_moved).label("_kills_per_km_moved")
+    _xp_per_shot_fired = (RA.xp_per_shot_fired - RB.xp_per_shot_fired).label("_xp_per_shot_fired")
+    _xp_per_kill = (RA.xp_per_kill - RB.xp_per_kill).label("_xp_per_kill")
+    _shots_fired_per_kill = (RA.shots_fired_per_kill - RB.shots_fired_per_kill).label("_shots_fired_per_kill")
+    _team_kills_per_kill = (RA.team_kills_per_kill - RB.team_kills_per_kill).label("_team_kills_per_kill")

@@ -42,11 +42,13 @@ def get_records_on_date(date, **kwargs):
 
 def difference(date_a, date_b, username=None):
     # logger.debug(f"Differencing DB for {date_b}-{date_a}")
-    q = sesh.query(RA.account_id.label("account_id"), RA.username.label("username"),
-                    Diff.xp, Diff.time_played, Diff.kills, Diff.deaths, Diff.kill_streak,
-                    Diff.targets_destroyed, Diff.vehicles_destroyed, Diff.soldiers_healed,
-                    Diff.team_kills, Diff.distance_moved, Diff.shots_fired, Diff.throwables_thrown,
-                    Diff.score, Diff.kdr, Diff._kdr, Diff.xp_per_hour, Diff._xp_per_hour,
+    q = sesh.query(RA.date.label("ra_date"), RA.account_id.label("ra_account_id"), RA.username.label("ra_username"),
+                    RB.date.label("rb_date"), RB.account_id.label("rb_account_id"), RB.username.label("rb_username"),
+                    Diff.xp, Diff.time_played, Diff.time_played_hours, Diff.kills, Diff.deaths, Diff.score,
+                    Diff.kill_streak, Diff.targets_destroyed, Diff.vehicles_destroyed, Diff.soldiers_healed,
+                    Diff.team_kills, Diff.distance_moved, Diff.distance_moved_km,
+                    Diff.shots_fired, Diff.throwables_thrown,
+                    Diff.kdr, Diff._kdr, Diff.xp_per_hour, Diff._xp_per_hour,
                     Diff.kills_per_hour, Diff._kills_per_hour, Diff.deaths_per_hour, Diff._deaths_per_hour,
                     Diff.targets_destroyed_per_hour, Diff._targets_destroyed_per_hour,
                     Diff.vehicles_destroyed_per_hour, Diff._vehicles_destroyed_per_hour,
@@ -54,7 +56,10 @@ def difference(date_a, date_b, username=None):
                     Diff.team_kills_per_hour, Diff._team_kills_per_hour,
                     Diff.distance_moved_km_per_hour, Diff._distance_moved_km_per_hour,
                     Diff.shots_fired_per_hour, Diff._shots_fired_per_hour,
-                    Diff.throwables_thrown_per_hour, Diff._throwables_thrown_per_hour)
+                    Diff.throwables_thrown_per_hour, Diff._throwables_thrown_per_hour,
+                    Diff.kills_per_km_moved, Diff._kills_per_km_moved, Diff.xp_per_shot_fired, Diff._xp_per_shot_fired,
+                    Diff.xp_per_kill, Diff._xp_per_kill, Diff.shots_fired_per_kill, Diff._shots_fired_per_kill,
+                    Diff.team_kills_per_kill, Diff._team_kills_per_kill, Diff.runs_around_the_equator)
     if username:
         return q.filter(and_(RA.username==username, RA.date==date_a, RB.date==date_b, RA.account_id==RB.account_id))
     else:
