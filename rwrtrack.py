@@ -32,6 +32,7 @@ from rwrtrack.core.dbinfo import DbInfo, get_dbinfo
 from rwrtrack.core.account import Account, get_account_by_name
 from rwrtrack.core.record import Record, get_records_on_date
 from rwrtrack.core.difference import Diff, difference
+from rwrtrack.core.sum import sum_
 from rwrtrack.core.util import update_db_from_stats
 from rwrtrack.core.exceptions import NoAccountError, NoRecordError
 
