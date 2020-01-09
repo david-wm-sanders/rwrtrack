@@ -5,8 +5,8 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.ext.hybrid import hybrid_property
 
-from .db import DeclarativeBase
-from .exceptions import NoRecordError
+from .db import DeclarativeBase, sesh
+from .exceptions import NoAccountError, NoRecordError
 
 
 class Account(DeclarativeBase):
@@ -69,3 +69,10 @@ class Account(DeclarativeBase):
             return self._history.filter_by(date=date).one()
         except NoResultFound as e:
             raise NoRecordError(f"No record for '{self.username}' on {date}") from e
+
+
+def get_account_by_name(username):
+    try:
+        return sesh.query(Account).filter_by(username=username).one()
+    except NoResultFound as e:
+        raise NoAccountError(f"'{username}' not found in database") from e

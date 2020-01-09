@@ -4,8 +4,8 @@ import statistics
 
 from sqlalchemy.orm.exc import NoResultFound
 
-from .core.record import Record
-from .core.util import get_dbinfo, get_records_on_date
+from .core.dbinfo import get_dbinfo
+from .core.record import Record, get_records_on_date
 from .util import process_numeric_dates, apply_filters, _write_record_names
 
 logger = logging.getLogger(__name__)

@@ -28,11 +28,11 @@ from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import func, distinct, text
 
 from rwrtrack.core.db import sesh, _set_db_readonly, _set_db_writable
-from rwrtrack.core.dbinfo import DbInfo
-from rwrtrack.core.account import Account
-from rwrtrack.core.record import Record
-from rwrtrack.core.diff import Diff
-from rwrtrack.core.util import get_dbinfo, get_account_by_name, get_records_on_date, update_db_from_stats, difference
+from rwrtrack.core.dbinfo import DbInfo, get_dbinfo
+from rwrtrack.core.account import Account, get_account_by_name
+from rwrtrack.core.record import Record, get_records_on_date
+from rwrtrack.core.difference import Diff, difference
+from rwrtrack.core.util import update_db_from_stats
 from rwrtrack.core.exceptions import NoAccountError, NoRecordError
 
 from rwrtrack.util import process_numeric_dates, _write_record_names, \

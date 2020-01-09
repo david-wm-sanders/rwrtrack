@@ -4,6 +4,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 
 from .db import DeclarativeBase
 from .derivedstats import DerivedStats
+from .exceptions import NoRecordError
 
 
 class Record(DeclarativeBase, DerivedStats):
@@ -152,3 +153,17 @@ class Record(DeclarativeBase, DerivedStats):
 
 # Set aliases for Record to use in self-join scenarios
 RA, RB = aliased(Record, name="ra"), aliased(Record, name="rb")
+
+
+def get_records_on_date(date):
+    # if not kwargs:
+    #     return sesh.query(Record).filter_by(date=date).all()
+    # else:
+    #     d = datetime.strptime(str(date), "%Y%m%d").date()
+    #     d = d + timedelta(**kwargs)
+    #     d = int(d.strftime("%Y%m%d"))
+    #     return sesh.query(Record).filter_by(date=d).all()
+    try:
+        return sesh.query(Record).filter_by(date=date).all()
+    except NoResultFound as e:
+        raise NoRecordError(f"No records for on {date}") from e

@@ -1,15 +1,8 @@
 import logging
-from datetime import datetime, timedelta
-
-from sqlalchemy import and_, text
-from sqlalchemy.orm.exc import NoResultFound # as SQLNoResultFound
 
 from .db import sesh
-from .dbinfo import DbInfo
 from .account import Account
-from .record import Record, RA, RB
-from .diff import Diff, diff_query
-from .exceptions import NoAccountError
+from .record import Record
 
 
 logger = logging.getLogger(__name__)
@@ -17,41 +10,6 @@ logger = logging.getLogger(__name__)
 # Configure blacklist for troublesome usernames
 username_blacklist = set()
 username_blacklist.add("RAIOORIGINAL")
-
-
-def get_dbinfo():
-    try:
-        return sesh.query(DbInfo).one()
-    except NoResultFound:
-        logger.warn("No row in _dbinfo table, database appears to be blank")
-        raise
-
-
-def get_account_by_name(username):
-    try:
-        return sesh.query(Account).filter_by(username=username).one()
-    except NoResultFound as e:
-        raise NoAccountError(f"'{username}' not found in database") from e
-
-
-def get_records_on_date(date, **kwargs):
-    if not kwargs:
-        return sesh.query(Record).filter_by(date=date).all()
-    else:
-        d = datetime.strptime(str(date), "%Y%m%d").date()
-        d = d + timedelta(**kwargs)
-        d = int(d.strftime("%Y%m%d"))
-        return sesh.query(Record).filter_by(date=d).all()
-
-
-def difference(date_a, date_b, username=None):
-    q = diff_query.with_session(sesh)
-    if isinstance(username, str):
-        return q.filter(and_(RA.username==username, RA.date==date_a, RB.date==date_b))
-    elif isinstance(username, list):
-        return q.filter(and_(RA.username.in_(username), RA.date==date_a, RB.date==date_b))
-    else:
-        return q.filter(and_(RA.date==date_a, RB.date==date_b))
 
 
 def update_db_from_stats(stats, d):

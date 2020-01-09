@@ -1,7 +1,8 @@
-from sqlalchemy import Float
+from sqlalchemy import Float, and_
 from sqlalchemy.sql import cast
 from sqlalchemy.orm.query import Query
 
+from .db import sesh
 from .constants import EARTH_EQUAT_CIRC
 from .record import RA, RB
 
@@ -93,3 +94,13 @@ diff_query = Query([RA.account_id.label("account_id"), RA.username.label("userna
                     Diff.xp_per_kill, Diff._xp_per_kill, Diff.shots_fired_per_kill, Diff._shots_fired_per_kill,
                     Diff.team_kills_per_kill, Diff._team_kills_per_kill, Diff.runs_around_the_equator]).\
                     filter(RA.account_id==RB.account_id)
+
+
+def difference(date_a, date_b, username=None):
+    q = diff_query.with_session(sesh)
+    if isinstance(username, str):
+        return q.filter(and_(RA.username==username, RA.date==date_a, RB.date==date_b))
+    elif isinstance(username, list):
+        return q.filter(and_(RA.username.in_(username), RA.date==date_a, RB.date==date_b))
+    else:
+        return q.filter(and_(RA.date==date_a, RB.date==date_b))
