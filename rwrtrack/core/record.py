@@ -1,8 +1,9 @@
 from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import aliased
+from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.ext.hybrid import hybrid_property
 
-from .db import DeclarativeBase
+from .db import DeclarativeBase, sesh
 from .derivedstats import DerivedStats
 from .exceptions import NoRecordError
 
@@ -156,13 +157,6 @@ RA, RB = aliased(Record, name="ra"), aliased(Record, name="rb")
 
 
 def get_records_on_date(date):
-    # if not kwargs:
-    #     return sesh.query(Record).filter_by(date=date).all()
-    # else:
-    #     d = datetime.strptime(str(date), "%Y%m%d").date()
-    #     d = d + timedelta(**kwargs)
-    #     d = int(d.strftime("%Y%m%d"))
-    #     return sesh.query(Record).filter_by(date=d).all()
     try:
         return sesh.query(Record).filter_by(date=date).all()
     except NoResultFound as e:
