@@ -91,4 +91,5 @@ diff_query = Query([RA.account_id.label("account_id"), RA.username.label("userna
                     Diff.throwables_thrown_per_hour, Diff._throwables_thrown_per_hour,
                     Diff.kills_per_km_moved, Diff._kills_per_km_moved, Diff.xp_per_shot_fired, Diff._xp_per_shot_fired,
                     Diff.xp_per_kill, Diff._xp_per_kill, Diff.shots_fired_per_kill, Diff._shots_fired_per_kill,
-                    Diff.team_kills_per_kill, Diff._team_kills_per_kill, Diff.runs_around_the_equator])
+                    Diff.team_kills_per_kill, Diff._team_kills_per_kill, Diff.runs_around_the_equator]).\
+                    filter(RA.account_id==RB.account_id)

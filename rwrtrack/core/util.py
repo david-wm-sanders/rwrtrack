@@ -46,10 +46,12 @@ def get_records_on_date(date, **kwargs):
 
 def difference(date_a, date_b, username=None):
     q = diff_query.with_session(sesh)
-    if username:
-        return q.filter(and_(RA.username==username, RA.date==date_a, RB.date==date_b, RA.account_id==RB.account_id))
+    if isinstance(username, str):
+        return q.filter(and_(RA.username==username, RA.date==date_a, RB.date==date_b))
+    elif isinstance(username, list):
+        return q.filter(and_(RA.username.in_(username), RA.date==date_a, RB.date==date_b))
     else:
-        return q.filter(and_(RA.date==date_a, RB.date==date_b, RA.account_id==RB.account_id))
+        return q.filter(and_(RA.date==date_a, RB.date==date_b))
 
 
 def update_db_from_stats(stats, d):
