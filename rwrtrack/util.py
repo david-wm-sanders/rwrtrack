@@ -23,7 +23,7 @@ def process_numeric_dates(date_string):
 
 
 def _write_record_names(records):
-    names = [record.username for record in records]
+    names = (f"'{record.username}'" for record in records)
     logger.info(f"Records: {', '.join(names)}")
 
 
