@@ -70,15 +70,23 @@ diffavg_query = Query([DiffAvg._count, DiffAvg.xp, DiffAvg.time_played, DiffAvg.
                        filter(RA.account_id==RB.account_id)
 
 
-def avg(date, usernames=None):
+def _avg(date, usernames=None):
     q = avg_query.with_session(sesh).filter(Record.date==date)
     if usernames:
         q = q.filter(Record.username.in_(usernames))
-    return q.one()._asdict()
+    return q
 
 
-def diffavg(date_a, date_b, usernames=None):
+def avg(date, usernames=None):
+    return _avg(date, usernames).one()._asdict()
+
+
+def _diffavg(date_a, date_b, usernames=None):
     q = diffavg_query.with_session(sesh).filter(and_(RA.date==date_a, RB.date==date_b))
     if usernames:
         q = q.filter(RA.username.in_(usernames))
-    return q.one()._asdict()
+    return q
+
+
+def diffavg(date_a, date_b, usernames=None):
+    return _diffavg(date_a, date_b, usernames).one()._asdict()

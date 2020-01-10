@@ -70,15 +70,23 @@ diffsum_query = Query([DiffSum._count, DiffSum.xp, DiffSum.time_played, DiffSum.
                        filter(RA.account_id==RB.account_id)
 
 
-def sum_(date, usernames=None):
+def _sum(date, usernames=None):
     q = sum_query.with_session(sesh).filter(Record.date==date)
     if usernames:
         q = q.filter(Record.username.in_(usernames))
-    return q.one()._asdict()
+    return q
 
 
-def diffsum(date_a, date_b, usernames=None):
+def sum_(date, usernames=None):
+    return _sum(date, usernames).one()._asdict()
+
+
+def _diffsum(date_a, date_b, usernames=None):
     q = diffsum_query.with_session(sesh).filter(and_(RA.date==date_a, RB.date==date_b))
     if usernames:
         q = q.filter(RA.username.in_(usernames))
-    return q.one()._asdict()
+    return q
+
+
+def diffsum(date_a, date_b, usernames=None):
+    return _diffsum(date_a, date_b, usernames).one()._asdict()
