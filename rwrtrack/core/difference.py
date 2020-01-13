@@ -96,11 +96,8 @@ diff_query = Query([RA.account_id.label("account_id"), RA.username.label("userna
                     filter(RA.account_id==RB.account_id)
 
 
-def difference(date_a, date_b, username=None):
-    q = diff_query.with_session(sesh)
-    if isinstance(username, str):
-        return q.filter(and_(RA.username==username, RA.date==date_a, RB.date==date_b))
-    elif isinstance(username, list):
-        return q.filter(and_(RA.username.in_(username), RA.date==date_a, RB.date==date_b))
-    else:
-        return q.filter(and_(RA.date==date_a, RB.date==date_b))
+def difference(date_a, date_b, usernames=None):
+    q = diff_query.with_session(sesh).filter(RA.date==date_a, RB.date==date_b)
+    if usernames:
+        q = q.filter(RA.username.in_(usernames))
+    return q

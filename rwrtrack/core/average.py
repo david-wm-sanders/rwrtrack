@@ -82,7 +82,7 @@ def avg(date, usernames=None):
 
 
 def _diffavg(date_a, date_b, usernames=None):
-    q = diffavg_query.with_session(sesh).filter(and_(RA.date==date_a, RB.date==date_b))
+    q = diffavg_query.with_session(sesh).filter(RA.date==date_a, RB.date==date_b)
     if usernames:
         q = q.filter(RA.username.in_(usernames))
     return q
