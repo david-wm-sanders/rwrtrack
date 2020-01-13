@@ -160,4 +160,4 @@ def get_records_on_date(date):
     try:
         return sesh.query(Record).filter_by(date=date).all()
     except NoResultFound as e:
-        raise NoRecordError(f"No records for on {date}") from e
+        raise NoRecordError(f"No records on {date}") from e
