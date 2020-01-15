@@ -1,8 +1,13 @@
+import logging
+
 from sqlalchemy import Column, Integer
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm.exc import NoResultFound
 
 from .db import DeclarativeBase, sesh
+
+
+logger = logging.getLogger(__name__)
 
 
 class DbInfo(DeclarativeBase):

@@ -10,19 +10,22 @@ logger = logging.getLogger(__name__)
 echo = False
 DeclarativeBase = declarative_base()
 engine = create_engine("sqlite:///rwrtrack_history.db", echo=echo)
-DeclarativeBase.metadata.create_all(engine)
 db_session = sessionmaker(bind=engine)
 sesh = db_session()
 
+from .dbinfo import DbInfo
+from .account import Account
+from .record import Record
+DeclarativeBase.metadata.create_all(engine)
+
 
 def _set_db_readonly():
-    # TODO: Make logger.debugs
-    # print("[Set db query_only ON]")
+    logger.debug("[Set database query_only ON]")
     sesh.execute("PRAGMA query_only = ON;")
 
 
 def _set_db_writable():
-    # print("[Set db query_only OFF]")
+    logger.debug("[Set database query_only OFF]")
     sesh.execute("PRAGMA query_only = OFF;")
 
 
