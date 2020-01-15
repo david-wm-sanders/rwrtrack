@@ -3,3 +3,6 @@ class NoAccountError(Exception):
 
 class NoRecordError(Exception):
     pass
+
+class NoMetricError(Exception):
+    pass
