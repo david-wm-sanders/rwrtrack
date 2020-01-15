@@ -1,9 +1,6 @@
-from datetime import datetime, timedelta
-
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy.ext.hybrid import hybrid_property
 
 from .db import DeclarativeBase, sesh
 from .exceptions import NoAccountError, NoRecordError
@@ -12,61 +9,35 @@ from .exceptions import NoAccountError, NoRecordError
 class Account(DeclarativeBase):
     __tablename__ = "accounts"
     _id = Column(Integer, primary_key=True)
-    _username = Column("username", String, nullable=False, unique=True)
-    _first_date = Column("first_date", Integer, nullable=False)
-    _latest_date = Column("latest_date", Integer, nullable=False)
-    _history = relationship("Record", lazy="dynamic")
+    username = Column(String, nullable=False, unique=True)
+    first_date = Column(Integer, nullable=False)
+    latest_date = Column(Integer, nullable=False)
+    history = relationship("Record", lazy="dynamic")
 
     def __init__(self, username, date):
-        self._username = username
-        self._first_date = date
-        self._latest_date = date
-
-    @hybrid_property
-    def id_(self):
-        return self._id
-
-    @hybrid_property
-    def username(self):
-        return self._username
-
-    @hybrid_property
-    def first_date(self):
-        return self._first_date
-
-    @hybrid_property
-    def latest_date(self):
-        return self._latest_date
-
-    @latest_date.setter
-    def latest_date(self, value):
-        self._latest_date = value
-
-    @hybrid_property
-    def history(self):
-        return self._history
+        self.username = username
+        self.first_date = date
+        self.latest_date = date
 
     def __repr__(self):
-        return f"Account(id={self._id}, " \
-               f"username='{self.username}', " \
-               f"first_date={self.first_date}, " \
-               f"latest_date={self.latest_date})"
+        return f"Account(id={self._id}, username='{self.username}', " \
+               f"first_date={self.first_date}, latest_date={self.latest_date})"
 
     @property
     def complete_history(self):
-        return self._history.all()
+        return self.history.all()
 
     @property
     def first_record(self):
-        return self._history.filter_by(date=self.first_date).one()
+        return self.history.filter_by(date=self.first_date).one()
 
     @property
     def latest_record(self):
-        return self._history.filter_by(date=self.latest_date).one()
+        return self.history.filter_by(date=self.latest_date).one()
 
     def on_date(self, date):
         try:
-            return self._history.filter_by(date=date).one()
+            return self.history.filter_by(date=date).one()
         except NoResultFound as e:
             raise NoRecordError(f"No record for '{self.username}' on {date}") from e
 
