@@ -11,7 +11,7 @@ def rank(date, metric, usernames=None):
     try:
         q = q.order_by(getattr(Record, metric).desc())
     except AttributeError as e:
-        raise NoMetricError(f"Metric '{metric}' does not exist") from e
+        raise NoMetricError(f"Metric '{metric}' not in Record") from e
     return q
 
 
@@ -20,5 +20,5 @@ def diffrank(date_a, date_b, metric, usernames=None):
     try:
         q = q.order_by(getattr(Diff, metric).desc())
     except AttributeError as e:
-        raise NoMetricError(f"Metric '{metric}' does not exist") from e
+        raise NoMetricError(f"Metric '{metric}' not in Diff") from e
     return q
