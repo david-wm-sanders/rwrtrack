@@ -6,3 +6,6 @@ class NoRecordError(Exception):
 
 class NoMetricError(Exception):
     pass
+
+class FilterParseError(Exception):
+    pass

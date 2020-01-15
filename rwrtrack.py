@@ -6,7 +6,7 @@ Usage:
     rwrtrack.py [-q|-v] average <metric> [-d <dates>] [-x <pre>] [-y <pst>]
     rwrtrack.py [-q|-v] _dbinfo
     rwrtrack.py [-q|-v] _db_migrate_csv
-    rwrtrack.py [-q|-v] _interactive_mode
+    rwrtrack.py [-q|-v] _interact
 
 Options:
     -q          Quiet mode, reduces logging output to errors and above
@@ -35,6 +35,7 @@ from rwrtrack.core.difference import Diff, difference
 from rwrtrack.core.sum import sum_, diffsum
 from rwrtrack.core.average import avg, diffavg
 from rwrtrack.core.rank import rank, diffrank
+from rwrtrack.core.filter import filter_
 from rwrtrack.core.util import update_db_from_stats
 from rwrtrack.core.exceptions import NoAccountError, NoRecordError
 
@@ -173,7 +174,7 @@ if __name__ == '__main__':
         # Return the db to readonly mode
         _set_db_readonly()
 
-    elif args["_interactive_mode"]:
+    elif args["_interact"]:
         print("Entering interactive mode...")
         import code
         _dbinfo = get_dbinfo()
