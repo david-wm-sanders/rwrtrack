@@ -41,37 +41,25 @@ from rwrtrack.core.filter import filter_
 from rwrtrack.core.util import update_db_from_stats
 from rwrtrack.core.exceptions import NoAccountError, NoRecordError
 from rwrtrack.core.tablify import render_analysis_table
+from rwrtrack.core.logging import _configure_logging
 
 from rwrtrack.util import process_numeric_dates, _write_record_names, \
                             apply_filters
 from rwrtrack.averages import perform_averaging
 
 
-
-script_dir = Path(__file__).parent
-log_conf_p = (script_dir / "logging.conf").resolve()
-log_p = (script_dir / "rwrtrackpy.log").resolve()
 logger = logging.getLogger(__name__)
 
+script_dir = Path(__file__).parent
+log_conf_path = (script_dir / "logging.conf").resolve()
+log_path = (script_dir / "rwrtrackpy.log").resolve()
 
 csv_hist_path = Path(__file__).parent / Path("csv_historical")
 
 
 if __name__ == '__main__':
     args = docopt(__doc__)
-
-    log_opts = {"logfilename": log_p.as_posix(), "consoleloglvl": "INFO"}
-    if args["-q"]:
-        log_opts["consoleloglvl"] = "ERROR"
-    elif args["-v"]:
-        log_opts["consoleloglvl"] = "DEBUG"
-    logging.config.fileConfig(log_conf_p.as_posix(),
-                              disable_existing_loggers=False,
-                              defaults=log_opts)
-
-    logger.debug(f"Logging configured from {str(log_conf_p)}")
-    logger.debug(f"Logging output will be written to {str(log_p)}")
-    logger.debug(f"Running rwrtrack.py with arguments: {sys.argv[1:]}")
+    _configure_logging(log_conf_path, log_path, args)
     logger.debug(f"docopt output:\n{args}")
 
     if args["get"]:
