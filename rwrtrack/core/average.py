@@ -4,6 +4,7 @@ from sqlalchemy.orm.query import Query
 from .db import sesh
 from .record import Record, RA, RB
 from .difference import Diff
+from .filter import filter_
 from .constants import EARTH_EQUAT_CIRC
 
 
@@ -70,23 +71,29 @@ diffavg_query = Query([DiffAvg._count, DiffAvg.xp, DiffAvg.time_played, DiffAvg.
                        filter(RA.account_id==RB.account_id)
 
 
-def _avg(date, usernames=None):
+def _avg(date, usernames=None, record_filters=None):
     q = avg_query.with_session(sesh).filter(Record.date==date)
     if usernames:
         q = q.filter(Record.username.in_(usernames))
+    if record_filters:
+        q = filter_(q, Record, record_filters)
     return q
 
 
-def avg(date, usernames=None):
-    return _avg(date, usernames).one()._asdict()
+def avg(date, usernames=None, record_filters=None):
+    return _avg(date, usernames, record_filters).one()._asdict()
 
 
-def _diffavg(date_a, date_b, usernames=None):
+def _diffavg(date_a, date_b, usernames=None, record_filters=None, diff_filters=None):
     q = diffavg_query.with_session(sesh).filter(RA.date==date_a, RB.date==date_b)
     if usernames:
         q = q.filter(RA.username.in_(usernames))
+    if record_filters:
+        q = filter_(q, RA, record_filters)
+    if diff_filters:
+        q = filter_(q, Diff, diff_filters)
     return q
 
 
-def diffavg(date_a, date_b, usernames=None):
-    return _diffavg(date_a, date_b, usernames).one()._asdict()
+def diffavg(date_a, date_b, usernames=None, record_filters=None, diff_filters=None):
+    return _diffavg(date_a, date_b, usernames, record_filters, diff_filters).one()._asdict()

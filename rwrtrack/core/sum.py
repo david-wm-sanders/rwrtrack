@@ -4,6 +4,7 @@ from sqlalchemy.orm.query import Query
 from .db import sesh
 from .record import Record, RA, RB
 from .difference import Diff
+from .filter import filter_
 from .constants import EARTH_EQUAT_CIRC
 
 
@@ -70,23 +71,29 @@ diffsum_query = Query([DiffSum._count, DiffSum.xp, DiffSum.time_played, DiffSum.
                        filter(RA.account_id==RB.account_id)
 
 
-def _sum(date, usernames=None):
+def _sum(date, usernames=None, record_filters=None):
     q = sum_query.with_session(sesh).filter(Record.date==date)
     if usernames:
         q = q.filter(Record.username.in_(usernames))
+    if record_filters:
+        q = filter_(q, Record, record_filters)
     return q
 
 
-def sum_(date, usernames=None):
-    return _sum(date, usernames).one()._asdict()
+def sum_(date, usernames=None, record_filters=None):
+    return _sum(date, usernames, record_filters).one()._asdict()
 
 
-def _diffsum(date_a, date_b, usernames=None):
+def _diffsum(date_a, date_b, usernames=None, record_filters=None, diff_filters=None):
     q = diffsum_query.with_session(sesh).filter(RA.date==date_a, RB.date==date_b)
     if usernames:
         q = q.filter(RA.username.in_(usernames))
+    if record_filters:
+        q = filter_(q, RA, record_filters)
+    if diff_filters:
+        q = filter_(q, Diff, diff_filters)
     return q
 
 
-def diffsum(date_a, date_b, usernames=None):
-    return _diffsum(date_a, date_b, usernames).one()._asdict()
+def diffsum(date_a, date_b, usernames=None, record_filters=None, diff_filters=None):
+    return _diffsum(date_a, date_b, usernames, record_filters, diff_filters).one()._asdict()
