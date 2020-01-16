@@ -27,5 +27,5 @@ def get_dbinfo():
     try:
         return sesh.query(DbInfo).one()
     except NoResultFound:
-        logger.warn("No row in _dbinfo table, database appears to be blank")
+        logger.warning("No row in _dbinfo table, database appears to be blank")
         raise

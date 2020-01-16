@@ -33,7 +33,7 @@ def filter_(query, context, filters_str):
             if fltr is not None:
                 query = query.filter(fltr)
         except NoMetricError as e:
-            logger.warn(f"{e} - skipping filter '{fltr_str}'")
+            logger.warning(f"{e} - skipping filter '{fltr_str}'")
         except FilterParseError as e:
-            logger.warn(f"{e} - skipping filter '{fltr_str}'")
+            logger.warning(f"{e} - skipping filter '{fltr_str}'")
     return query
