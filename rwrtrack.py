@@ -27,6 +27,8 @@ from docopt import docopt
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import func, distinct, text
 
+from rwrtrack.core.get import get_stats
+from rwrtrack.core.csv import load_stats_from_csv, write_stats_to_csv
 from rwrtrack.core.db import sesh, _set_db_readonly, _set_db_writable
 from rwrtrack.core.dbinfo import DbInfo, get_dbinfo
 from rwrtrack.core.account import Account, get_account_by_name
@@ -43,8 +45,7 @@ from rwrtrack.core.tablify import render_analysis_table
 from rwrtrack.util import process_numeric_dates, _write_record_names, \
                             apply_filters
 from rwrtrack.averages import perform_averaging
-from rwrtrack.get_stats import get_stats
-from rwrtrack.stats_csv import load_stats_from_csv, write_stats_to_csv
+
 
 
 script_dir = Path(__file__).parent
@@ -77,7 +78,7 @@ if __name__ == '__main__':
         # TODO: Rewrite to use write to db as well
         num_pages = int(args["<pages>"]) if args["<pages>"] else 10
         stats = get_stats(num_pages)
-        write_stats_to_csv(stats)
+        write_stats_to_csv(csv_hist_path, stats)
 
     elif args["analyse"]:
         username = args["<name>"]

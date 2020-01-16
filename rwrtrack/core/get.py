@@ -1,15 +1,13 @@
 import logging
-import logging.config
 from pathlib import Path
 
 import requests
 from bs4 import BeautifulSoup
 
-from .stats_csv import Stats, write_stats_to_csv
+from .csv import Stats, write_stats_to_csv
 
 
 logger = logging.getLogger(__name__)
-
 
 playerstats_url = "http://rwr.runningwithrifles.com/rwr_stats/view_players.php"
 
@@ -20,10 +18,8 @@ def request_stats(start=0):
     try:
         r = requests.get(url)
         r.raise_for_status()
-        # Path("stats.html").write_text(r.text)
     except Exception as e:
-        logger.critical(f"Requesting stats failed due to {type(e).__name__}",
-                        exc_info=1)
+        logger.critical(f"Requesting stats failed due to {type(e).__name__}", exc_info=1)
         raise
     else:
         return r.text
@@ -44,12 +40,10 @@ def convert_tp_to_mins(time_played):
         hours = int(h[0:-1])
         mins = int(m[0:-3])
     except IndexError as e:
-        logger.error(f"Converting {time_played} failed because of IndexError",
-                     exc_info=1)
+        logger.error(f"Converting {time_played} failed because of IndexError", exc_info=1)
         raise
     except ValueError as e:
-        logger.error(f"Converting {time_played} failed because of ValueError",
-                     exc_info=1)
+        logger.error(f"Converting {time_played} failed because of ValueError", exc_info=1)
         raise
     else:
         return hours*60 + mins
