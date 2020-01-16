@@ -38,10 +38,10 @@ from rwrtrack.core.rank import rank, diffrank
 from rwrtrack.core.filter import filter_
 from rwrtrack.core.util import update_db_from_stats
 from rwrtrack.core.exceptions import NoAccountError, NoRecordError
+from rwrtrack.core.tablify import render_analysis_table
 
 from rwrtrack.util import process_numeric_dates, _write_record_names, \
                             apply_filters
-from rwrtrack.analysis import perform_analysis
 from rwrtrack.averages import perform_averaging
 from rwrtrack.get_stats import get_stats
 from rwrtrack.stats_csv import load_stats_from_csv, write_stats_to_csv
@@ -80,10 +80,33 @@ if __name__ == '__main__':
         write_stats_to_csv(stats)
 
     elif args["analyse"]:
-        # analyse <name> [-d <dates>]
         username = args["<name>"]
         dates = args["<dates>"]
-        perform_analysis(username, dates)
+        try:
+            account = get_account_by_name(username)
+        except NoAccountError as e:
+            logger.error(e)
+            sys.exit(1)
+
+        logger.info(f"Performing individual analysis for '{username}'...")
+        try:
+            if not dates:
+                print(f"'{account.username}' on {account.latest_date}:")
+                render_analysis_table(account.latest_record)
+            else:
+                dt, d = process_numeric_dates(dates)
+                if dt == "single":
+                    record = account.on_date(d)
+                    print(f"'{account.username}' on {record.date}:")
+                    render_analysis_table(record)
+                elif dt == "range":
+                    record_newer = account.on_date(d[1])
+                    record_older = account.on_date(d[0])
+                    diff = record_newer - record_older
+                    print(f"'{account.username}' from {record_older.date} to {record_newer.date}:")
+                    render_analysis_table(diff)
+        except NoRecordError as e:
+            logger.error(e)
 
     elif args["average"]:
         # New (provisionally):

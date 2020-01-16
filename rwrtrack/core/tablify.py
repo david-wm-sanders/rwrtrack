@@ -1,4 +1,4 @@
-def render_table(data):
+def render_analysis_table(data):
     r = []
     # Make a beautiful table with box-drawing characters
     c0w = 20
