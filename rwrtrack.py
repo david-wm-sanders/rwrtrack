@@ -99,7 +99,7 @@ if __name__ == '__main__':
             db_info = get_dbinfo()
         except NoResultFound:
             logger.info("Database not populated with anything. Exit.")
-            sys.exit()
+            sys.exit(1)
 
         print(f"First date: {db_info.first_date} Latest date: {db_info.latest_date}")
         num_accounts = sesh.query(func.count(Account._id)).scalar()
