@@ -12,6 +12,21 @@ username_blacklist = set()
 username_blacklist.add("RAIOORIGINAL")
 
 
+def process_numeric_dates(date_string):
+    if date_string.isnumeric():
+        return "single", int(date_string)
+    else:
+        # Handle date ranges
+        dates = date_string.split("-")
+        d_older = int(dates[0])
+        d_newer = int(dates[1])
+        if (d_older > d_newer):
+            logger.error("Dates must be older-newer!")
+            sys.exit(1)
+        # return "range", (d_older, d_newer)
+        return "range", (d_newer, d_older)
+
+
 def update_db_from_stats(stats, d):
     account_usernames = set()
     usernames = sesh.query(Account.username).all()

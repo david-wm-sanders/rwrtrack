@@ -3,17 +3,16 @@
 Usage:
     rwrtrack.py [-q|-v] get [<pages>]
     rwrtrack.py [-q|-v] analyse <name> [<dates>]
-    rwrtrack.py [-q|-v] average <metric> [-d <dates>] [-x <pre>] [-y <pst>]
+    rwrtrack.py [-q|-v] average [<dates>] [--record-filters=<str>] [--diff-filters=<str>]
     rwrtrack.py [-q|-v] _dbinfo
     rwrtrack.py [-q|-v] _db_migrate_csv
     rwrtrack.py [-q|-v] _interact
 
 Options:
-    -q          Quiet mode, reduces logging output to errors and above
-    -v          Verbose output, with full stdout logging
-    -d <dates>  Date, or two dates separated by a hyphen
-    -x <pre>    Prefilter specifier
-    -y <pst>    Postfilter specifier
+    -q   Quiet mode, reduces logging output to errors and above
+    -v   Verbose output, with full stdout logging
+    -rf  Record filters
+    -df  Diff filters
 """
 
 import logging
@@ -38,14 +37,10 @@ from rwrtrack.core.sum import sum_, diffsum
 from rwrtrack.core.average import avg, diffavg
 from rwrtrack.core.rank import rank, diffrank
 from rwrtrack.core.filter import filter_
-from rwrtrack.core.util import update_db_from_stats
+from rwrtrack.core.util import process_numeric_dates, update_db_from_stats
 from rwrtrack.core.exceptions import NoAccountError, NoRecordError
 from rwrtrack.core.tablify import render_analysis_table
 from rwrtrack.core.logging import _configure_logging
-
-from rwrtrack.util import process_numeric_dates, _write_record_names, \
-                            apply_filters
-from rwrtrack.averages import perform_averaging
 
 
 logger = logging.getLogger(__name__)
@@ -57,60 +52,82 @@ log_path = (script_dir / "rwrtrackpy.log").resolve()
 csv_hist_path = Path(__file__).parent / Path("csv_historical")
 
 
+def _get(args):
+    # TODO: Rewrite to use write to db as well
+    num_pages = int(args["<pages>"]) if args["<pages>"] else 10
+    stats = get_stats(num_pages)
+    write_stats_to_csv(csv_hist_path, stats)
+
+
+def _analyse(args):
+    username = args["<name>"]
+    dates = args["<dates>"]
+    try:
+        account = get_account_by_name(username)
+    except NoAccountError as e:
+        logger.error(e)
+        sys.exit(1)
+
+    logger.info(f"Performing individual analysis for '{username}'...")
+    try:
+        if not dates:
+            print(f"'{account.username}' on {account.latest_date}:")
+            render_analysis_table(account.latest_record)
+        else:
+            dt, d = process_numeric_dates(dates)
+            if dt == "single":
+                record = account.on_date(d)
+                print(f"'{account.username}' on {record.date}:")
+                render_analysis_table(record)
+            elif dt == "range":
+                record_newer = account.on_date(d[0])
+                record_older = account.on_date(d[1])
+                diff = record_newer - record_older
+                print(f"'{account.username}' from {record_older.date} to {record_newer.date}:")
+                render_analysis_table(diff)
+    except NoRecordError as e:
+        logger.error(e)
+        sys.exit(1)
+
+
+def _average(args):
+    dates = args["<dates>"]
+    rf, df = args["--record-filters"], args["--diff-filters"]
+
+    if not dates:
+        try:
+            db_info = get_dbinfo()
+            a = avg(db_info.latest_date, record_filters=rf)
+            print(a)
+        except NoResultFound:
+            logger.info("Empty database! Exit.")
+            sys.exit(1)
+    else:
+        dt, d = process_numeric_dates(dates)
+        if dt == "single":
+            a = avg(d, record_filters=rf)
+            print(a)
+        elif dt == "range":
+            a = diffavg(d[0], d[1], record_filters=rf, diff_filters=df)
+            print(a)
+
+
 if __name__ == '__main__':
     args = docopt(__doc__)
     _configure_logging(log_conf_path, log_path, args)
     logger.debug(f"docopt output:\n{args}")
 
     if args["get"]:
-        # TODO: Rewrite to use write to db as well
-        num_pages = int(args["<pages>"]) if args["<pages>"] else 10
-        stats = get_stats(num_pages)
-        write_stats_to_csv(csv_hist_path, stats)
-
+        _get(args)
     elif args["analyse"]:
-        username = args["<name>"]
-        dates = args["<dates>"]
-        try:
-            account = get_account_by_name(username)
-        except NoAccountError as e:
-            logger.error(e)
-            sys.exit(1)
-
-        logger.info(f"Performing individual analysis for '{username}'...")
-        try:
-            if not dates:
-                print(f"'{account.username}' on {account.latest_date}:")
-                render_analysis_table(account.latest_record)
-            else:
-                dt, d = process_numeric_dates(dates)
-                if dt == "single":
-                    record = account.on_date(d)
-                    print(f"'{account.username}' on {record.date}:")
-                    render_analysis_table(record)
-                elif dt == "range":
-                    record_newer = account.on_date(d[1])
-                    record_older = account.on_date(d[0])
-                    diff = record_newer - record_older
-                    print(f"'{account.username}' from {record_older.date} to {record_newer.date}:")
-                    render_analysis_table(diff)
-        except NoRecordError as e:
-            logger.error(e)
-
+        _analyse(args)
     elif args["average"]:
-        # New (provisionally):
-        # average <metric> [-d <dates>] [-x <pre>] [-y <pst>]
-        metric = args["<metric>"]
-        dates = args["-d"]
-        prefilters = args["-x"]
-        pstfilters = args["-y"]
-        perform_averaging(metric, dates, prefilters, pstfilters)
-
+        _average(args)
     elif args["_dbinfo"]:
         try:
             db_info = get_dbinfo()
         except NoResultFound:
-            logger.info("Database not populated with anything. Exit.")
+            logger.info("Empty database! Exit.")
             sys.exit(1)
 
         print(f"First date: {db_info.first_date} Latest date: {db_info.latest_date}")
