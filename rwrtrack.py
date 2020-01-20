@@ -26,21 +26,21 @@ from docopt import docopt
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import func, distinct, text
 
-from rwrtrack.core.get import get_stats
-from rwrtrack.core.csv import load_stats_from_csv, write_stats_to_csv
-from rwrtrack.core.db import sesh, _set_db_readonly, _set_db_writable
-from rwrtrack.core.dbinfo import DbInfo, get_dbinfo
-from rwrtrack.core.account import Account, get_account_by_name
-from rwrtrack.core.record import Record, get_records_on_date
-from rwrtrack.core.difference import Diff, difference
-from rwrtrack.core.sum import sum_, diffsum
-from rwrtrack.core.average import avg, diffavg
-from rwrtrack.core.rank import rank, diffrank
-from rwrtrack.core.filter import filter_
-from rwrtrack.core.util import process_numeric_dates, update_db_from_stats
-from rwrtrack.core.exceptions import NoAccountError, NoRecordError
-from rwrtrack.core.tablify import render_analysis_table
-from rwrtrack.core.logging import _configure_logging
+from rwrtrack.get import get_stats
+from rwrtrack.csv import load_stats_from_csv, write_stats_to_csv
+from rwrtrack.db import sesh, _set_db_readonly, _set_db_writable
+from rwrtrack.dbinfo import DbInfo, get_dbinfo
+from rwrtrack.account import Account, get_account_by_name
+from rwrtrack.record import Record, get_records_on_date
+from rwrtrack.difference import Diff, difference
+from rwrtrack.sum import sum_, diffsum
+from rwrtrack.average import avg, diffavg
+from rwrtrack.rank import rank, diffrank
+from rwrtrack.filter import filter_
+from rwrtrack.util import process_numeric_dates, update_db_from_stats
+from rwrtrack.exceptions import NoAccountError, NoRecordError
+from rwrtrack.tablify import render_analysis_table
+from rwrtrack.logging import _configure_logging
 
 
 logger = logging.getLogger(__name__)
