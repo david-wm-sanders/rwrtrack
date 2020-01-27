@@ -7,9 +7,10 @@ from sqlalchemy.ext.declarative import declarative_base
 
 logger = logging.getLogger(__name__)
 
-echo = False
 DeclarativeBase = declarative_base()
-engine = create_engine("sqlite:///rwrtrack_history.db", echo=echo)
+engine = create_engine("sqlite:///rwrtrack_history.db")
+# Need to set a logging level here to get sqlalchemy to allow changes to the logging level in logging.py - bizarre!
+logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)
 db_session = sessionmaker(bind=engine)
 sesh = db_session()
 

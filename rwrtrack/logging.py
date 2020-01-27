@@ -19,3 +19,6 @@ def _configure_logging(log_conf_path, log_path, args):
     logger.debug(f"Logging configured from '{log_conf_path}'")
     logger.debug(f"Logging output will be written to '{log_path}'")
     logger.debug(f"Running rwrtrack.py with arguments: {sys.argv[1:]}")
+
+    if not args.get("-v", None):
+        logging.getLogger("sqlalchemy.engine").setLevel(logging.WARNING)
