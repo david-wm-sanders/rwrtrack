@@ -3,7 +3,9 @@
 Usage:
     rwrtrack.py [-q|-v] get [<pages>]
     rwrtrack.py [-q|-v] analyse <name> [<dates>]
+    rwrtrack.py [-q|-v] rank <metric> [<dates>] [--limit=<int>] [--record-filters=<str>] [--diff-filters=<str>]
     rwrtrack.py [-q|-v] average [<dates>] [--record-filters=<str>] [--diff-filters=<str>]
+    rwrtrack.py [-q|-v] sum [<dates>] [--record-filters=<str>] [--diff-filters=<str>]
     rwrtrack.py [-q|-v] _dbinfo
     rwrtrack.py [-q|-v] _db_migrate_csv
     rwrtrack.py [-q|-v] _interact
@@ -42,8 +44,12 @@ if __name__ == '__main__':
         _get(args)
     elif args["analyse"]:
         _analyse(args)
+    elif args["rank"]:
+        _rank(args)
     elif args["average"]:
         _average(args)
+    elif args["sum"]:
+        _sum(args)
     elif args["_dbinfo"]:
         _dbinfo()
     elif args["_db_migrate_csv"]:

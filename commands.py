@@ -3,6 +3,7 @@ import logging
 import sys
 from datetime import datetime, timedelta
 
+from sqlalchemy.util import KeyedTuple
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import func, distinct, text
 
@@ -72,7 +73,6 @@ def _average(args):
         try:
             db_info = get_dbinfo()
             a = avg(db_info.latest_date, record_filters=rf)
-            print(a)
         except NoResultFound:
             logger.info("Empty database! Exit.")
             sys.exit(1)
@@ -80,18 +80,70 @@ def _average(args):
         dt, d = process_numeric_dates(dates)
         if dt == "single":
             a = avg(d, record_filters=rf)
-            print(a)
         elif dt == "range":
             a = diffavg(d[0], d[1], record_filters=rf, diff_filters=df)
-            print(a)
+
+    # TODO: add nice table for averages
+    print(a)
 
 
 def _rank(args):
-    pass
+    metric = args["<metric>"]
+    try:
+        if args["--limit"]:
+            limit = abs(int(args["--limit"]))
+            if not limit > 0:
+                raise ValueError
+        else: limit = 5
+    except ValueError as e:
+        logger.error(f"Limit must be an integer greater than or equal to 1")
+        sys.exit(1)
+    dates = args["<dates>"]
+    rf, df = args["--record-filters"], args["--diff-filters"]
+
+    if not dates:
+        try:
+            db_info = get_dbinfo()
+            ranking = rank(db_info.latest_date, metric, record_filters=rf)
+        except NoResultFound:
+            logger.info("Empty database! Exit.")
+            sys.exit(1)
+    else:
+        dt, d = process_numeric_dates(dates)
+        if dt == "single":
+            ranking = rank(d, metric, record_filters=rf)
+        elif dt == "range":
+            ranking = diffrank(d[0], d[1], metric, record_filters=rf, diff_filters=df)
+
+    ranking = ranking.limit(limit)
+    logger.debug(f"Rank query: {ranking}")
+    # TODO: render ranking as table
+    for r in ranking.all():
+        if isinstance(r, Record):
+            print(r)
+        else: print(r._asdict())
 
 
 def _sum(args):
-    pass
+    dates = args["<dates>"]
+    rf, df = args["--record-filters"], args["--diff-filters"]
+
+    if not dates:
+        try:
+            db_info = get_dbinfo()
+            s = sum_(db_info.latest_date, record_filters=rf)
+        except NoResultFound:
+            logger.info("Empty database! Exit.")
+            sys.exit(1)
+    else:
+        dt, d = process_numeric_dates(dates)
+        if dt == "single":
+            s = sum_(d, record_filters=rf)
+        elif dt == "range":
+            s = diffsum(d[0], d[1], record_filters=rf, diff_filters=df)
+
+    # TODO: add nice table for sums
+    print(s)
 
 
 def _dbinfo():
