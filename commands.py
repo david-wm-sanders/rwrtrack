@@ -116,7 +116,6 @@ def _rank(args):
             ranking = diffrank(d[0], d[1], metric, record_filters=rf, diff_filters=df)
 
     ranking = ranking.limit(limit)
-    logger.debug(f"Rank query: {ranking}")
     # TODO: render ranking as table
     for r in ranking.all():
         if isinstance(r, Record):
