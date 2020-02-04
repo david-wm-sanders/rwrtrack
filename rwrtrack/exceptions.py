@@ -4,8 +4,11 @@ class NoAccountError(Exception):
 class NoRecordError(Exception):
     pass
 
-class NoMetricError(Exception):
+class FilterOperatorError(Exception):
     pass
 
-class FilterParseError(Exception):
+class FilterMetricError(Exception):
+    pass
+
+class FilterValueError(Exception):
     pass

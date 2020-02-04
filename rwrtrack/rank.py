@@ -2,7 +2,7 @@ from .db import sesh
 from .record import Record, RA
 from .difference import Diff, difference
 from .filter import filter_
-from .exceptions import NoMetricError
+from .exceptions import FilterMetricError
 
 
 def rank(date, metric, usernames=None, record_filters=None):
@@ -14,7 +14,7 @@ def rank(date, metric, usernames=None, record_filters=None):
     try:
         q = q.order_by(getattr(Record, metric).desc())
     except AttributeError as e:
-        raise NoMetricError(f"Metric '{metric}' not in Record") from e
+        raise FilterMetricError(f"Metric '{metric}' not in Record") from e
     return q
 
 
@@ -27,5 +27,5 @@ def diffrank(date_a, date_b, metric, usernames=None, record_filters=None, diff_f
     try:
         q = q.order_by(getattr(Diff, metric).desc())
     except AttributeError as e:
-        raise NoMetricError(f"Metric '{metric}' not in Diff") from e
+        raise FilterMetricError(f"Metric '{metric}' not in Diff") from e
     return q
