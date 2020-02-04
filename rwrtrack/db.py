@@ -1,29 +1,34 @@
 import logging
+import time
 import types
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, event
+from sqlalchemy.engine import Engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
 
 logger = logging.getLogger(__name__)
 
+
+# Configure query profiling
+@event.listens_for(Engine, "before_cursor_execute")
+def before_cursor_execute(conn, cursor, statement, parameters, context, executemany):
+    ns_start = time.time_ns()
+    conn.info.setdefault('query_start_time', []).append(ns_start)
+    logger.debug(f"Starting query: '{statement}'\nwith parameters: '{parameters}'")
+
+
+@event.listens_for(Engine, "after_cursor_execute")
+def after_cursor_execute(conn, cursor, statement, parameters, context, executemany):
+    ns_end = time.time_ns()
+    total = ns_end - conn.info['query_start_time'].pop(-1)
+    logger.debug(f"Query took: {total / 1_000_000:.2f}ms")
+
+
+# Declare the base, create the engine, make a session to sesh
 DeclarativeBase = declarative_base()
 engine = create_engine("sqlite:///rwrtrack_history.db")
-
-# Set the sqlalchemy.engine logging level to INFO to get statement and parameter readouts
-logging.getLogger("sqlalchemy.engine").setLevel(logging.INFO)
-# Define a replacement method for engine.logger.info that modifies the logging level to DEBUG
-def _patch_info_log(self, msg, *args, **kwargs):
-    if args:
-        # If engine.logger.info has non-empty/non-False args, assume it is a parameter call and emit customised msg
-        self.logger._log(logging.DEBUG, f"Query parameters: '{msg}'", args, **kwargs)
-    else:
-        self.logger._log(logging.DEBUG, f"Query: '{msg}'", args, **kwargs)
-# Bind the replacement method over the existing method
-engine.logger.info = types.MethodType(_patch_info_log, engine)
-
-# Make a session available as sesh
 db_session = sessionmaker(bind=engine)
 sesh = db_session()
 
