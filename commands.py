@@ -234,4 +234,4 @@ def _interact():
     _bang = get_account_by_name("MR. BANG")
     _bang_diff_q = difference(20191231, 20181231, ["MR. BANG"])
     _bang_diff = _bang_diff_q.one()._asdict()
-    code.interact(local=locals(), banner="", exitmsg="")
+    code.interact(local=globals(), banner="", exitmsg="")
