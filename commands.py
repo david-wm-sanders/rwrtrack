@@ -214,8 +214,6 @@ def _db_migrate_csv(csv_hist_path):
                 logger.info(f"Processing '{csv_file_path}'...")
                 stats = load_stats_from_csv(csv_file_path)
                 update_db_from_stats(stats, d)
-                # Commit changes
-                sesh.commit()
                 break
     finally:
         for csv_file_path in csv_file_paths:
@@ -228,8 +226,6 @@ def _db_migrate_csv(csv_hist_path):
             # Update latest_date in _dbinfo table
             db_info.latest_date = d
             update_db_from_stats(stats, d)
-            # Commit changes
-            sesh.commit()
 
     # Return the db to readonly mode
     _set_db_readonly()

@@ -1,4 +1,5 @@
 import logging
+import time
 
 from .db import sesh
 from .account import Account
@@ -28,10 +29,14 @@ def process_numeric_dates(date_string):
 
 
 def update_db_from_stats(stats, d):
+    t0 = time.time()
+
     account_usernames = set()
     usernames = sesh.query(Account.username).all()
     for u in usernames:
         account_usernames.add(u[0])
+
+    recs = []
     for s in stats:
         # If username in blacklist, skip...
         if s.username in username_blacklist:
@@ -48,16 +53,13 @@ def update_db_from_stats(stats, d):
             account = sesh.query(Account).filter_by(username=s.username).one()
             account.latest_date = d
         # Create a history entry for this stat record
-        record = Record(date=d, account_id=account._id,
-                        username=s.username, xp=s.xp,
-                        time_played=s.time_played,
-                        kills=s.kills, deaths=s.deaths,
-                        kill_streak=s.kill_streak,
-                        targets_destroyed=s.targets_destroyed,
-                        vehicles_destroyed=s.vehicles_destroyed,
-                        soldiers_healed=s.soldiers_healed,
-                        team_kills=s.team_kills,
-                        distance_moved=s.distance_moved,
-                        shots_fired=s.shots_fired,
-                        throwables_thrown=s.throwables_thrown)
-        sesh.add(record)
+        rec = dict(date=d, account_id=account._id, username=s.username, xp=s.xp, time_played=s.time_played,
+                   kills=s.kills, deaths=s.deaths, kill_streak=s.kill_streak,
+                   targets_destroyed=s.targets_destroyed, vehicles_destroyed=s.vehicles_destroyed,
+                   soldiers_healed=s.soldiers_healed, team_kills=s.team_kills, distance_moved=s.distance_moved,
+                   shots_fired=s.shots_fired, throwables_thrown=s.throwables_thrown)
+        recs.append(rec)
+
+    sesh.bulk_insert_mappings(Record, recs)
+    sesh.commit()
+    logger.info(f"db update for {d} took {(time.time() - t0):.2f} seconds")
