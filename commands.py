@@ -184,7 +184,7 @@ def _db_migrate_csv(csv_hist_path):
         # If no DbInfo, db is blank, initialise from origin CSV file
         logger.info("Blank database found - beginning full migration...")
         csv_file_path = next(csv_file_paths)
-        logger.info(f"Processing CSV file at '{csv_file_path}'...")
+        logger.info(f"Processing '{csv_file_path}'...")
         # Fix dates
         d = datetime.strptime(csv_file_path.stem, "%Y-%m-%d").date()
         d = d - timedelta(days=1)
@@ -211,13 +211,15 @@ def _db_migrate_csv(csv_hist_path):
                 # Update latest_date in _dbinfo table
                 db_info.latest_date = d
                 # Add stats from the first new file in the filter generator
-                logger.info(f"Processing CSV file at '{csv_file_path}'...")
+                logger.info(f"Processing '{csv_file_path}'...")
                 stats = load_stats_from_csv(csv_file_path)
                 update_db_from_stats(stats, d)
+                # Commit changes
+                sesh.commit()
                 break
     finally:
         for csv_file_path in csv_file_paths:
-            logger.info(f"Processing CSV file at '{csv_file_path}'...")
+            logger.info(f"Processing '{csv_file_path}'...")
             stats = load_stats_from_csv(csv_file_path)
             # Fix dates
             d = datetime.strptime(csv_file_path.stem, "%Y-%m-%d").date()
@@ -226,7 +228,7 @@ def _db_migrate_csv(csv_hist_path):
             # Update latest_date in _dbinfo table
             db_info.latest_date = d
             update_db_from_stats(stats, d)
-            # logger.info("Committing changes to database...")
+            # Commit changes
             sesh.commit()
 
     # Return the db to readonly mode
