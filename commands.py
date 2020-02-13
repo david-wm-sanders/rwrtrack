@@ -235,8 +235,4 @@ def _db_migrate_csv(csv_hist_path):
 
 def _interact():
     print("Entering interactive mode...")
-    _db_info = get_dbinfo()
-    _bang = get_account_by_name("MR. BANG")
-    _bang_diff_q = difference(20191231, 20181231, ["MR. BANG"])
-    _bang_diff = _bang_diff_q.one()._asdict()
     code.interact(local=globals(), banner="", exitmsg="")
