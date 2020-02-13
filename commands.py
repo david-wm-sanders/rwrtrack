@@ -161,7 +161,7 @@ def _dbinfo():
     print(f"Number of records: {total_records}")
 
 
-def _db_migrate_csv():
+def _db_migrate_csv(csv_hist_path):
     logger.info("Migrating CSV to database...")
     # Put the db in writable mode
     _set_db_writable()
@@ -178,17 +178,17 @@ def _db_migrate_csv():
     except NoResultFound:
         # If no DbInfo, db is blank, initialise from origin CSV file
         logger.info("Blank database found - beginning full migration...")
-        first_csv_path = next(csv_file_paths)
-        logger.info(f"First CSV file at '{first_csv_path}'")
+        csv_file_path = next(csv_file_paths)
+        logger.info(f"Processing CSV file at '{csv_file_path}'...")
         # Fix dates
-        d = datetime.strptime(first_csv_path.stem, "%Y-%m-%d").date()
+        d = datetime.strptime(csv_file_path.stem, "%Y-%m-%d").date()
         d = d - timedelta(days=1)
         d = int(d.strftime("%Y%m%d"))
         # Populate _dbinfo table with the initial CSV in migration
         db_info = DbInfo(date=d)
         sesh.add(db_info)
         # Add stats from the first file in the filter generator
-        stats = load_stats_from_csv(first_csv_path)
+        stats = load_stats_from_csv(csv_file_path)
         update_db_from_stats(stats, d)
     else:
         logger.info("Existing database found - continuing migration...")
@@ -206,6 +206,7 @@ def _db_migrate_csv():
                 # Update latest_date in _dbinfo table
                 db_info.latest_date = d
                 # Add stats from the first new file in the filter generator
+                logger.info(f"Processing CSV file at '{csv_file_path}'...")
                 stats = load_stats_from_csv(csv_file_path)
                 update_db_from_stats(stats, d)
                 break

@@ -53,7 +53,7 @@ if __name__ == '__main__':
     elif args["_dbinfo"]:
         _dbinfo()
     elif args["_db_migrate_csv"]:
-        _db_migrate_csv()
+        _db_migrate_csv(csv_hist_path)
     elif args["_interact"]:
         _interact()
     else:
