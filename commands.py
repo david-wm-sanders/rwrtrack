@@ -162,6 +162,11 @@ def _dbinfo():
 
 
 def _db_migrate_csv(csv_hist_path):
+    # Modify the logger level to INFO for FileHandler(s) to avoid debug logging every new record insertion
+    for handler in logging.getLogger().handlers:
+        if isinstance(handler, logging.FileHandler):
+            handler.setLevel(logging.INFO)
+
     logger.info("Migrating CSV to database...")
     # Put the db in writable mode
     _set_db_writable()
