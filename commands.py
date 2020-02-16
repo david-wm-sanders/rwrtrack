@@ -18,13 +18,27 @@ from rwrtrack.sum import sum_, diffsum
 from rwrtrack.average import avg, diffavg
 from rwrtrack.rank import rank, diffrank
 from rwrtrack.filter import filter_
-from rwrtrack.util import process_numeric_dates
 from rwrtrack.exceptions import NoAccountError, NoRecordError
 from rwrtrack.tablify import render_analysis_table
 from rwrtrack.migrate import migrate
 
 
 logger = logging.getLogger(__name__)
+
+
+def process_numeric_dates(date_string):
+    if date_string.isnumeric():
+        return "single", int(date_string)
+    else:
+        # Handle date ranges
+        dates = date_string.split("-")
+        d_older = int(dates[0])
+        d_newer = int(dates[1])
+        if (d_older > d_newer):
+            logger.error("Dates must be older-newer!")
+            sys.exit(1)
+        # return "range", (d_older, d_newer)
+        return "range", (d_newer, d_older)
 
 
 def _get(args):
