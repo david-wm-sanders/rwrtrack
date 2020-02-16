@@ -18,10 +18,10 @@ from rwrtrack.sum import sum_, diffsum
 from rwrtrack.average import avg, diffavg
 from rwrtrack.rank import rank, diffrank
 from rwrtrack.filter import filter_
-from rwrtrack.util import process_numeric_dates, update_db_from_stats
+from rwrtrack.util import process_numeric_dates
 from rwrtrack.exceptions import NoAccountError, NoRecordError
 from rwrtrack.tablify import render_analysis_table
-from rwrtrack.logging import _configure_logging
+from rwrtrack.migrate import migrate
 
 
 logger = logging.getLogger(__name__)
@@ -162,73 +162,7 @@ def _dbinfo():
 
 
 def _db_migrate_csv(csv_hist_path):
-    # Modify the logger level to INFO for FileHandler(s) to avoid debug logging every new record insertion
-    for handler in logging.getLogger().handlers:
-        if isinstance(handler, logging.FileHandler):
-            handler.setLevel(logging.INFO)
-
-    logger.info("Migrating CSV to database...")
-    # Put the db in writable mode
-    _set_db_writable()
-    # Get all CSV files and filter
-    logger.info("Finding CSV files for migration...")
-    csv_file_paths = sorted(list(csv_hist_path.glob("*.csv")))
-    # Filter out CSV files that are not being migrated (for reasons...)
-    csv_file_paths = filter(lambda x: "2017" not in x.stem and "2018" not in x.stem,
-                            csv_file_paths)
-    # TODO: Rework, just get the filter as list and peek instead...
-    try:
-        # Attempt to access the DbInfo
-        db_info = get_dbinfo()
-    except NoResultFound:
-        # If no DbInfo, db is blank, initialise from origin CSV file
-        logger.info("Blank database found - beginning full migration...")
-        csv_file_path = next(csv_file_paths)
-        logger.info(f"Processing '{csv_file_path}'...")
-        # Fix dates
-        d = datetime.strptime(csv_file_path.stem, "%Y-%m-%d").date()
-        d = d - timedelta(days=1)
-        d = int(d.strftime("%Y%m%d"))
-        # Populate _dbinfo table with the initial CSV in migration
-        db_info = DbInfo(date=d)
-        sesh.add(db_info)
-        # Add stats from the first file in the filter generator
-        stats = load_stats_from_csv(csv_file_path)
-        update_db_from_stats(stats, d)
-    else:
-        logger.info("Existing database found - continuing migration...")
-        # Step the csv_file_paths filter until we are at the first new file
-        while True:
-            try:
-                csv_file_path = next(csv_file_paths)
-            except StopIteration:
-                logger.info("No new CSV files to migrate")
-                sys.exit(1)
-            d = datetime.strptime(csv_file_path.stem, "%Y-%m-%d").date()
-            d = d - timedelta(days=1)
-            d = int(d.strftime("%Y%m%d"))
-            if (d > db_info.latest_date):
-                # Update latest_date in _dbinfo table
-                db_info.latest_date = d
-                # Add stats from the first new file in the filter generator
-                logger.info(f"Processing '{csv_file_path}'...")
-                stats = load_stats_from_csv(csv_file_path)
-                update_db_from_stats(stats, d)
-                break
-    finally:
-        for csv_file_path in csv_file_paths:
-            logger.info(f"Processing '{csv_file_path}'...")
-            stats = load_stats_from_csv(csv_file_path)
-            # Fix dates
-            d = datetime.strptime(csv_file_path.stem, "%Y-%m-%d").date()
-            d = d - timedelta(days=1)
-            d = int(d.strftime("%Y%m%d"))
-            # Update latest_date in _dbinfo table
-            db_info.latest_date = d
-            update_db_from_stats(stats, d)
-
-    # Return the db to readonly mode
-    _set_db_readonly()
+    migrate(csv_hist_path)
 
 
 def _interact():
