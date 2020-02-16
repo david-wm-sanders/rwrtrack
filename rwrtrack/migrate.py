@@ -4,23 +4,16 @@ import sys
 import time
 from datetime import datetime, timedelta
 
-from .csv import load_stats_from_csv
 from .db import engine, sesh, _set_db_readonly, _set_db_writable
 from .dbinfo import DbInfo, get_dbinfo
 from .account import Account
 from .record import Record
+from .logging import _mod_logging_handlers
 
 
 logger = logging.getLogger(__name__)
 # Configure blacklist for troublesome usernames
 USERNAME_BLACKLIST = {"RAIOORIGINAL"}
-
-
-def _mod_logging_handlers(handler_type, handler_level):
-    for handler in logging.getLogger().handlers:
-        if isinstance(handler, handler_type):
-            logger.info(f"Setting {handler} to {logging.getLevelName(handler_level)}")
-            handler.setLevel(handler_level)
 
 
 def _find_csv_files(csv_hist_dir):
@@ -48,10 +41,10 @@ def migrate(csv_hist_dir):
     t0 = time.time()
 
     logger.info("Starting database migration...")
-    # Modify FileHandler(s) to log at INFO to avoid debug logging every new record insertion
-    _mod_logging_handlers(logging.FileHandler, logging.INFO)
     # Set the database to writable mode
     _set_db_writable()
+    # Modify FileHandler(s) to log at INFO to avoid debug logging every new record insertion
+    _mod_logging_handlers(logging.FileHandler, logging.INFO)
 
     logger.info(f"Finding CSV files in '{csv_hist_dir}'...")
     csv_paths = _find_csv_files(csv_hist_dir)
@@ -142,6 +135,8 @@ def migrate(csv_hist_dir):
         logger.info(f"Entered mappings into database in {(time.time() - t2):.2f}s")
         logger.info(f"Migrated '{csv_path.name}' in {(time.time() - t1):.2f}s")
 
-    _set_db_readonly()
     migration_time = time.time() - t0
     logger.info(f"Migration took {migration_time:.2f} seconds")
+
+    _mod_logging_handlers(logging.FileHandler, logging.DEBUG)
+    _set_db_readonly()

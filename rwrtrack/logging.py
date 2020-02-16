@@ -19,3 +19,10 @@ def _configure_logging(log_conf_path, log_path, args):
     logger.debug(f"Logging configured from '{log_conf_path}'")
     logger.debug(f"Logging output will be written to '{log_path}'")
     logger.debug(f"Running rwrtrack.py with arguments: {sys.argv[1:]}")
+
+
+def _mod_logging_handlers(handler_type, handler_level):
+    for handler in logging.getLogger().handlers:
+        if isinstance(handler, handler_type):
+            logger.info(f"Setting {handler} to {logging.getLevelName(handler_level)}")
+            handler.setLevel(handler_level)
