@@ -18,10 +18,7 @@ USERNAME_BLACKLIST = {"RAIOORIGINAL"}
 
 def _find_csv_files(csv_hist_dir):
     # Find CSV files in csv_hist_dir
-    csv_paths = sorted(csv_hist_dir.glob("*.csv"))
-    # Filter out CSV files that are never being migrated (for reasons...)
-    csv_paths = filter(lambda x: "2017" not in x.stem and "2018" not in x.stem, csv_paths)
-    return list(csv_paths)
+    return sorted(csv_hist_dir.glob("*.csv"))
 
 
 def _fix_csv_date(csv_path):
