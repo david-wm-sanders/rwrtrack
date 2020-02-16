@@ -23,9 +23,11 @@ class DbInfo(DeclarativeBase):
         return f"DbInfo(first_date={self.first_date}, latest_date={self.latest_date})"
 
 
-def get_dbinfo():
+def get_dbinfo(error=True):
     try:
         return sesh.query(DbInfo).one()
     except NoResultFound:
-        logger.warning("No row in _dbinfo table, database appears to be blank")
-        raise
+        if error:
+            logger.warning("No entry _dbinfo table, database appears to be blank")
+            raise
+        else: return None

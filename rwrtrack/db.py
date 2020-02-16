@@ -16,14 +16,14 @@ logger = logging.getLogger(__name__)
 def before_cursor_execute(conn, cursor, statement, parameters, context, executemany):
     ns_start = time.time_ns()
     conn.info.setdefault('query_start_time', []).append(ns_start)
-    logger.debug(f"Starting query: '{statement}'\nwith parameters: '{parameters}'")
+    logger.debug(f"Executing stmt: '{statement}'\nwith parameters: '{parameters}'")
 
 
 @event.listens_for(Engine, "after_cursor_execute")
 def after_cursor_execute(conn, cursor, statement, parameters, context, executemany):
     ns_end = time.time_ns()
     total = ns_end - conn.info['query_start_time'].pop(-1)
-    logger.debug(f"Query took: {total / 1_000_000:.2f}ms")
+    logger.debug(f"Execution took: {total / 1_000_000:.2f}ms")
 
 
 # Declare the base, create the engine, make a session to sesh
@@ -40,12 +40,12 @@ DeclarativeBase.metadata.create_all(engine)
 
 
 def _set_db_readonly():
-    logger.debug("[Set database query_only ON]")
+    logger.debug("Make database readonly [query_only ON]")
     sesh.execute("PRAGMA query_only = ON;")
 
 
 def _set_db_writable():
-    logger.debug("[Set database query_only OFF]")
+    logger.debug("Make database writable [query_only OFF]")
     sesh.execute("PRAGMA query_only = OFF;")
 
 
