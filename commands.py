@@ -45,7 +45,7 @@ def _get(args):
     # TODO: Rewrite to use write to db as well
     num_pages = int(args["<pages>"]) if args["<pages>"] else 10
     stats = get_stats(num_pages)
-    write_stats_to_csv(csv_hist_path, stats)
+    write_stats_to_csv(csv_hist_dir, stats)
 
 
 def _analyse(args):
@@ -175,8 +175,8 @@ def _dbinfo():
     print(f"Number of records: {total_records}")
 
 
-def _db_migrate_csv(csv_hist_path):
-    migrate(csv_hist_path)
+def _db_migrate_csv(csv_hist_dir):
+    migrate(csv_hist_dir)
 
 
 def _interact():

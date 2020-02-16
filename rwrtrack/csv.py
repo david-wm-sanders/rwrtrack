@@ -39,9 +39,9 @@ class Stats:
                f"throwables_thrown={self.throwables_thrown})"
 
 
-def write_stats_to_csv(csv_hist_path, stats):
+def write_stats_to_csv(csv_hist_dir, stats):
     dt = date.today()
-    csv_path = csv_hist_path / Path(f"{dt}.csv")
+    csv_path = csv_hist_dir / Path(f"{dt}.csv")
     logger.info(f"Writing stats to {csv_path.resolve()}")
     field_headers = ["username", "xp", "time_played",
                      "kills", "deaths", "kill_streak",

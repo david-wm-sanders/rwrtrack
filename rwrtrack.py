@@ -32,7 +32,7 @@ script_dir = Path(__file__).parent
 log_conf_path = (script_dir / "logging.conf").resolve()
 log_path = (script_dir / "rwrtrackpy.log").resolve()
 
-csv_hist_path = Path(__file__).parent / Path("csv_historical")
+csv_hist_dir = Path(__file__).parent / Path("csv_historical")
 
 
 if __name__ == '__main__':
@@ -53,7 +53,7 @@ if __name__ == '__main__':
     elif args["_dbinfo"]:
         _dbinfo()
     elif args["_db_migrate_csv"]:
-        _db_migrate_csv(csv_hist_path)
+        _db_migrate_csv(csv_hist_dir)
     elif args["_interact"]:
         _interact()
     else:
