@@ -14,6 +14,7 @@ from .exceptions import NoCsvError, DuplicateUsernameError
 
 logger = logging.getLogger(__name__)
 # Configure blacklist for troublesome usernames
+# USERNAME_BLACKLIST = set()
 USERNAME_BLACKLIST = {"RAIOORIGINAL"}
 
 
@@ -42,6 +43,7 @@ def migrate(csv_hist_dir):
     t0 = time.time()
 
     logger.info("Starting database migration...")
+    # TODO: Move into contextmanager generator func so the exit/teardown always runs even if exceptions occur
     # Set the database to writable mode
     _set_db_writable()
     # Modify FileHandler(s) to log at INFO to avoid debug logging every new record insertion
@@ -84,6 +86,7 @@ def migrate(csv_hist_dir):
         record_date = _fix_csv_date(csv_path)
         logger.info(f"Processing '{csv_path.name}' as '{record_date}'...")
 
+        usernames = set()
         new_accounts, updated_accounts, new_records  = [], [], []
         with csv_path.open("r", encoding="utf-8") as csv_file:
             csv_reader = csv.DictReader(csv_file)
@@ -92,6 +95,11 @@ def migrate(csv_hist_dir):
                 # Skip row if username is in the blacklist
                 if username in USERNAME_BLACKLIST:
                     continue
+                # Raise exception if username appears more than once in the CSV file
+                if username in usernames:
+                    raise DuplicateUsernameError(f"Multiple entries for '{username}' in '{csv_path.name}'")
+                else: usernames.add(username)
+                # If username doesn't already have an Account create new Account, else update the existing Account
                 if username not in account_map:
                     # Get the next account_id from the generator and map username: account_id in account_map
                     account_id = next(account_id_gen)
