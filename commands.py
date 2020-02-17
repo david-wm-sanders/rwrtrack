@@ -18,7 +18,7 @@ from rwrtrack.sum import sum_, diffsum
 from rwrtrack.average import avg, diffavg
 from rwrtrack.rank import rank, diffrank
 from rwrtrack.filter import filter_
-from rwrtrack.exceptions import NoAccountError, NoRecordError
+from rwrtrack.exceptions import NoAccountError, NoRecordError, NoCsvError
 from rwrtrack.tablify import render_analysis_table
 from rwrtrack.migrate import migrate
 
@@ -176,7 +176,11 @@ def _dbinfo():
 
 
 def _db_migrate_csv(csv_hist_dir):
-    migrate(csv_hist_dir)
+    try:
+        migrate(csv_hist_dir)
+    except NoCsvError as e:
+        logger.error(e)
+        sys.exit(1)
 
 
 def _interact():

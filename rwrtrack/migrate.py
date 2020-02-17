@@ -9,6 +9,7 @@ from .dbinfo import DbInfo, get_dbinfo
 from .account import Account
 from .record import Record
 from .logging import _mod_logging_handlers
+from .exceptions import NoCsvError, DuplicateUsernameError
 
 
 logger = logging.getLogger(__name__)
@@ -62,6 +63,8 @@ def migrate(csv_hist_dir):
         # Filter csv_paths for path where the fixed date is greater than the latest_date in dbinfo
         latest_date = dbinfo.latest_date
         csv_paths = [p for p in csv_paths if _fix_csv_date(p) > latest_date]
+        if not csv_paths:
+            raise NoCsvError(f"No new CSV files in '{csv_hist_dir}' that are eligible for migration")
         # Load accounts from db and populate an account_map from them
         account_map = {}
         accounts_in_db = sesh.query(Account).all()
@@ -70,10 +73,6 @@ def migrate(csv_hist_dir):
             last_account_id = a._id
         # Instantiate an _increment generator, starting at last_account_id + 1
         account_id_gen = _increment(last_account_id + 1)
-
-    if not csv_paths:
-        logger.info(f"No new CSV files to migrate... Exiting.")
-        sys.exit(1)
 
     logger.info(f"Migrating '{csv_paths[0].name}' -> '{csv_paths[-1].name}'...")
 
