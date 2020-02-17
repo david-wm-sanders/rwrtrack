@@ -10,27 +10,27 @@ from sqlalchemy.ext.declarative import declarative_base
 
 logger = logging.getLogger(__name__)
 
+# Declare the base, create the engine, make a session to sesh
+DeclarativeBase = declarative_base()
+engine = create_engine("sqlite:///rwrtrack_history.db")
+db_session = sessionmaker(bind=engine)
+sesh = db_session()
+
 
 # Configure query profiling
-@event.listens_for(Engine, "before_cursor_execute")
+@event.listens_for(engine, "before_cursor_execute")
 def before_cursor_execute(conn, cursor, statement, parameters, context, executemany):
     ns_start = time.time_ns()
     conn.info.setdefault('query_start_time', []).append(ns_start)
     logger.debug(f"Executing stmt: '{statement}'\nwith parameters: '{parameters}'")
 
 
-@event.listens_for(Engine, "after_cursor_execute")
+@event.listens_for(engine, "after_cursor_execute")
 def after_cursor_execute(conn, cursor, statement, parameters, context, executemany):
     ns_end = time.time_ns()
     total = ns_end - conn.info['query_start_time'].pop(-1)
     logger.debug(f"Execution took: {total / 1_000_000:.2f}ms")
 
-
-# Declare the base, create the engine, make a session to sesh
-DeclarativeBase = declarative_base()
-engine = create_engine("sqlite:///rwrtrack_history.db")
-db_session = sessionmaker(bind=engine)
-sesh = db_session()
 
 # Late import classes that will have used DeclarativeBase to exist so that create_all works
 from .dbinfo import DbInfo
