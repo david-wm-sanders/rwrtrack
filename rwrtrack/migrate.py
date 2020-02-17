@@ -19,7 +19,10 @@ USERNAME_BLACKLIST = {"RAIOORIGINAL"}
 
 def _find_csv_files(csv_hist_dir):
     # Find CSV files in csv_hist_dir
-    return sorted(csv_hist_dir.glob("*.csv"))
+    csv_paths = sorted(csv_hist_dir.glob("*.csv"))
+    if not csv_paths:
+        raise NoCsvError(f"No CSV files in '{csv_hist_dir}'")
+    return csv_paths
 
 
 def _fix_csv_date(csv_path):
