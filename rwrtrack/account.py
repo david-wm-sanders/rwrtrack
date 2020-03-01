@@ -12,7 +12,7 @@ class Account(DeclarativeBase):
     username = Column(String, nullable=False, unique=True)
     first_date = Column(Integer, nullable=False)
     latest_date = Column(Integer, nullable=False)
-    history = relationship("Record", lazy="dynamic")
+    records = relationship("Record", lazy="dynamic")
 
     def __init__(self, username, date):
         self.username = username
@@ -24,20 +24,20 @@ class Account(DeclarativeBase):
                f"first_date={self.first_date}, latest_date={self.latest_date})"
 
     @property
-    def complete_history(self):
-        return self.history.all()
+    def all_records(self):
+        return self.records.all()
 
     @property
     def first_record(self):
-        return self.history.filter_by(date=self.first_date).one()
+        return self.records.filter_by(date=self.first_date).one()
 
     @property
     def latest_record(self):
-        return self.history.filter_by(date=self.latest_date).one()
+        return self.records.filter_by(date=self.latest_date).one()
 
     def on_date(self, date):
         try:
-            return self.history.filter_by(date=date).one()
+            return self.records.filter_by(date=date).one()
         except NoResultFound as e:
             raise NoRecordError(f"No record for '{self.username}' on {date}") from e
 
