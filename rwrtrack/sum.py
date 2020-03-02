@@ -68,11 +68,11 @@ diffsum_query = Query([DiffSum._count, DiffSum.xp, DiffSum.time_played, DiffSum.
                        DiffSum.targets_destroyed, DiffSum.vehicles_destroyed, DiffSum.soldiers_healed,
                        DiffSum.team_kills, DiffSum.distance_moved, DiffSum.distance_moved_km,
                        DiffSum.shots_fired, DiffSum.throwables_thrown, DiffSum.runs_around_the_equator]).\
-                       filter(RA.account_id==RB.account_id)
+                       filter(RA.account_id == RB.account_id)
 
 
 def _sum(date, usernames=None, record_filters=None):
-    q = sum_query.with_session(sesh).filter(Record.date==date)
+    q = sum_query.with_session(sesh).filter(Record.date == date)
     if usernames:
         q = q.filter(Record.username.in_(usernames))
     if record_filters:
@@ -85,7 +85,7 @@ def sum_(date, usernames=None, record_filters=None):
 
 
 def _diffsum(date_a, date_b, usernames=None, record_filters=None, diff_filters=None):
-    q = diffsum_query.with_session(sesh).filter(RA.date==date_a, RB.date==date_b)
+    q = diffsum_query.with_session(sesh).filter(RA.date == date_a, RB.date == date_b)
     if usernames:
         q = q.filter(RA.username.in_(usernames))
     if record_filters:

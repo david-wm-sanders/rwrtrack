@@ -6,7 +6,7 @@ from .exceptions import FilterMetricError
 
 
 def rank(date, metric, usernames=None, record_filters=None):
-    q = sesh.query(Record).filter(Record.date==date)
+    q = sesh.query(Record).filter(Record.date == date)
     if usernames:
         q = q.filter(Record.username.in_(usernames))
     if record_filters:

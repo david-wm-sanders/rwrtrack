@@ -57,17 +57,17 @@ class Diff:
     _kills_per_hour = (RA.kills_per_hour - RB.kills_per_hour).label("_kills_per_hour")
     _deaths_per_hour = (RA.deaths_per_hour - RB.deaths_per_hour).label("_deaths_per_hour")
     _targets_destroyed_per_hour = (RA.targets_destroyed_per_hour - RB.targets_destroyed_per_hour).\
-                                    label("_targets_destroyed_per_hour")
+        label("_targets_destroyed_per_hour")
     _vehicles_destroyed_per_hour = (RA.vehicles_destroyed_per_hour - RB.vehicles_destroyed_per_hour).\
-                                    label("_vehicles_destroyed_per_hour")
+        label("_vehicles_destroyed_per_hour")
     _soldiers_healed_per_hour = (RA.soldiers_healed_per_hour - RB.soldiers_healed_per_hour).\
-                                    label("_soldiers_healed_per_hour")
+        label("_soldiers_healed_per_hour")
     _team_kills_per_hour = (RA.team_kills_per_hour - RB.team_kills_per_hour).label("_team_kills_per_hour")
     _distance_moved_km_per_hour = (RA.distance_moved_km_per_hour - RB.distance_moved_km_per_hour).\
-                                    label("_distance_moved_km_per_hour")
+        label("_distance_moved_km_per_hour")
     _shots_fired_per_hour = (RA.shots_fired_per_hour - RB.shots_fired_per_hour).label("_shots_fired_per_hour")
     _throwables_thrown_per_hour = (RA.throwables_thrown_per_hour - RB.throwables_thrown_per_hour).\
-                                    label("_throwables_thrown_per_hour")
+        label("_throwables_thrown_per_hour")
     _kills_per_km_moved = (RA.kills_per_km_moved - RB.kills_per_km_moved).label("_kills_per_km_moved")
     _xp_per_shot_fired = (RA.xp_per_shot_fired - RB.xp_per_shot_fired).label("_xp_per_shot_fired")
     _xp_per_kill = (RA.xp_per_kill - RB.xp_per_kill).label("_xp_per_kill")
@@ -93,11 +93,11 @@ diff_query = Query([RA.account_id.label("account_id"), RA.username.label("userna
                     Diff.kills_per_km_moved, Diff._kills_per_km_moved, Diff.xp_per_shot_fired, Diff._xp_per_shot_fired,
                     Diff.xp_per_kill, Diff._xp_per_kill, Diff.shots_fired_per_kill, Diff._shots_fired_per_kill,
                     Diff.team_kills_per_kill, Diff._team_kills_per_kill, Diff.runs_around_the_equator]).\
-                    filter(RA.account_id==RB.account_id)
+                    filter(RA.account_id == RB.account_id)
 
 
 def difference(date_a, date_b, usernames=None):
-    q = diff_query.with_session(sesh).filter(RA.date==date_a, RB.date==date_b)
+    q = diff_query.with_session(sesh).filter(RA.date == date_a, RB.date == date_b)
     if usernames:
         q = q.filter(RA.username.in_(usernames))
     return q

@@ -108,7 +108,8 @@ def _rank(args):
             limit = abs(int(args["--limit"]))
             if not limit > 0:
                 raise ValueError
-        else: limit = 5
+        else:
+            limit = 5
     except ValueError as e:
         logger.error(f"Limit must be an integer greater than or equal to 1")
         sys.exit(1)
@@ -134,7 +135,8 @@ def _rank(args):
     for r in ranking.all():
         if isinstance(r, Record):
             print(r)
-        else: print(r._asdict())
+        else:
+            print(r._asdict())
 
 
 def _sum(args):

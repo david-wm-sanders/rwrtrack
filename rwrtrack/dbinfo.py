@@ -30,4 +30,5 @@ def get_dbinfo(error=True):
         if error:
             logger.warning("No entry _dbinfo table, database appears to be blank")
             raise
-        else: return None
+        else:
+            return None

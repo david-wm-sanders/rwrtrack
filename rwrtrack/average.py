@@ -68,11 +68,11 @@ diffavg_query = Query([DiffAvg._count, DiffAvg.xp, DiffAvg.time_played, DiffAvg.
                        DiffAvg.targets_destroyed, DiffAvg.vehicles_destroyed, DiffAvg.soldiers_healed,
                        DiffAvg.team_kills, DiffAvg.distance_moved, DiffAvg.distance_moved_km,
                        DiffAvg.shots_fired, DiffAvg.throwables_thrown, DiffAvg.runs_around_the_equator]).\
-                       filter(RA.account_id==RB.account_id)
+                       filter(RA.account_id == RB.account_id)
 
 
 def _avg(date, usernames=None, record_filters=None):
-    q = avg_query.with_session(sesh).filter(Record.date==date)
+    q = avg_query.with_session(sesh).filter(Record.date == date)
     if usernames:
         q = q.filter(Record.username.in_(usernames))
     if record_filters:
@@ -85,7 +85,7 @@ def avg(date, usernames=None, record_filters=None):
 
 
 def _diffavg(date_a, date_b, usernames=None, record_filters=None, diff_filters=None):
-    q = diffavg_query.with_session(sesh).filter(RA.date==date_a, RB.date==date_b)
+    q = diffavg_query.with_session(sesh).filter(RA.date == date_a, RB.date == date_b)
     if usernames:
         q = q.filter(RA.username.in_(usernames))
     if record_filters:

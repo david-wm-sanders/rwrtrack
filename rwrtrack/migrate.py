@@ -50,7 +50,9 @@ def _fix_csv_date(csv_path):
 
 
 def _increment(i):
-    while True: yield i; i += 1
+    while True:
+        yield i
+        i += 1
 
 
 def migrate(csv_hist_dir):
@@ -96,7 +98,7 @@ def migrate(csv_hist_dir):
             logger.info(f"Processing '{csv_path.name}' as '{record_date}'...")
 
             usernames = set()
-            new_accounts, updated_accounts, new_records  = [], [], []
+            new_accounts, updated_accounts, new_records = [], [], []
             with csv_path.open("r", encoding="utf-8") as csv_file:
                 csv_reader = csv.DictReader(csv_file)
                 for r in csv_reader:
@@ -107,7 +109,8 @@ def migrate(csv_hist_dir):
                     # Raise exception if username appears more than once in the CSV file
                     if username in usernames:
                         raise DuplicateUsernameError(f"Multiple entries for '{username}' in '{csv_path.name}'")
-                    else: usernames.add(username)
+                    else:
+                        usernames.add(username)
                     # If username doesn't already have an Account create new Account, else update the existing Account
                     if username not in account_map:
                         # Get the next account_id from the generator and map username: account_id in account_map

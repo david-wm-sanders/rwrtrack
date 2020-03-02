@@ -33,9 +33,10 @@ def after_cursor_execute(conn, cursor, statement, parameters, context, executema
 
 
 # Late import classes that will have used DeclarativeBase to exist so that create_all works
-from .dbinfo import DbInfo
-from .account import Account
-from .record import Record
+# Skip E402 (module level import not at top of file) during pycodestyle checks
+from .dbinfo import DbInfo  # noqa: E402
+from .account import Account  # noqa: E402
+from .record import Record  # noqa: E402
 DeclarativeBase.metadata.create_all(engine)
 
 
