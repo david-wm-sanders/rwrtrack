@@ -1,3 +1,4 @@
+"""This module defines rwrtrack.py commands."""
 import code
 import logging
 import sys
@@ -27,6 +28,7 @@ logger = logging.getLogger(__name__)
 
 
 def process_numeric_dates(date_string):
+    """Identify and convert date or date range to int(s)."""
     if date_string.isnumeric():
         return "single", int(date_string)
     else:
@@ -37,7 +39,6 @@ def process_numeric_dates(date_string):
         if (d_older > d_newer):
             logger.error("Dates must be older-newer!")
             sys.exit(1)
-        # return "range", (d_older, d_newer)
         return "range", (d_newer, d_older)
 
 

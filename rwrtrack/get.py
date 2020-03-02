@@ -1,3 +1,4 @@
+"""Provides the functionality to retrieve and digest HTML pages of statistics from the rwr_stats server."""
 import logging
 from pathlib import Path
 
@@ -13,6 +14,7 @@ playerstats_url = "http://rwr.runningwithrifles.com/rwr_stats/view_players.php"
 
 
 def request_stats(start=0):
+    """Request a HTML page of statistics from the rwr_stats server."""
     logger.debug(f"Requesting stats ({start}-{start+100}) from server")
     url = f"{playerstats_url}?sort=rank_progression&start={start}"
     try:
@@ -26,6 +28,7 @@ def request_stats(start=0):
 
 
 def extract_rows(html):
+    """Extract rows from the statistics table in the HTML."""
     rows = None
     soup = BeautifulSoup(html, "html.parser")
     table = soup.find("table")
@@ -35,6 +38,7 @@ def extract_rows(html):
 
 
 def convert_tp_to_mins(time_played):
+    """Convert time played from string 'Xh Ymin' to integer minutes."""
     try:
         h, m = time_played.split(" ")
         hours = int(h[0:-1])
@@ -50,6 +54,7 @@ def convert_tp_to_mins(time_played):
 
 
 def convert_dm_to_metres(distance_moved):
+    """Convert string 'X.Ykm' to integer metres."""
     # TODO: EXCEPTION HANDLING!
     dm_km = float(distance_moved[0:-2])
     dm_m = int(dm_km*1000)
@@ -57,6 +62,7 @@ def convert_dm_to_metres(distance_moved):
 
 
 def extract_stats(row):
+    """Extract statistics from the HTML table row."""
     cols = row.find_all("td")
     try:
         username = cols[1].get_text()
@@ -91,6 +97,7 @@ def extract_stats(row):
 
 
 def get_stats(num_pages):
+    """Request and digest a number of HTML pages of statistics from the rwr_stats server."""
     logger.info(f"Retrieving {num_pages} page(s) of stats from server...")
     stats = []
     for x in range(0, num_pages*100, 100):
@@ -105,6 +112,7 @@ def get_stats(num_pages):
 
 
 def get_stats_test():
+    """Test the HTML page digestion against a test stats.html."""
     # Hack function for developing new functionality without
     # hammering the RWR servers with requests
     logger.debug("Loading stats from stats.html example for testing")

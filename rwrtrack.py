@@ -1,4 +1,4 @@
-"""rwrtrack
+"""rwrtrack - a Running with Rifles statistics analysis tool.
 
 Usage:
     rwrtrack.py [-q|-v] get [<pages>]

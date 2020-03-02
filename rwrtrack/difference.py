@@ -1,3 +1,4 @@
+"""Provides functionality for calculating the differences between Records."""
 from sqlalchemy import Float, and_
 from sqlalchemy.sql import cast
 from sqlalchemy.orm.query import Query
@@ -8,6 +9,8 @@ from .record import RA, RB
 
 
 class Diff:
+    """Provides shortcuts for differencing Record metrics for use in SQLAlchemy queries."""
+
     # Columned statistics
     xp = (RA.xp - RB.xp).label("xp")
     time_played = (RA.time_played - RB.time_played).label("time_played")
@@ -97,6 +100,7 @@ diff_query = Query([RA.account_id.label("account_id"), RA.username.label("userna
 
 
 def difference(date_a, date_b, usernames=None):
+    """Return a SQLAlchemy query that will calculate the difference between the Records on date_a and date_b."""
     q = diff_query.with_session(sesh).filter(RA.date == date_a, RB.date == date_b)
     if usernames:
         q = q.filter(RA.username.in_(usernames))

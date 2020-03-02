@@ -1,4 +1,8 @@
+"""Provides functionality to print pretty tables."""
+
+
 def render_analysis_table(data):
+    """Print an analysis table."""
     r = []
     # Make a beautiful table with box-drawing characters
     c0w = 20

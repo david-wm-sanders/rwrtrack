@@ -1,3 +1,4 @@
+"""Provides core rwrtrack database functionality."""
 import logging
 import time
 import types
@@ -20,6 +21,7 @@ sesh = db_session()
 # Configure query profiling
 @event.listens_for(engine, "before_cursor_execute")
 def before_cursor_execute(conn, cursor, statement, parameters, context, executemany):
+    """Listen for SQLAlchemy engine before_cursor_execute event to note execution start time."""
     ns_start = time.time_ns()
     conn.info.setdefault('query_start_time', []).append(ns_start)
     logger.debug(f"Executing stmt: '{statement}'\nwith parameters: '{parameters}'")
@@ -27,6 +29,7 @@ def before_cursor_execute(conn, cursor, statement, parameters, context, executem
 
 @event.listens_for(engine, "after_cursor_execute")
 def after_cursor_execute(conn, cursor, statement, parameters, context, executemany):
+    """Listen for SQLAlchemy engine after_cursor_execute event to log the time taken for cursor execution."""
     ns_end = time.time_ns()
     total = ns_end - conn.info['query_start_time'].pop(-1)
     logger.debug(f"Execution took: {total / 1_000_000:.2f}ms")
@@ -41,11 +44,13 @@ DeclarativeBase.metadata.create_all(engine)
 
 
 def _set_db_readonly():
+    """Execute a sqlite PRAGMA statement that makes the database readonly."""
     logger.debug("Make database readonly [query_only ON]")
     sesh.execute("PRAGMA query_only = ON;")
 
 
 def _set_db_writable():
+    """Execute a sqlite PRAGMA statement that makes the database writable."""
     logger.debug("Make database writable [query_only OFF]")
     sesh.execute("PRAGMA query_only = OFF;")
 

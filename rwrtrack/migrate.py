@@ -1,3 +1,4 @@
+"""Handles migration of historical statistics CSV files to the database."""
 import csv
 import logging
 import sys
@@ -21,6 +22,7 @@ USERNAME_BLACKLIST = {"RAIOORIGINAL"}
 
 @contextmanager
 def _writable_db_and_reduced_file_logging():
+    """Yield a writable database and reduced file logging context for a set of operations."""
     try:
         _set_db_writable()
         # Set FileHandler(s) to log at INFO to avoid debug logging every new record insertion
@@ -33,6 +35,7 @@ def _writable_db_and_reduced_file_logging():
 
 
 def _find_csv_files(csv_hist_dir):
+    """Find CSV files in the CSV history directory."""
     # Find CSV files in csv_hist_dir
     csv_paths = sorted(csv_hist_dir.glob("*.csv"))
     if not csv_paths:
@@ -41,6 +44,7 @@ def _find_csv_files(csv_hist_dir):
 
 
 def _fix_csv_date(csv_path):
+    """Manipulate (fix) the statistics date as stored in the CSV filename to make it compatible with the database."""
     # Construct a datetime from the csv_path stem (name sans extension)
     d = datetime.strptime(csv_path.stem, "%Y-%m-%d").date()
     # Subtract a day because the CSV files are named for the date of capture not the date of the data
@@ -50,12 +54,14 @@ def _fix_csv_date(csv_path):
 
 
 def _increment(i):
+    """Generate a incrementing integer count, starting at and including i."""
     while True:
         yield i
         i += 1
 
 
 def migrate(csv_hist_dir):
+    """Migrate CSV files stored in the csv_hist_dir into the database."""
     t0 = time.time()
     logger.info("Starting database migration...")
 

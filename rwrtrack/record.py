@@ -1,3 +1,4 @@
+"""Defines the SQLAlchemy ORM model for a RWR player statistics record."""
 from sqlalchemy import Column, ForeignKey, Integer, String
 from sqlalchemy.orm import aliased
 from sqlalchemy.orm.exc import NoResultFound
@@ -9,6 +10,8 @@ from .exceptions import NoRecordError
 
 
 class Record(DeclarativeBase, DerivedStats):
+    """Defines the SQLAlchemy ORM model for a RWR player statistics record."""
+
     __tablename__ = "records"
     date = Column(Integer, primary_key=True)
     account_id = Column(Integer, ForeignKey("accounts._id"), primary_key=True)
@@ -27,6 +30,7 @@ class Record(DeclarativeBase, DerivedStats):
     throwables_thrown = Column(Integer, nullable=False)
 
     def __repr__(self):
+        """Return a representation of the Record."""
         return f"Record(date={self.date}, account_id={self.account_id}, username='{self.username}', " \
                f"xp={self.xp}, time_played={self.time_played}, " \
                f"kills={self.kills}, deaths={self.deaths}, score={self.score}, kdr={self.kdr}, " \
@@ -37,6 +41,7 @@ class Record(DeclarativeBase, DerivedStats):
                f"shots_fired={self.shots_fired}, throwables_thrown={self.throwables_thrown})"
 
     def __sub__(self, other):
+        """Subtract some other Record from the Record."""
         date = f"'diff:{other.date}-{self.date}'"
         account_id = self.account_id
         username = self.username
@@ -65,6 +70,7 @@ RA, RB = aliased(Record, name="ra"), aliased(Record, name="rb")
 
 
 def get_records_on_date(date):
+    """Get all of the Records on the date."""
     try:
         return sesh.query(Record).filter_by(date=date).all()
     except NoResultFound as e:

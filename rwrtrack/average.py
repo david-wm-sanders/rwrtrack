@@ -1,3 +1,4 @@
+"""Provides functionality for calculating averages from statistics data."""
 from sqlalchemy.sql import func, and_
 from sqlalchemy.orm.query import Query
 
@@ -9,6 +10,8 @@ from .constants import EARTH_EQUAT_CIRC
 
 
 class Avg:
+    """Provides shortcuts for averaging Record metrics for use in SQLAlchemy queries."""
+
     _count = func.count(Record.account_id).label("_count")
     # Columned statistics
     xp = func.avg(Record.xp).label("xp")
@@ -34,6 +37,8 @@ class Avg:
 
 
 class DiffAvg:
+    """Provides shortcuts for averaging differenced Record metrics for use in SQLAlchemy queries."""
+
     _count = func.count(RA.account_id).label("_count")
     # Columned statistics
     xp = func.avg(Diff.xp).label("xp")
@@ -72,6 +77,7 @@ diffavg_query = Query([DiffAvg._count, DiffAvg.xp, DiffAvg.time_played, DiffAvg.
 
 
 def _avg(date, usernames=None, record_filters=None):
+    """Return a SQLAlchemy query that will calculate the averages of Records on the date."""
     q = avg_query.with_session(sesh).filter(Record.date == date)
     if usernames:
         q = q.filter(Record.username.in_(usernames))
@@ -81,10 +87,12 @@ def _avg(date, usernames=None, record_filters=None):
 
 
 def avg(date, usernames=None, record_filters=None):
+    """Return the averages of Records on the date as a dict."""
     return _avg(date, usernames, record_filters).one()._asdict()
 
 
 def _diffavg(date_a, date_b, usernames=None, record_filters=None, diff_filters=None):
+    """Return a SQLAlchemy query that will calculate the averages of differenced Records between dates."""
     q = diffavg_query.with_session(sesh).filter(RA.date == date_a, RB.date == date_b)
     if usernames:
         q = q.filter(RA.username.in_(usernames))
@@ -96,4 +104,5 @@ def _diffavg(date_a, date_b, usernames=None, record_filters=None, diff_filters=N
 
 
 def diffavg(date_a, date_b, usernames=None, record_filters=None, diff_filters=None):
+    """Return the averages of differenced Records between dates as a dict."""
     return _diffavg(date_a, date_b, usernames, record_filters, diff_filters).one()._asdict()

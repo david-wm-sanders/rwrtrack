@@ -1,3 +1,4 @@
+"""Provides functionality for calculating sums from statistics data."""
 from sqlalchemy.sql import func, and_
 from sqlalchemy.orm.query import Query
 
@@ -9,6 +10,8 @@ from .constants import EARTH_EQUAT_CIRC
 
 
 class Sum:
+    """Provides shortcuts for summing Record metrics for use in SQLAlchemy queries."""
+
     _count = func.count(Record.account_id).label("_count")
     # Columned statistics
     xp = func.sum(Record.xp).label("xp")
@@ -34,6 +37,8 @@ class Sum:
 
 
 class DiffSum:
+    """Provides shortcuts for summing differenced Record metrics for use in SQLAlchemy queries."""
+
     _count = func.count(RA.account_id).label("_count")
     # Columned statistics
     xp = func.sum(Diff.xp).label("xp")
@@ -72,6 +77,7 @@ diffsum_query = Query([DiffSum._count, DiffSum.xp, DiffSum.time_played, DiffSum.
 
 
 def _sum(date, usernames=None, record_filters=None):
+    """Return a SQLAlchemy query that will calculate the sums of Records on the date."""
     q = sum_query.with_session(sesh).filter(Record.date == date)
     if usernames:
         q = q.filter(Record.username.in_(usernames))
@@ -81,10 +87,12 @@ def _sum(date, usernames=None, record_filters=None):
 
 
 def sum_(date, usernames=None, record_filters=None):
+    """Return the sums of Records on the date as a dict."""
     return _sum(date, usernames, record_filters).one()._asdict()
 
 
 def _diffsum(date_a, date_b, usernames=None, record_filters=None, diff_filters=None):
+    """Return a SQLAlchemy query that will calculate the sums of differenced Records on the date."""
     q = diffsum_query.with_session(sesh).filter(RA.date == date_a, RB.date == date_b)
     if usernames:
         q = q.filter(RA.username.in_(usernames))
@@ -96,4 +104,5 @@ def _diffsum(date_a, date_b, usernames=None, record_filters=None, diff_filters=N
 
 
 def diffsum(date_a, date_b, usernames=None, record_filters=None, diff_filters=None):
+    """Return the sums of differenced Records on the date as a dict."""
     return _diffsum(date_a, date_b, usernames, record_filters, diff_filters).one()._asdict()

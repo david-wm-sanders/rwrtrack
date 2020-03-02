@@ -1,3 +1,4 @@
+"""Provides functionality for writing/reading RWR statistics to/from CSV files."""
 import csv
 import logging
 from datetime import date
@@ -8,9 +9,12 @@ logger = logging.getLogger(__name__)
 
 
 class Stats:
+    """Stores associated RWR statistics."""
+
     def __init__(self, username, xp, time_played, kills, deaths, kill_streak,
                  targets_destroyed, vehicles_destroyed, soldiers_healed,
                  team_kills, distance_moved, shots_fired, throwables_thrown):
+        """Instantiate a rwrtrack Stats object."""
         self.username = username
         self.xp = xp
         self.time_played = time_played
@@ -26,6 +30,7 @@ class Stats:
         self.throwables_thrown = throwables_thrown
 
     def __repr__(self):
+        """Return a representation of the Stats."""
         return f"Stats(username={self.username}, " \
                f"xp={self.xp}, time_played={self.time_played}, " \
                f"kills={self.kills}, deaths={self.deaths}, " \
@@ -40,6 +45,7 @@ class Stats:
 
 
 def write_stats_to_csv(csv_hist_dir, stats):
+    """Write a list of Stats to a new CSV file in csv_hist_dir."""
     dt = date.today()
     csv_path = csv_hist_dir / Path(f"{dt}.csv")
     logger.info(f"Writing stats to {csv_path.resolve()}")
@@ -63,6 +69,7 @@ def write_stats_to_csv(csv_hist_dir, stats):
 
 
 def load_stats_from_csv(csv_path):
+    """Load statistics from a CSV file at csv_path and return them as a list of Stats."""
     logger.debug(f"Loading {csv_path.name}...")
     stats = []
     with csv_path.open("r", encoding="utf-8") as csv_file:

@@ -1,3 +1,4 @@
+"""Provides Record filtering functionality."""
 import logging
 import operator
 
@@ -9,6 +10,7 @@ _operator_map = {">=": operator.ge, "<=": operator.le}
 
 
 def _convert_filter_str(record_type, filter_str):
+    """Convert a filter string specifier into a (metric, operator, value) tuple."""
     # TODO: add ">" and "<" operators
     if ">=" in filter_str:
         metric, op, value = filter_str.partition(">=")
@@ -27,6 +29,7 @@ def _convert_filter_str(record_type, filter_str):
 
 
 def filter_(query, context, filters_str):
+    """Apply filters, derived from a string of comma-separated filter specifiers, to an SQLAlchemy Record query."""
     fltr_strs = filters_str.replace(" ", "").split(",")
     for fltr_str in fltr_strs:
         try:

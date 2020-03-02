@@ -1,3 +1,4 @@
+"""Provides functionality for ranking Records and their differences."""
 from .db import sesh
 from .record import Record, RA
 from .difference import Diff, difference
@@ -6,6 +7,7 @@ from .exceptions import FilterMetricError
 
 
 def rank(date, metric, usernames=None, record_filters=None):
+    """Rank the Records on the date by the metric."""
     q = sesh.query(Record).filter(Record.date == date)
     if usernames:
         q = q.filter(Record.username.in_(usernames))
@@ -19,6 +21,7 @@ def rank(date, metric, usernames=None, record_filters=None):
 
 
 def diffrank(date_a, date_b, metric, usernames=None, record_filters=None, diff_filters=None):
+    """Rank the difference between Records on the date_a and date_b by the metric."""
     q = difference(date_a, date_b, usernames)
     if record_filters:
         q = filter_(q, RA, record_filters)
