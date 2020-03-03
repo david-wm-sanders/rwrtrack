@@ -40,8 +40,30 @@ def make_pyxstyle_command(x, p, opts=None, verbose=False):
     return list(itertools.chain(pyxstyle_path(x), opts, verbose, [str(p)]))
 
 
+def _load_exclusions(tox_p):
+    """Load pycodestyle exclude list from tox.ini at tox_p."""
+    # Load excludes from tox.ini
+    excludes = ["__pycache__"]
+    tox_config = configparser.ConfigParser()
+    tox_config.read(tox_p)
+    if "pycodestyle" in tox_config:
+        if "exclude" in tox_config["pycodestyle"]:
+            excludes.extend(tox_config["pycodestyle"]["exclude"].split(","))
+    return excludes
+
+
+def _find_things(root_p, excludes):
+    """Find folders and files at top level that are not excluded."""
+    folders = (x for x in root_p.iterdir() if x.is_dir() and x.name not in excludes)
+    return list(itertools.chain(path_here.glob("*.py"), folders))
+
+
 if __name__ == '__main__':
     args = docopt(__doc__)
+
+    tox_p = path_here / "tox.ini"
+    excludes = _load_exclusions(tox_p)
+    print(f"Excluding {', '.join(excludes)}")
 
     cmds = []
 
@@ -59,18 +81,7 @@ if __name__ == '__main__':
     cmds.append(make_pyxstyle_command("code", path_here, pycodestyle_opts, verbose=args["-v"]))
 
     if args["-d"]:
-        # Load excludes from tox.ini
-        excludes = ["__pycache__"]
-        tox_config = configparser.ConfigParser()
-        tox_config.read(str(path_here / "tox.ini"))
-        if "pycodestyle" in tox_config:
-            if "exclude" in tox_config["pycodestyle"]:
-                excludes.extend(tox_config["pycodestyle"]["exclude"].split(","))
-                print(f"Excluding {', '.join(excludes)}")
-
-        # Find folders and files at top level
-        folders = (x for x in path_here.iterdir() if x.is_dir() and x.name not in excludes)
-        things = list(itertools.chain(path_here.glob("*.py"), folders))
+        things = _find_things(path_here, excludes)
         for thing in things:
             pydocstyle_opts = ["--count"] if args["-c"] else None
             cmds.append(make_pyxstyle_command("doc", thing, pydocstyle_opts, verbose=args["-v"]))
