@@ -44,16 +44,19 @@ if __name__ == '__main__':
     args = docopt(__doc__)
 
     cmds = []
+
     if args["-c"]:
-        cmds.append(make_pyxstyle_command("code", path_here, ["--statistics", "-qq"], verbose=args["-v"]))
+        pycodestyle_opts = ["--statistics", "-qq"]
     elif args["-s"]:
-        cmds.append(make_pyxstyle_command("code", path_here, ["--show-source"], verbose=args["-v"]))
+        pycodestyle_opts = ["--show-source"]
     elif args["-r"]:
-        cmds.append(make_pyxstyle_command("code", path_here, ["--show-source", "--show-pep8"], verbose=args["-v"]))
+        pycodestyle_opts = ["--show-source", "--show-pep8"]
     elif args["-f"]:
-        cmds.append(make_pyxstyle_command("code", path_here, ["--first"], verbose=args["-v"]))
+        pycodestyle_opts = ["--first"]
     else:
-        cmds.append(make_pyxstyle_command("code", path_here, verbose=args["-v"]))
+        pycodestyle_opts = None
+
+    cmds.append(make_pyxstyle_command("code", path_here, pycodestyle_opts, verbose=args["-v"]))
 
     if args["-d"]:
         # Load excludes from tox.ini
@@ -69,10 +72,8 @@ if __name__ == '__main__':
         folders = (x for x in path_here.iterdir() if x.is_dir() and x.name not in excludes)
         things = list(itertools.chain(path_here.glob("*.py"), folders))
         for thing in things:
-            if args["-c"]:
-                cmds.append(make_pyxstyle_command("doc", thing, ["--count"], verbose=args["-v"]))
-            else:
-                cmds.append(make_pyxstyle_command("doc", thing, verbose=args["-v"]))
+            pydocstyle_opts = ["--count"] if args["-c"] else None
+            cmds.append(make_pyxstyle_command("doc", thing, pydocstyle_opts, verbose=args["-v"]))
 
     for cmd in cmds:
         print(f">>> {' '.join(arg for arg in cmd)}")
