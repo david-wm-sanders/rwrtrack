@@ -5,13 +5,13 @@ Usage:
     pystyleproj.py [-c|-s|-r|-f] [-d] [-v]
 
 Options:
-    -c      Count infractions
-    -s      Show source for infractions
-    -r      Show source for infractions and compliance sample
-    -f      Show first infractions
+    -c     Count infractions
+    -s     Show source for infractions
+    -r     Show source and remediation sample for infractions
+    -f     Show first infractions of each type
 
-    -d      Include pydocstyle infractions
-    -v      Show verbose infraction detail
+    -d     Include pydocstyle infractions
+    -v     Verbose output from py{code,doc}style
 """
 import configparser
 import itertools
@@ -21,8 +21,8 @@ from pathlib import Path
 
 from docopt import docopt
 
-# TODO: If no venv: make venv and just install pycodestyle
 
+# TODO: If no venv: make venv and just install pycodestyle
 path_here = Path(__file__).parent / Path(".")
 
 
