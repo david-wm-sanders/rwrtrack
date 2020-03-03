@@ -2,7 +2,7 @@
 """Checks project for pycodestyle and pydocstyle infractions.
 
 Usage:
-    pystyleproj.py [-c|-s|-r|-f] [-d] [-v]
+    pystyleproj.py [-c|-s|-r|-f] [-d] [-n] [-v]
 
 Options:
     -c     Count infractions
@@ -11,6 +11,8 @@ Options:
     -f     Show first infractions of each type
 
     -d     Include pydocstyle infractions
+    -n     Include SLOC analysis
+
     -v     Verbose output from py{code,doc}style
 """
 import configparser
@@ -52,7 +54,7 @@ def _load_exclusions(tox_p):
     return excludes
 
 
-def _find_things(root_p, excludes):
+def _find_analysis_paths(root_p, excludes):
     """Find folders and files at top level that are not excluded."""
     folders = (x for x in root_p.iterdir() if x.is_dir() and x.name not in excludes)
     return list(itertools.chain(path_here.glob("*.py"), folders))
@@ -63,10 +65,12 @@ if __name__ == '__main__':
 
     tox_p = path_here / "tox.ini"
     excludes = _load_exclusions(tox_p)
+    analysis_paths = _find_analysis_paths(path_here, excludes)
     print(f"Excluding {', '.join(excludes)}")
 
     cmds = []
 
+    # Create the pycodestyle command
     if args["-c"]:
         pycodestyle_opts = ["--statistics", "-qq"]
     elif args["-s"]:
@@ -80,11 +84,11 @@ if __name__ == '__main__':
 
     cmds.append(make_pyxstyle_command("code", path_here, pycodestyle_opts, verbose=args["-v"]))
 
+    # If "-d" option specified, create the pydocstyle command
     if args["-d"]:
-        things = _find_things(path_here, excludes)
-        for thing in things:
+        for analysis_path in analysis_paths:
             pydocstyle_opts = ["--count"] if args["-c"] else None
-            cmds.append(make_pyxstyle_command("doc", thing, pydocstyle_opts, verbose=args["-v"]))
+            cmds.append(make_pyxstyle_command("doc", analysis_path, pydocstyle_opts, verbose=args["-v"]))
 
     for cmd in cmds:
         print(f">>> {' '.join(arg for arg in cmd)}")
@@ -92,3 +96,45 @@ if __name__ == '__main__':
             subprocess.run(cmd)
         except FileNotFoundError as e:
             raise Exception(f"No '{cmd[0]}'") from e
+
+    # If "-n" option specified, do a SLOC analysis
+    if args["-n"]:
+        print("Performing SLOC analysis...")
+        py_files = []
+        for analysis_path in analysis_paths:
+            if analysis_path.is_file():
+                py_files.append(analysis_path)
+            elif analysis_path.is_dir():
+                py_files.extend(analysis_path.rglob("*.py"))
+
+        total_blank_lines, total_comment_lines, total_code_lines = 0, 0, 0
+        for py_file in py_files:
+            blank_lines, comment_lines, code_lines = 0, 0, 0
+            with py_file.open("r", encoding="utf-8") as f:
+                docstring_mode = False
+                for line in f:
+                    # If the line is just whitespace, consider it to be a blank line
+                    if line.isspace():
+                        blank_lines += 1
+                        continue
+                    # Strip leading whitespace from the line for remaining checks
+                    line = line.strip()
+                    # If the line starts with a #, consider to be a comment line
+                    if line.startswith("#"):
+                        comment_lines += 1
+                        continue
+                    code_lines += 1
+
+            total_blank_lines += blank_lines
+            total_comment_lines += comment_lines
+            total_code_lines += code_lines
+
+            if args["-v"]:
+                print(f"{py_file}:")
+                print(f" Blank lines: {blank_lines}")
+                print(f" Comment lines: {comment_lines}")
+                print(f" Code lines: {code_lines}")
+
+        print(f"Blank lines: {total_blank_lines}")
+        print(f"Comment lines: {total_comment_lines}")
+        print(f"Code lines: {total_code_lines}")
