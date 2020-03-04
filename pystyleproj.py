@@ -120,14 +120,14 @@ if __name__ == '__main__':
                     # Strip leading whitespace from the line for remaining checks
                     line = line.strip()
                     # Process docstrings
-                    if line.startswith("\"\"\"") or line.endswith("\"\"\"") or docstring_mode:
+                    if line.startswith("\"\"\"") or docstring_mode:
                         # print(f"{str(i).zfill(3)}: {repr(line)}")
                         if not docstring_mode:
                             # If find == rfind then there is only one """ in the line, so enter docstring_mode
                             if line.find("\"\"\"") == line.rfind("\"\"\""):
                                 docstring_mode = True
                         else:
-                            # If """ is in the line when it docstring_mode it must be the end, so exit docstring_mode
+                            # If """ is in the line when in docstring_mode it must be the end, so exit docstring_mode
                             if "\"\"\"" in line:
                                 docstring_mode = False
                         docstring_lines += 1
