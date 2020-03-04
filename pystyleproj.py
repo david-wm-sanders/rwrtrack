@@ -107,34 +107,50 @@ if __name__ == '__main__':
             elif analysis_path.is_dir():
                 py_files.extend(analysis_path.rglob("*.py"))
 
-        total_blank_lines, total_comment_lines, total_code_lines = 0, 0, 0
+        total_blank_lines, total_docstring_lines, total_comment_lines, total_code_lines = 0, 0, 0, 0
         for py_file in py_files:
-            blank_lines, comment_lines, code_lines = 0, 0, 0
+            blank_lines, docstring_lines, comment_lines, code_lines = 0, 0, 0, 0
             with py_file.open("r", encoding="utf-8") as f:
                 docstring_mode = False
-                for line in f:
+                for i, line in enumerate(f, 1):
                     # If the line is just whitespace, consider it to be a blank line
                     if line.isspace():
                         blank_lines += 1
                         continue
                     # Strip leading whitespace from the line for remaining checks
                     line = line.strip()
-                    # If the line starts with a #, consider to be a comment line
+                    # Process docstrings
+                    if line.startswith("\"\"\"") or line.endswith("\"\"\"") or docstring_mode:
+                        # print(f"{str(i).zfill(3)}: {repr(line)}")
+                        if not docstring_mode:
+                            # If find == rfind then there is only one """ in the line, so enter docstring_mode
+                            if line.find("\"\"\"") == line.rfind("\"\"\""):
+                                docstring_mode = True
+                        else:
+                            # If """ is in the line when it docstring_mode it must be the end, so exit docstring_mode
+                            if "\"\"\"" in line:
+                                docstring_mode = False
+                        docstring_lines += 1
+                        continue
+                    # If the line starts with a #, consider it to be a comment line
                     if line.startswith("#"):
                         comment_lines += 1
                         continue
                     code_lines += 1
 
             total_blank_lines += blank_lines
+            total_docstring_lines += docstring_lines
             total_comment_lines += comment_lines
             total_code_lines += code_lines
 
             if args["-v"]:
                 print(f"{py_file}:")
                 print(f" Blank lines: {blank_lines}")
+                print(f" Docstring lines: {docstring_lines}")
                 print(f" Comment lines: {comment_lines}")
                 print(f" Code lines: {code_lines}")
 
         print(f"Blank lines: {total_blank_lines}")
+        print(f"Docstring lines: {total_docstring_lines}")
         print(f"Comment lines: {total_comment_lines}")
         print(f"Code lines: {total_code_lines}")
