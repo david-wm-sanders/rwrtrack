@@ -24,7 +24,6 @@ from pathlib import Path
 from docopt import docopt
 
 
-# TODO: If no venv: make venv and just install pycodestyle
 path_here = Path(__file__).parent / Path(".")
 
 
@@ -67,7 +66,6 @@ if __name__ == '__main__':
     excludes = _load_exclusions(tox_p)
     analysis_paths = _find_analysis_paths(path_here, excludes)
     print(f"Excluding {', '.join(excludes)}")
-
     cmds = []
 
     # Create the pycodestyle command
@@ -91,7 +89,7 @@ if __name__ == '__main__':
             cmds.append(make_pyxstyle_command("doc", analysis_path, pydocstyle_opts, verbose=args["-v"]))
 
     for cmd in cmds:
-        print(f">>> {' '.join(arg for arg in cmd)}")
+        print(f">>> {' '.join(cmd)}")
         try:
             subprocess.run(cmd)
         except FileNotFoundError as e:
@@ -107,15 +105,15 @@ if __name__ == '__main__':
             elif analysis_path.is_dir():
                 py_files.extend(analysis_path.rglob("*.py"))
 
-        total_blank_lines, total_docstring_lines, total_comment_lines, total_code_lines = 0, 0, 0, 0
+        total_blank, total_docstring, total_comment, total_code = 0, 0, 0, 0
         for py_file in py_files:
-            blank_lines, docstring_lines, comment_lines, code_lines = 0, 0, 0, 0
+            blank, docstring, comment, code = 0, 0, 0, 0
             with py_file.open("r", encoding="utf-8") as f:
                 docstring_mode = False
                 for i, line in enumerate(f, 1):
                     # If the line is just whitespace, consider it to be a blank line
                     if line.isspace():
-                        blank_lines += 1
+                        blank += 1
                         continue
                     # Strip leading whitespace from the line for remaining checks
                     line = line.strip()
@@ -130,27 +128,20 @@ if __name__ == '__main__':
                             # If """ is in the line when in docstring_mode it must be the end, so exit docstring_mode
                             if "\"\"\"" in line:
                                 docstring_mode = False
-                        docstring_lines += 1
+                        docstring += 1
                         continue
                     # If the line starts with a #, consider it to be a comment line
                     if line.startswith("#"):
-                        comment_lines += 1
+                        comment += 1
                         continue
-                    code_lines += 1
+                    code += 1
 
-            total_blank_lines += blank_lines
-            total_docstring_lines += docstring_lines
-            total_comment_lines += comment_lines
-            total_code_lines += code_lines
+            total_blank += blank
+            total_docstring += docstring
+            total_comment += comment
+            total_code += code
 
             if args["-v"]:
-                print(f"{py_file}:")
-                print(f" Blank lines: {blank_lines}")
-                print(f" Docstring lines: {docstring_lines}")
-                print(f" Comment lines: {comment_lines}")
-                print(f" Code lines: {code_lines}")
+                print(f"{py_file}: {blank} blank, {docstring} docstring, {comment} comment, {code} code")
 
-        print(f"Blank lines: {total_blank_lines}")
-        print(f"Docstring lines: {total_docstring_lines}")
-        print(f"Comment lines: {total_comment_lines}")
-        print(f"Code lines: {total_code_lines}")
+        print(f"Lines: {total_blank} blank, {total_docstring} docstring, {total_comment} comment, {total_code} code")
