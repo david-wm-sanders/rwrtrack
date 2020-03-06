@@ -75,7 +75,8 @@ def migrate(csv_hist_dir):
             # Database doesn't exist
             logger.info(f"Blank database found, starting new migration...")
             # Create dbinfo using the fixed date of the first of the CSV files
-            dbinfo = DbInfo(date=_fix_csv_date(csv_paths[0]))
+            fixed_date = _fix_csv_date(csv_paths[0])
+            dbinfo = DbInfo(first_date=fixed_date, latest_date=fixed_date)
             sesh.add(dbinfo)
             # Create an empty account_map and instantiate an _increment generator, starting at 1
             account_map, account_id_gen = {}, _increment(1)

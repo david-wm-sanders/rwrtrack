@@ -17,12 +17,6 @@ class Account(DeclarativeBase):
     latest_date = Column(Integer, nullable=False)
     records = relationship("Record", lazy="dynamic")
 
-    def __init__(self, username, date):
-        """Instantiate a new Account from a username and date."""
-        self.username = username
-        self.first_date = date
-        self.latest_date = date
-
     def __repr__(self):
         """Return a representation of the Account."""
         return f"Account(id={self._id}, username='{self.username}', " \

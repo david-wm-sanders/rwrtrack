@@ -18,11 +18,6 @@ class DbInfo(DeclarativeBase):
     first_date = Column(Integer, nullable=False)
     latest_date = Column(Integer, nullable=False)
 
-    def __init__(self, date):
-        """Instantiate a new DbInfo from a date."""
-        self.first_date = date
-        self.latest_date = date
-
     def __repr__(self):
         """Return a representation of the DbInfo."""
         return f"DbInfo(first_date={self.first_date}, latest_date={self.latest_date})"
