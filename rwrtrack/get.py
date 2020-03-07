@@ -44,10 +44,10 @@ def convert_tp_to_mins(time_played):
         hours = int(h[0:-1])
         mins = int(m[0:-3])
     except IndexError as e:
-        logger.error(f"Converting {time_played} failed because of IndexError", exc_info=1)
+        logger.error(f"Converting '{time_played}' failed because of IndexError", exc_info=1)
         raise
     except ValueError as e:
-        logger.error(f"Converting {time_played} failed because of ValueError", exc_info=1)
+        logger.error(f"Converting '{time_played}' failed because of ValueError", exc_info=1)
         raise
     else:
         return hours*60 + mins
