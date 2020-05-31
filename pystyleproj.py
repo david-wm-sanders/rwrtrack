@@ -100,6 +100,9 @@ if __name__ == '__main__':
         print("Performing SLOC analysis...")
         py_files = []
         for analysis_path in analysis_paths:
+            # If the name is "pystyleproj.py", skip to avoid including this files contents in SLOC analysis
+            if analysis_path.name == "pystyleproj.py":
+                continue
             if analysis_path.is_file():
                 py_files.append(analysis_path)
             elif analysis_path.is_dir():
