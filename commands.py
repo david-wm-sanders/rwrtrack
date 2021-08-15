@@ -27,6 +27,15 @@ from rwrtrack.migrate import migrate
 logger = logging.getLogger(__name__)
 
 
+def _prettify_int_or_float(x):
+    if isinstance(x, int):
+        return f"{x:,d}"
+    elif isinstance(x, float):
+        return f"{x:,.2f}"
+    else:
+        raise Exception("Can't pretty '{x}' as it is not an int or float!")
+
+
 def process_numeric_dates(date_string):
     """Identify and convert date or date range to int(s)."""
     if date_string.isnumeric():
@@ -127,19 +136,23 @@ def _rank(args):
     else:
         dt, d = process_numeric_dates(dates)
         if dt == "single":
+            print(f"Ranking by '{metric}':")
             ranking = rank(d, metric, record_filters=rf)
         elif dt == "range":
+            print(f"Ranking by '{metric}' gained:")
             ranking = diffrank(d[0], d[1], metric, record_filters=rf, diff_filters=df)
 
     ranking = ranking.limit(limit)
-    # TODO: render ranking as table
-    for r in ranking.all():
+    for x, r in enumerate(ranking.all()):
         if isinstance(r, Record):
-            print(r)
+            # render in the form "#12...MR. BANG...8,752,631"
+            v = _prettify_int_or_float(getattr(r, metric))
+            print(f"#{x+1:<8}{r.username:<24}{v}")
         else:
-            print(r._asdict())
-            # print(type(r))
-            print("\n", end="")
+            # print(r._asdict())
+            v = _prettify_int_or_float(getattr(r, metric))
+            print(f"#{x+1:<8}{r.username:<24}{v}")
+            # print("\n", end="")
 
 
 def _sum(args):
