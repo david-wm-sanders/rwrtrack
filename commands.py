@@ -42,7 +42,7 @@ def process_numeric_dates(date_string):
         return "range", (d_newer, d_older)
 
 
-def _get(args):
+def _get(csv_hist_dir, args):
     # TODO: Rewrite to use write to db as well
     num_pages = int(args["<pages>"]) if args["<pages>"] else 10
     stats = get_stats(num_pages)
@@ -138,6 +138,8 @@ def _rank(args):
             print(r)
         else:
             print(r._asdict())
+            # print(type(r))
+            print("\n", end="")
 
 
 def _sum(args):

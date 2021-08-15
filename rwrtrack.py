@@ -41,7 +41,7 @@ if __name__ == '__main__':
     logger.debug(f"docopt output:\n{args}")
 
     if args["get"]:
-        _get(args)
+        _get(csv_hist_dir, args)
     elif args["analyse"]:
         _analyse(args)
     elif args["rank"]:
