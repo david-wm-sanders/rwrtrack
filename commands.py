@@ -136,10 +136,10 @@ def _rank(args):
     else:
         dt, d = process_numeric_dates(dates)
         if dt == "single":
-            print(f"Ranking by '{metric}':")
+            print(f"Ranking by '{metric}' on {d}:")
             ranking = rank(d, metric, record_filters=rf)
         elif dt == "range":
-            print(f"Ranking by '{metric}' gained:")
+            print(f"Ranking by '{metric}' between {d[0]} and {d[1]}:")
             ranking = diffrank(d[0], d[1], metric, record_filters=rf, diff_filters=df)
 
     ranking = ranking.limit(limit)
