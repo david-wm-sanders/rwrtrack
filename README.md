@@ -242,3 +242,47 @@ Record(date=20210813, account_id=11405, username='BUSTNCAPS', xp=3931798, time_p
     DEBUG: Execution took: 15.62ms
     [the results are rendered here :)]
     ```
+  * That probably looks crazy but check out [difference.py](https://github.com/rwr-community-dev/rwrtrack/blob/master/rwrtrack/difference.py) if you want to see more about how it actually works - SqlAlchemy is magical 😁
+
+### Average players with xp >= 1m | GOTA+
+`(venv) PS C:\Users\david\projects\rwr\rwrtrack> .\rwrtrack.py average --record-filters="xp>=1000000"`
+```
+{'_count': 300, 'xp': 2316329.756666667, 'time_played': 60352.74333333333, 'time_played_hours': 1005.8790555555555, 'kills': 210569.06333333332, 'deaths': 7858.76, 'score': 202710.30333333332, 'kill_streak': 1242.63, 'targets_destroyed': 2959.83, 'vehicles_destroyed': 2524.8633333333332, 'soldiers_healed': 1391.5466666666666, 'team_kills': 3217.0066666666667, 'distance_moved': 2055230.6633333333, 'distance_moved_km': 2055.2306633333333, 'shots_fired': 2456487.723333333, 'throwables_thrown': 13995.22, 'runs_around_the_equator': 0.051284586188281175}
+```
+* `_count` is the number of records that matched the specified filters
+* `--record-filters` are applied before the differencing of the records occurs and indicate conditions that the record must match at the earlier date (if a date range is specified)
+
+### Average GOTA+ player progress between two dates
+* Note that the earlier date record will be filtered for matches with record filter conditions
+
+`(venv) PS C:\Users\david\projects\rwr\rwrtrack> .\rwrtrack.py average 20201231-20210813 --record-filters="xp>=1000000"`
+```
+{'_count': 274, 'xp': 475192.2700729927, 'time_played': 8117.069343065694, 'time_played_hours': 135.2844890510949, 'kills': 35430.32116788321, 'deaths': 774.3467153284671, 'score': 34655.97445255474, 'kill_streak': 162.4963503649635, 'targets_destroyed': 302.17518248175185, 'vehicles_destroyed': 375.3321167883212, 'soldiers_healed': 215.3905109489051, 'team_kills': 315.42335766423355, 'distance_moved': 57295.255474452555, 'distance_moved_km': 57.29525547445255, 'shots_fired': 343536.1715328467, 'throwables_thrown': 1681.463503649635, 'runs_around_the_equator': 0.0014297000915670867}
+```
+* Note that the \_count here is lower than^ because the number of players GOTA+|xp>=1m was 274 on 2020-12-31
+
+### Average GOTA+ player progress between two dates where the player has played more than 60 minutes
+*in the time between the two dates*
+
+`(venv) PS C:\Users\david\projects\rwr\rwrtrack> .\rwrtrack.py average 20201231-20210813 --record-filters="xp>=1000000" --diff-filters="time_played>=60"`
+```
+{'_count': 208, 'xp': 625955.7788461539, 'time_played': 10691.009615384615, 'time_played_hours': 178.1834935897436, 'kills': 46670.8125, 'deaths': 1019.8798076923077, 'score': 45650.932692307695, 'kill_streak': 214.05769230769232, 'targets_destroyed': 398.05288461538464, 'vehicles_destroyed': 494.3701923076923, 'soldiers_healed': 283.72596153846155, 'team_kills': 415.42788461538464, 'distance_moved': 75452.88461538461, 'distance_moved_km': 75.4528846153846, 'shots_fired': 452511.36057692306, 'throwables_thrown': 2214.7451923076924, 'runs_around_the_equator': 0.0018827910819198058}
+```
+* Note that the \count is lower than^ because the number of players who were GOTA+ on 2020-12-31 and have played 1hr+ in the period between 2020-12-31 and 2021-08-13
+
+### Sum top ~10k total progress
+* Dateless so total progress on the latest date in db
+
+`(venv) PS C:\Users\david\projects\rwr\rwrtrack> .\rwrtrack.py sum`
+```
+{'_count': 9998, 'xp': 1561394305, 'time_played': 72782396, 'time_played_hours': 1213039.9333333333, 'kills': 190026240, 'deaths': 20029669, 'score': 169996571, 'kill_streak': 2358400, 'targets_destroyed': 2006407, 'vehicles_destroyed': 2142945, 'soldiers_healed': 1344047, 'team_kills': 3370223, 'distance_moved': 4928652938, 'distance_moved_km': 4928652.938, 'shots_fired': 2760996801, 'throwables_thrown': 15551541, 'runs_around_the_equator': 122.98567304413122}
+```
+* The \_count is 9998 here for the tracked 10k because of a bug that causes a certain username to be duplicated on the official listings.
+* This summation was for 2021-08-13, some interesting points:
+  1. 1,561,394,305 XP is 1.5 billion and 1,213,039.9 is 1.2 million hours (or 138.47 calendar years) - you read that right! 😅
+  2. 190 MILLION KILLS AND 20 MILLION DEATHS - a rough average of 190/20 or 9.5 for K/D
+  3. A combined score of 169,996,571!
+  4. `killstreak` is the total of the maximums that each player has achieved (and thus pretty useless?)
+  5. 2,142,945 vehicles destroyed is a lot of scrap xd
+  6. 2,760,996,801 - 2.76 billion shots rounds of ammunition fired... DUCK FOR COVER!
+  7. Yes, runs around the equator is for Earth :D
