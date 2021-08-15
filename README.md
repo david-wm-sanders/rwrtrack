@@ -42,6 +42,26 @@ Not available on PyPI (yet... :eyes:) but the project follows a pythonic app str
 TODO!
 
 ## Examples
+### Acquiring help
+`(venv) PS C:\Users\david\projects\rwr\rwrtrack> .\rwrtrack.py -h`
+```
+rwrtrack - a Running with Rifles statistics analysis tool.
+
+Usage:
+    rwrtrack.py [-q|-v] get [<pages>]
+    rwrtrack.py [-q|-v] analyse <name> [<dates>]
+    rwrtrack.py [-q|-v] rank <metric> [<dates>] [--limit=<int>] [--record-filters=<str>] [--diff-filters=<str>]
+    rwrtrack.py [-q|-v] average [<dates>] [--record-filters=<str>] [--diff-filters=<str>]
+    rwrtrack.py [-q|-v] sum [<dates>] [--record-filters=<str>] [--diff-filters=<str>]
+    rwrtrack.py [-q|-v] _dbinfo
+    rwrtrack.py [-q|-v] _db_migrate_csv
+    rwrtrack.py [-q|-v] _interact
+
+Options:
+    -q   Quiet mode, reduces logging output to errors and above
+    -v   Verbose output, with full stdout logging
+```
+
 ### Getting official data from the endpoint
 `(venv) PS C:\Users\david\projects\rwr\rwrtrack> rwrtrack.py get 1`
 ```
@@ -110,3 +130,115 @@ INFO: Performing individual analysis for 'MR. BANG'...
 │ Runs around equator│     0.05287│         -│
 ╘════════════════════╧════════════╧══════════╛
 ```
+
+### Analysing a player's performance on a specific date
+`(venv) PS C:\Users\david\projects\rwr\rwrtrack> .\rwrtrack.py analyse "MR. BANG" 20170929`
+```
+INFO: Performing individual analysis for 'MR. BANG'...
+'MR. BANG' on 20170929:
+┌────────────────────┬────────────┬──────────┐
+│           Statistic│       Value│  per hour│
+╞════════════════════╪════════════╪══════════╡
+│Time played in hours│      593.10│         1│
+│                  XP│   1,806,579│  3,045.99│
+│               Kills│     154,522│    260.53│
+│              Deaths│       2,077│      3.50│
+│   Targets destroyed│       1,540│      2.60│
+│  Vehicles destroyed│       1,193│      2.01│
+│     Soldiers healed│         750│      1.26│
+│          Team kills│       2,016│      3.40│
+│Distance moved in km│    1,438.80│      2.43│
+│         Shots fired│     374,977│    632.23│
+│   Throwables thrown│       1,479│      2.49│
+├────────────────────┼────────────┼──────────┤
+│               Score│     152,445│         -│
+│                 K/D│       74.40│         -│
+│        Kills per km│      107.40│         -│
+│   XP per shot fired│        4.82│         -│
+│         XP per kill│       11.69│         -│
+│      Shots per kill│        2.43│         -│
+│ Team kills per kill│     0.01305│         -│
+│ Runs around equator│     0.03590│         -│
+╘════════════════════╧════════════╧══════════╛
+```
+
+### Analysing the change in a player's performance between two dates
+`(venv) PS C:\Users\david\projects\rwr\rwrtrack> .\rwrtrack.py analyse "MR. BANG" 20170929-20210813`
+```
+INFO: Performing individual analysis for 'MR. BANG'...
+'MR. BANG' from 20170929 to 20210813:
+┌────────────────────┬────────────┬──────────┐
+│           Statistic│       Value│  per hour│
+╞════════════════════╪════════════╪══════════╡
+│Time played in hours│    1,410.18│         1│
+│                  XP│   6,946,052│  4,925.64│
+│               Kills│     485,710│    344.43│
+│              Deaths│       1,355│      0.96│
+│   Targets destroyed│       2,282│      1.62│
+│  Vehicles destroyed│       2,532│      1.80│
+│     Soldiers healed│       2,159│      1.53│
+│          Team kills│       3,188│      2.26│
+│Distance moved in km│      680.10│      0.48│
+│         Shots fired│   1,613,699│  1,144.32│
+│   Throwables thrown│       2,247│      1.59│
+├────────────────────┼────────────┼──────────┤
+│               Score│     484,355│         -│
+│                 K/D│      358.46│         -│
+│        Kills per km│      714.17│         -│
+│   XP per shot fired│        4.30│         -│
+│         XP per kill│       14.30│         -│
+│      Shots per kill│        3.32│         -│
+│ Team kills per kill│     0.00656│         -│
+│ Runs around equator│     0.01697│         -│
+╘════════════════════╧════════════╧══════════╛
+```
+
+### Ranking players by soldiers healed
+* Specifying no date is like asking for the latest information
+* Specifying no limit gives a default limit of 5
+
+*TODO: this output needs a prettified format xd - ideally render the metric we are ranking by in a special way*
+
+`(venv) PS C:\Users\david\projects\rwr\rwrtrack> .\rwrtrack.py rank soldiers_healed`
+```
+Record(date=20210813, account_id=11252, username='OWLCAT', xp=1248454, time_played=65081, kills=102930, deaths=10548, score=92382, kdr=9.758248009101251, kill_streak=2022, targets_destroyed=4111, vehicles_destroyed=2845, soldiers_healed=8733, team_kills=4219, distance_moved=2119000, shots_fired=1087131, throwables_thrown=18550)
+Record(date=20210813, account_id=10, username='RARE PEPE', xp=9547780, time_played=213485, kills=917241, deaths=23767, score=893474, kdr=38.59304918584592, kill_streak=3000, targets_destroyed=17191, vehicles_destroyed=13278, soldiers_healed=8459, team_kills=19827, distance_moved=2181600, shots_fired=8131753, throwables_thrown=74909)
+Record(date=20210813, account_id=9, username='DOGTATO', xp=10365677, time_played=193434, kills=1073570, deaths=5347, score=1068223, kdr=200.77987656629887, kill_streak=3498, targets_destroyed=15486, vehicles_destroyed=10454, soldiers_healed=7638, team_kills=9306, distance_moved=2130900, shots_fired=13365870, throwables_thrown=33238)
+Record(date=20210813, account_id=5710, username='JF 2.0', xp=7685520, time_played=133402, kills=528031, deaths=2726, score=525305, kdr=193.7017608217168, kill_streak=1283, targets_destroyed=9557, vehicles_destroyed=6238, soldiers_healed=7527, team_kills=3759, distance_moved=2124300, shots_fired=3379139, throwables_thrown=17238)
+Record(date=20210813, account_id=11405, username='BUSTNCAPS', xp=3931798, time_played=135809, kills=357345, deaths=7885, score=349460, kdr=45.31959416613824, kill_streak=1004, targets_destroyed=5974, vehicles_destroyed=6274, soldiers_healed=6389, team_kills=4728, distance_moved=2145600, shots_fired=6018319, throwables_thrown=21717)
+```
+* Ranking a set of records for a single date returns an iterable of rwrtrack.record.Record which are then printed by rwrtrack
+
+### Ranking players by xp per hour between two dates
+* A player must be present in the records data on the first (earlier) date
+
+*TODO: improve the output here*
+
+`(venv) PS C:\Users\david\projects\rwr\rwrtrack> .\rwrtrack.py rank xp_per_hour 20210525-20210813`
+```
+(venv) PS C:\Users\david\projects\rwr\rwrtrack> .\rwrtrack.py rank xp_per_hour 20210525-20210813
+{'account_id': 14880, 'username': 'LINGA', 'ra_date': 20210813, 'rb_date': 20210525, 'xp': 14034903, 'time_played': 17937, 'time_played_hours': 298.95, 'kills': 366687, 'deaths': 3839, 'score': 362848, 'kill_streak': 11387, 'targets_destroyed': 485, 'vehicles_destroyed': 2419, 'soldiers_healed': 48, 'team_kills': 1110, 'distance_moved': 736499, 'distance_moved_km': 736.499, 'shots_fired': 245860, 'throwables_thrown': 1165, 'kdr': 95.51628028132326, '_kdr': 56.96780848203438, 'xp_per_hour': 46947.32563973909, '_xp_per_hour': 37524.46535285285, 'kills_per_hour': 1226.5830406422479, '_kills_per_hour': 806.7355180180182, 'deaths_per_hour': 12.841612309750795, '_deaths_per_hour': -20.882500000000004, 'targets_destroyed_per_hour': 1.6223448737247033, '_targets_destroyed_per_hour': 0.7370045045045045, 'vehicles_destroyed_per_hour': 8.091654122763003, '_vehicles_destroyed_per_hour': 5.8077627627627635, 'soldiers_healed_per_hour': 0.16056196688409433, '_soldiers_healed_per_hour': 0.13513513513513514, 'team_kills_per_hour': 3.7129954841946815, '_team_kills_per_hour': -0.017117117117117164, 'distance_moved_km_per_hour': 2.4636193343368458, '_distance_moved_km_per_hour': -2.2970583708708716, 'shots_fired_per_hour': 822.4117745442381, '_shots_fired_per_hour': -1553.1535435435435, 'throwables_thrown_per_hour': 3.8969727379160397, '_throwables_thrown_per_hour': -4.500638138138137, 'kills_per_km_moved': 497.87847641340994, '_kills_per_km_moved': 319.53115931617515, 'xp_per_shot_fired': 57.084938582933376, '_xp_per_shot_fired': 34.89860859495933, 'xp_per_kill': 38.27488566543128, '_xp_per_kill': 28.29842750353069, 'shots_fired_per_kill': 0.6704900910040443, '_shots_fired_per_kill': -8.9154253348646, 'team_kills_per_kill': 0.0030271048605486424, '_team_kills_per_kill': -0.010469952146836528, 'runs_around_the_equator': 0.01837800842355226}
+
+{'account_id': 5311, 'username': 'SPIKE SPIEGEL', 'ra_date': 20210813, 'rb_date': 20210525, 'xp': 7805179, 'time_played': 12118, 'time_played_hours': 201.96666666666667, 'kills': 205436, 'deaths': 1113, 'score': 204323, 'kill_streak': 2692, 'targets_destroyed': 230, 'vehicles_destroyed': 1741, 'soldiers_healed': 77, 'team_kills': 538, 'distance_moved': 2700, 'distance_moved_km': 2.7, 'shots_fired': 214826, 'throwables_thrown': 1630, 'kdr': 184.57861635220127, '_kdr': 
+20.28856194412996, 'xp_per_hour': 38645.87720745998, '_xp_per_hour': 8450.546822631066, 'kills_per_hour': 1017.1777521043076, '_kills_per_hour': 175.91966880159976, 'deaths_per_hour': 5.510810364746658, '_deaths_per_hour': -1.5807168677187633, 'targets_destroyed_per_hour': 1.138801782472355, '_targets_destroyed_per_hour': -0.16252395950406506, 'vehicles_destroyed_per_hour': 8.620234362105958, '_vehicles_destroyed_per_hour': 1.5814347613355357, 'soldiers_healed_per_hour': 0.3812510315233537, '_soldiers_healed_per_hour': -0.25725159988901547, 'team_kills_per_hour': 2.6638059085657697, '_team_kills_per_hour': -0.3857901786783624, 'distance_moved_km_per_hour': 0.01336854266380591, '_distance_moved_km_per_hour': -0.7881892559976929, 'shots_fired_per_hour': 1063.6705727017659, '_shots_fired_per_hour': -244.18240734145024, 'throwables_thrown_per_hour': 8.070638719260604, '_throwables_thrown_per_hour': -2.077674127622389, 'kills_per_km_moved': 76087.4074074074, '_kills_per_km_moved': 97.45548966718563, 'xp_per_shot_fired': 36.332562166590634, '_xp_per_shot_fired': 4.826074560056447, 'xp_per_kill': 37.993238770225275, '_xp_per_kill': 13.673895258751534, 'shots_fired_per_kill': 1.0457076656476956, '_shots_fired_per_kill': -3.313571925025761, 'team_kills_per_kill': 0.0026188204598999202, '_team_kills_per_kill': -0.0065513464309770765, 'runs_around_the_equator': 6.737364578036237e-05}
+
+{'account_id': 13484, 'username': 'PENG', 'ra_date': 20210813, 'rb_date': 20210525, 'xp': 3751624, 'time_played': 11677, 'time_played_hours': 194.61666666666667, 'kills': 116179, 'deaths': 928, 'score': 115251, 'kill_streak': 0, 'targets_destroyed': 238, 'vehicles_destroyed': 765, 'soldiers_healed': 108, 'team_kills': 504, 'distance_moved': 4400, 'distance_moved_km': 4.4, 'shots_fired': 307322, 'throwables_thrown': 1243, 'kdr': 125.19288793103448, '_kdr': 12.165815935497712, 'xp_per_hour': 19276.992378179326, '_xp_per_hour': 3513.9566443725657, 'kills_per_hour': 596.9632611115868, '_kills_per_hour': 53.7419116655978, 'deaths_per_hour': 4.768348034597928, '_deaths_per_hour': -0.48614326300803246, 'targets_destroyed_per_hour': 1.2229168450800718, '_targets_destroyed_per_hour': -0.251620400758513, 'vehicles_destroyed_per_hour': 3.930804144900231, '_vehicles_destroyed_per_hour': 0.1518808498978923, 'soldiers_healed_per_hour': 0.5549370557506209, '_soldiers_healed_per_hour': -0.006706467318802312, 'team_kills_per_hour': 2.589706260169564, '_team_kills_per_hour': -0.1512836437941596, 'distance_moved_km_per_hour': 0.022608546715766037, '_distance_moved_km_per_hour': -0.6863412818475911, 'shots_fired_per_hour': 1579.1144985869657, '_shots_fired_per_hour': -111.40081088961483, 'throwables_thrown_per_hour': 6.386914447203905, '_throwables_thrown_per_hour': -0.4026038242375387, 'kills_per_km_moved': 26404.31818181818, '_kills_per_km_moved': 54.834934750107266, 'xp_per_shot_fired': 12.20746968977164, '_xp_per_shot_fired': 1.8815557445258912, 'xp_per_kill': 32.291756685803804, '_xp_per_kill': 7.285090568320927, 'shots_fired_per_kill': 2.6452456984480843, '_shots_fired_per_kill': -1.0386169584651341, 'team_kills_per_kill': 0.004338133397601977, '_team_kills_per_kill': -0.001574642379237534, 'runs_around_the_equator': 0.00010979408941984979}
+
+{'account_id': 2475, 'username': 'JOLLY JELLY', 'ra_date': 20210813, 'rb_date': 20210525, 'xp': 1599, 'time_played': 5, 'time_played_hours': 0.08333333333333333, 'kills': 53, 'deaths': 2, 'score': 51, 'kill_streak': 0, 'targets_destroyed': 0, 'vehicles_destroyed': 3, 'soldiers_healed': 0, 'team_kills': 0, 'distance_moved': 500, 'distance_moved_km': 0.5, 'shots_fired': 209, 'throwables_thrown': 4, 'kdr': 26.5, '_kdr': 0.01743651536083579, 'xp_per_hour': 19188.0, '_xp_per_hour': 20.891667526570927, 'kills_per_hour': 636.0, '_kills_per_hour': 0.5513517696831798, 'deaths_per_hour': 24.0, '_deaths_per_hour': -0.012073057476015947, 'targets_destroyed_per_hour': 0.0, '_targets_destroyed_per_hour': -0.0006346094314312323, 'vehicles_destroyed_per_hour': 36.0, '_vehicles_destroyed_per_hour': 0.03954700237333597, 'soldiers_healed_per_hour': 0.0, '_soldiers_healed_per_hour': -0.001516871323908875, 'team_kills_per_hour': 0.0, '_team_kills_per_hour': -0.0031266123207105423, 'distance_moved_km_per_hour': 6.0, '_distance_moved_km_per_hour': 0.00031420905995194204, 'shots_fired_per_hour': 2508.0, '_shots_fired_per_hour': -0.7296770199159255, 'throwables_thrown_per_hour': 48.0, '_throwables_thrown_per_hour': 0.010757403776693764, 'kills_per_km_moved': 106.0, '_kills_per_km_moved': 0.09488997206476668, 'xp_per_shot_fired': 7.650717703349282, '_xp_per_shot_fired': 0.00668955293419865, 'xp_per_kill': 30.169811320754718, '_xp_per_kill': 0.11949189379668379, 'shots_fired_per_kill': 3.943396226415094, '_shots_fired_per_kill': -0.08150100004616334, 'team_kills_per_kill': 0.0, '_team_kills_per_kill': -8.775239510105254e-05, 'runs_around_the_equator': 1.2476601070437476e-05}
+
+{'account_id': 14129, 'username': 'TALKINGTOTHEMOON', 'ra_date': 20210813, 'rb_date': 20210525, 'xp': 956606, 'time_played': 3276, 'time_played_hours': 54.6, 'kills': 22933, 'deaths': 251, 'score': 22682, 'kill_streak': 976, 'targets_destroyed': 47, 'vehicles_destroyed': 177, 'soldiers_healed': 27, 'team_kills': 97, 'distance_moved': 141300, 'distance_moved_km': 141.3, 'shots_fired': 50348, 'throwables_thrown': 293, 'kdr': 91.36653386454184, '_kdr': 34.04744667097608, 'xp_per_hour': 17520.25641025641, '_xp_per_hour': 10536.724778705146, 'kills_per_hour': 420.018315018315, '_kills_per_hour': 130.15731034126222, 'deaths_per_hour': 4.597069597069597, '_deaths_per_hour': -2.033052059578721, 'targets_destroyed_per_hour': 0.8608058608058607, '_targets_destroyed_per_hour': -0.3506022781450866, 'vehicles_destroyed_per_hour': 3.241758241758242, '_vehicles_destroyed_per_hour': 0.8961623077850984, 'soldiers_healed_per_hour': 0.49450549450549447, '_soldiers_healed_per_hour': -0.04446001757721618, 'team_kills_per_hour': 1.7765567765567765, '_team_kills_per_hour': -0.46360195072635246, 'distance_moved_km_per_hour': 2.587912087912088, '_distance_moved_km_per_hour': -1.3015342726995964, 'shots_fired_per_hour': 922.1245421245421, '_shots_fired_per_hour': -868.340216785667, 'throwables_thrown_per_hour': 5.366300366300366, '_throwables_thrown_per_hour': -7.086880848301732, 'kills_per_km_moved': 162.30007077140834, '_kills_per_km_moved': 60.50368761454956, 'xp_per_shot_fired': 18.999880829427187, '_xp_per_shot_fired': 8.348826286977731, 'xp_per_kill': 41.71307722495966, '_xp_per_kill': 26.63358560589505, 'shots_fired_per_kill': 2.1954388871931276, '_shots_fired_per_kill': -6.018178890557561, 'team_kills_per_kill': 0.00422971264117211, '_team_kills_per_kill': -0.0052883238224496285, 'runs_around_the_equator': 0.0035258874625056307}
+```
+* Ranking a set of records between two dates returns an iterable of sqlalchemy.util.\_collections.result which are then printed (`_asdict()`) by rwrtrack 
+  * *This is because diffing ranks uses the rwrtrack.rank.diffrank function which constructs, from the parameters, a SQL query where an `ORDER BY` is inserted for the specified metric.*
+  * Example (debug) output that shows the constructed SQL statement:  
+    ```
+    (venv) PS C:\Users\david\projects\rwr\rwrtrack> .\rwrtrack.py -v rank xp_per_hour 20210525-20210813
+    ...
+    DEBUG: Executing stmt: 'SELECT ra.account_id AS account_id, ra.username AS username, ra.date AS ra_date, rb.date AS rb_date, ra.xp - rb.xp AS xp, ra.time_played - rb.time_played AS time_played, (ra.time_played - rb.time_played) / ? AS time_played_hours, ra.kills - rb.kills AS kills, ra.deaths - rb.deaths AS deaths, (ra.kills - rb.kills) - (ra.deaths - rb.deaths) AS score, ra.kill_streak - rb.kill_streak AS kill_streak, ra.targets_destroyed - rb.targets_destroyed AS targets_destroyed, ra.vehicles_destroyed - rb.vehicles_destroyed AS vehicles_destroyed, ra.soldiers_healed - rb.soldiers_healed AS soldiers_healed, ra.team_kills - rb.team_kills AS team_kills, ra.distance_moved - rb.distance_moved AS distance_moved, (ra.distance_moved - rb.distance_moved) / ? AS distance_moved_km, ra.shots_fired - rb.shots_fired AS shots_fired, ra.throwables_thrown - rb.throwables_thrown AS throwables_thrown, CAST(ra.kills - rb.kills AS FLOAT) / (ra.deaths - rb.deaths) AS kdr, CAST(ra.kills AS FLOAT) / ra.deaths - CAST(rb.kills AS FLOAT) / rb.deaths AS _kdr, (ra.xp - rb.xp) / ((ra.time_played - rb.time_played) / ?) AS xp_per_hour, ra.xp / (ra.time_played / ?) - rb.xp / (rb.time_played / ?) AS _xp_per_hour, (ra.kills - rb.kills) / ((ra.time_played - rb.time_played) / ?) AS kills_per_hour, ra.kills / (ra.time_played / ?) - rb.kills / (rb.time_played / ?) AS _kills_per_hour, (ra.deaths - rb.deaths) / ((ra.time_played - rb.time_played) / ?) AS deaths_per_hour, ra.deaths / (ra.time_played / ?) - rb.deaths / (rb.time_played / ?) AS _deaths_per_hour, (ra.targets_destroyed - rb.targets_destroyed) / ((ra.time_played - rb.time_played) / ?) AS targets_destroyed_per_hour, ra.targets_destroyed / (ra.time_played / ?) - rb.targets_destroyed / (rb.time_played / ?) AS _targets_destroyed_per_hour, (ra.vehicles_destroyed - rb.vehicles_destroyed) / ((ra.time_played - rb.time_played) / ?) AS vehicles_destroyed_per_hour, ra.vehicles_destroyed / (ra.time_played / ?) - rb.vehicles_destroyed / (rb.time_played / ?) AS _vehicles_destroyed_per_hour, (ra.soldiers_healed - rb.soldiers_healed) / ((ra.time_played - rb.time_played) / ?) AS soldiers_healed_per_hour, ra.soldiers_healed / (ra.time_played / ?) - rb.soldiers_healed / (rb.time_played / ?) AS _soldiers_healed_per_hour, (ra.team_kills - rb.team_kills) / ((ra.time_played - rb.time_played) / ?) AS team_kills_per_hour, ra.team_kills / (ra.time_played / ?) - rb.team_kills / (rb.time_played / ?) AS _team_kills_per_hour, ((ra.distance_moved - rb.distance_moved) / ?) / ((ra.time_played - rb.time_played) / ?) AS distance_moved_km_per_hour, (ra.distance_moved / ?) / (ra.time_played / ?) - (rb.distance_moved / ?) / (rb.time_played / ?) AS _distance_moved_km_per_hour, (ra.shots_fired - rb.shots_fired) / ((ra.time_played - rb.time_played) / ?) AS shots_fired_per_hour, ra.shots_fired / (ra.time_played / ?) - rb.shots_fired / (rb.time_played / ?) AS _shots_fired_per_hour, (ra.throwables_thrown - rb.throwables_thrown) / ((ra.time_played - rb.time_played) / ?) AS throwables_thrown_per_hour, ra.throwables_thrown / (ra.time_played / ?) - rb.throwables_thrown / (rb.time_played / ?) AS _throwables_thrown_per_hour, (ra.kills - rb.kills) / ((ra.distance_moved - rb.distance_moved) / ?) AS kills_per_km_moved, ra.kills / (ra.distance_moved / ?) - rb.kills / (rb.distance_moved / ?) AS _kills_per_km_moved, CAST(ra.xp - rb.xp AS FLOAT) / (ra.shots_fired - rb.shots_fired) AS xp_per_shot_fired, CAST(ra.xp AS FLOAT) / ra.shots_fired - CAST(rb.xp AS FLOAT) / rb.shots_fired AS _xp_per_shot_fired, CAST(ra.xp - rb.xp AS FLOAT) / (ra.kills - rb.kills) AS xp_per_kill, CAST(ra.xp AS FLOAT) / ra.kills - CAST(rb.xp AS FLOAT) / rb.kills AS _xp_per_kill, CAST(ra.shots_fired - rb.shots_fired AS FLOAT) / (ra.kills - rb.kills) AS shots_fired_per_kill, CAST(ra.shots_fired AS FLOAT) / ra.kills - CAST(rb.shots_fired AS FLOAT) / rb.kills AS _shots_fired_per_kill, CAST(ra.team_kills - rb.team_kills AS FLOAT) / (ra.kills - rb.kills) AS team_kills_per_kill, CAST(ra.team_kills AS FLOAT) / ra.kills - CAST(rb.team_kills AS FLOAT) / rb.kills AS _team_kills_per_kill, ((ra.distance_moved - rb.distance_moved) / ?) / ? AS runs_around_the_equator
+    FROM records AS ra, records AS rb
+    WHERE ra.account_id = rb.account_id AND ra.date = ? AND rb.date = ? ORDER BY xp_per_hour DESC
+     LIMIT ? OFFSET ?'
+    with parameters: '(60.0, 1000.0, 60.0, 60.0, 60.0, 60.0, 60.0, 60.0, 60.0, 60.0, 60.0, 60.0, 60.0, 60.0, 60.0, 60.0, 60.0, 60.0, 60.0, 60.0, 60.0, 60.0, 60.0, 1000.0, 60.0, 1000.0, 60.0, 1000.0, 60.0, 60.0, 60.0, 60.0, 60.0, 60.0, 60.0, 1000.0, 1000.0, 1000.0, 1000.0, 40075.017, 20210813, 20210525, 5, 0)'
+    DEBUG: Execution took: 15.62ms
+    [the results are rendered here :)]
+    ```
