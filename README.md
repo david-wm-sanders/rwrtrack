@@ -264,7 +264,7 @@ Ranking by 'xp_per_hour' between 20210525 and 20210813:
 ```
 * The \_count is 9998 here for the tracked 10k because of a bug that causes a certain username to be duplicated on the official listings.
 * This summation was for 2021-08-13, some interesting points:
-  1. 1,561,394,305 XP is 1.5 billion and 1,213,039.9 is 1.2 million hours (or 138.47 calendar years) - you read that right! 😅
+  1. 1,561,394,305 is 1.5 billion XP and 1,213,039.9 is 1.2 million hours (or 138.47 calendar years) - you read that right! 😅
   2. 190 MILLION KILLS AND 20 MILLION DEATHS - a rough average of 190/20 or 9.5 for K/D
   3. A combined score of 169,996,571!
   4. `killstreak` is the total of the maximums that each player has achieved (and thus pretty useless?)
